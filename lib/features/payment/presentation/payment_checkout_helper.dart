@@ -46,7 +46,7 @@ class PaymentCheckoutHelper {
       final options = {
         'key': razorpayTestKeyId,
         'amount': test.priceInPaise, // 100 paise = ₹1.00
-        'name': 'ExamPrep',
+        'name': 'Test 11',
         'description': 'Unlock Test: ${test.title}',
         'timeout': 300, // 5 minutes
         'prefill': {
@@ -56,6 +56,11 @@ class PaymentCheckoutHelper {
         'theme': {
           'color': '#1E3A8A',
         },
+        'retry': {
+          'enabled': true,
+          'max_count': 3,
+        },
+        'send_sms_hash': true,
       };
 
       _razorpay.open(options);
