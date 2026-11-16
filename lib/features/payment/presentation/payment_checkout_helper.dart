@@ -34,27 +34,35 @@ class PaymentCheckoutHelper {
     _razorpay.clear();
   }
 
-  Future<void> startCheckout() async {
+  Future<void> startCheckout({String paymentMode = 'UPI / Netbanking'}) async {
     final prefs = await SharedPreferences.getInstance();
-    final studentEmail = prefs.getString('student_email') ?? 'student@examprep.com';
-    final studentPhone = prefs.getString('student_phone') ?? '9876543210';
-    final studentId = prefs.getString('student_id') ?? 'student_guest';
+    final studentEmail = prefs.getString('student_email') ?? 'manojvip36@gmail.com';
+    final studentPhone = prefs.getString('student_phone') ?? '9894601904';
+    final studentName = prefs.getString('student_name') ?? 'M. Manoj';
+    final studentDistrict = prefs.getString('student_district') ?? 'Ranipet';
 
     try {
-      // Step 1: In standard Razorpay checkout without a backend order service,
-      // opening with key, amount, and name allows direct payments on client side.
       final options = {
         'key': razorpayTestKeyId,
         'amount': test.priceInPaise, // 100 paise = ₹1.00
         'name': 'Test 11',
-        'description': 'Unlock Test: ${test.title}',
-        'timeout': 300, // 5 minutes
+        'description': '${test.exam}: ${test.title}',
+        'timeout': 300,
         'prefill': {
-          'contact': studentPhone.length >= 10 ? studentPhone : '9876543210',
-          'email': studentEmail.contains('@') ? studentEmail : 'student@examprep.com',
+          'name': studentName,
+          'contact': studentPhone.length >= 10 ? studentPhone : '9894601904',
+          'email': studentEmail.contains('@') ? studentEmail : 'manojvip36@gmail.com',
+        },
+        'notes': {
+          'student_name': studentName,
+          'student_district': studentDistrict,
+          'target_exam': test.exam,
+          'test_title': test.title,
+          'question_count': '${test.questionCount}',
+          'payment_mode': paymentMode,
         },
         'theme': {
-          'color': '#1E3A8A',
+          'color': '#0F172A',
         },
         'retry': {
           'enabled': true,
@@ -65,9 +73,11 @@ class PaymentCheckoutHelper {
 
       _razorpay.open(options);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error initiating payment: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error initiating payment: $e')),
+        );
+      }
     }
   }
 
@@ -76,11 +86,12 @@ class PaymentCheckoutHelper {
     final studentId = prefs.getString('student_id') ?? 'student_guest';
 
     await UserPaymentHistoryTracker.logPayment(
-      testTitle: test.title,
+      testTitle: '${test.exam}: ${test.title} (${test.questionCount} Questions)',
       testId: test.id,
       orderId: response.orderId ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
       paymentId: response.paymentId ?? 'pay_success',
       status: 'SUCCESS',
+      paymentMode: 'UPI / Netbanking',
     );
 
     final isVerified = await ref.read(paymentRepoProvider).verifyAndUnlockTest(
@@ -107,11 +118,12 @@ class PaymentCheckoutHelper {
   void _handlePaymentError(PaymentFailureResponse response) async {
     final status = (response.code == Razorpay.PAYMENT_CANCELLED) ? 'CANCELLED' : 'FAILED';
     await UserPaymentHistoryTracker.logPayment(
-      testTitle: test.title,
+      testTitle: '${test.exam}: ${test.title} (${test.questionCount} Questions)',
       testId: test.id,
       orderId: 'order_${DateTime.now().millisecondsSinceEpoch}',
       paymentId: 'fail_code_${response.code}',
       status: status,
+      paymentMode: 'UPI / Netbanking',
     );
 
     if (context.mounted) {
@@ -120,8 +132,8 @@ class PaymentCheckoutHelper {
         builder: (ctx) => AlertDialog(
           title: const Text('Payment Notice'),
           content: Text(
-            'Razorpay returned: ${response.message ?? "Payment cancelled or failed"}\n(Code: ${response.code})\n\n'
-            'In Test Mode, if your Razorpay dashboard test key requires server order creation or if you want to bypass to test questions right now, tap "Unlock in Test Mode" below.',
+            'Razorpay status: ${response.message ?? "Payment cancelled or failed"}\n\n'
+            'In Test Mode, if you wish to bypass to test questions right now, tap "Unlock in Test Mode" below.',
           ),
           actions: [
             TextButton(
@@ -129,7 +141,7 @@ class PaymentCheckoutHelper {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
               onPressed: () async {
                 Navigator.pop(ctx);
                 final prefs = await SharedPreferences.getInstance();

@@ -6,6 +6,7 @@ class PaymentRecord {
   final String orderId;
   final String paymentId;
   final String testTitle;
+  final String paymentMode; // e.g., 'UPI', 'Netbanking', 'Card', 'Wallet'
   final int amountPaise;
   final String status; // 'SUCCESS', 'FAILED', 'CANCELLED'
   final String date;
@@ -14,6 +15,7 @@ class PaymentRecord {
     required this.orderId,
     required this.paymentId,
     required this.testTitle,
+    this.paymentMode = 'UPI / Netbanking',
     required this.amountPaise,
     required this.status,
     required this.date,
@@ -23,6 +25,7 @@ class PaymentRecord {
     'orderId': orderId,
     'paymentId': paymentId,
     'testTitle': testTitle,
+    'paymentMode': paymentMode,
     'amountPaise': amountPaise,
     'status': status,
     'date': date,
@@ -32,6 +35,7 @@ class PaymentRecord {
     orderId: map['orderId'] ?? '',
     paymentId: map['paymentId'] ?? '',
     testTitle: map['testTitle'] ?? '',
+    paymentMode: map['paymentMode'] ?? 'UPI / Netbanking',
     amountPaise: (map['amountPaise'] as num?)?.toInt() ?? 100,
     status: map['status'] ?? 'PENDING',
     date: map['date'] ?? '',
@@ -45,6 +49,7 @@ class UserPaymentHistoryTracker {
     required String orderId,
     required String paymentId,
     required String status, // 'SUCCESS', 'FAILED', 'CANCELLED'
+    String paymentMode = 'UPI',
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final studentId = prefs.getString('student_id') ?? 'student_guest';
@@ -53,6 +58,7 @@ class UserPaymentHistoryTracker {
       orderId: orderId,
       paymentId: paymentId,
       testTitle: testTitle,
+      paymentMode: paymentMode,
       amountPaise: 100,
       status: status,
       date: DateTime.now().toIso8601String(),
@@ -66,7 +72,6 @@ class UserPaymentHistoryTracker {
 
     // Sync to Supabase
     try {
-      // test_id in supabase payments table expects a valid UUID or null if string slug is passed
       String? testUuid;
       if (testId.contains('-') && testId.length >= 32) {
         testUuid = testId;
@@ -98,4 +103,3 @@ class UserPaymentHistoryTracker {
     return list;
   }
 }
-
