@@ -126,7 +126,7 @@ class TestRepository {
           .from('payments')
           .select('id, razorpay_order_id, amount_paise, created_at')
           .eq('status', 'pyq_question')
-          .order('created_at', { ascending: false });
+          .order('created_at', ascending: false);
 
       if (res.isNotEmpty) {
         final List<QuestionModel> dynamicPyqs = [];
