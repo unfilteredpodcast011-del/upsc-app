@@ -11,6 +11,8 @@ class QuestionModel {
   final DateTime? uploadedAt;
   final String correctAnswer; // 'A', 'B', 'C', 'D'
   final String normalizedText;
+  final String? pyqYear; // e.g. "2024", "2023", etc.
+  final bool isPyq;
   final Map<String, QuestionTranslation> translations;
 
   QuestionModel({
@@ -26,6 +28,8 @@ class QuestionModel {
     this.uploadedAt,
     required this.correctAnswer,
     required this.normalizedText,
+    this.pyqYear,
+    this.isPyq = false,
     required this.translations,
   });
 
@@ -71,8 +75,10 @@ class QuestionModel {
       uploadedAt: map['uploadedAt'] != null
           ? DateTime.tryParse(map['uploadedAt'].toString())
           : null,
-      correctAnswer: map['correctAnswer'] ?? 'A',
-      normalizedText: map['normalizedText'] ?? '',
+      correctAnswer: map['correctAnswer'] ?? map['correct_answer'] ?? 'A',
+      normalizedText: map['normalizedText'] ?? map['question'] ?? '',
+      pyqYear: map['pyqYear'] ?? map['pyq_year'] ?? (map['year'] != null ? map['year'].toString() : null),
+      isPyq: map['isPyq'] == true || map['is_pyq'] == true || map['year'] != null || map['pyqYear'] != null,
       translations: parsedTranslations,
     );
   }
@@ -94,6 +100,8 @@ class QuestionModel {
       'uploadedAt': uploadedAt?.toIso8601String(),
       'correctAnswer': correctAnswer,
       'normalizedText': normalizedText,
+      'pyqYear': pyqYear,
+      'isPyq': isPyq,
       'translations': trMap,
     };
   }

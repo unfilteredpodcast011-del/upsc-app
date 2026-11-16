@@ -253,37 +253,86 @@
 
     </div>
 
-    <!-- Question Upload & Excel Ingestion Panel -->
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-4 flex justify-between items-center">
+    <!-- Previous Year Question Paper (PYQ) Management & Ingestion Panel -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+      <div class="border-b border-slate-100 pb-4 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Upload Questions (Excel / CSV)</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Ingest new test question sets into the live database</p>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Previous Year Question Paper (PYQ) Management</h2>
+            <span class="text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-graduation-cap"></i>
+              Official PYQ Engine
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Upload, replace, and delete previous year questions by examination & year (e.g. UPSC CSE 2024 / TNPSC 2023)</p>
         </div>
-        <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold">
-          Instant Sync
-        </span>
+        <div class="flex items-center gap-2">
+          <button onclick="downloadPyqTemplate()" class="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-700 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>Download PYQ Template</span>
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <!-- Upload / Reupload Form -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-slate-50/70 p-4 rounded-xl border border-slate-200">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Select Target Exam</label>
-          <select id="examTargetSelect" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-black">
-            <option value="TNPSC">TNPSC (Tamil Nadu Public Service Commission)</option>
-            <option value="UPSC">UPSC (Civil Services Prelims)</option>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Target Examination</label>
+          <select id="pyqExamSelect" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black">
+            <option value="UPSC">UPSC Civil Services Prelims</option>
+            <option value="TNPSC">TNPSC Combined Services (Group 1, 2, 4)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Choose Excel / CSV File</label>
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="w-full text-xs border border-slate-300 rounded-xl p-2 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200">
+          <label class="block text-xs font-bold text-slate-700 mb-1">PYQ Paper Year</label>
+          <select id="pyqYearSelect" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black font-mono">
+            <option value="2024">2024 Question Paper</option>
+            <option value="2023">2023 Question Paper</option>
+            <option value="2022">2022 Question Paper</option>
+            <option value="2021">2021 Question Paper</option>
+            <option value="2020">2020 Question Paper</option>
+            <option value="2019">2019 Question Paper</option>
+            <option value="2018">2018 Question Paper</option>
+          </select>
         </div>
 
         <div>
-          <button onclick="handleExcelUpload()" class="w-full py-2.5 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <span>Upload to Question Bank</span>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Choose Question File (Excel / CSV)</label>
+          <input type="file" id="pyqFileInput" accept=".xlsx, .xls, .csv, .json" class="w-full text-xs border border-slate-300 rounded-xl p-2 bg-white file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200">
+        </div>
+
+        <div>
+          <button onclick="handlePyqUpload()" id="btnUploadPyq" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-upload"></i>
+            <span>Ingest & Sync PYQ Paper</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Live PYQ Database Table -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div class="p-3 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">Uploaded Previous Year Question Papers in System</span>
+          <span class="text-slate-500 font-mono" id="pyqCountBadge">0 questions loaded</span>
+        </div>
+        <div class="overflow-x-auto max-h-64">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white text-slate-600 uppercase font-bold text-[11px] border-b border-slate-200 sticky top-0">
+              <tr>
+                <th class="p-3">Exam & Paper Year</th>
+                <th class="p-3">Question Text</th>
+                <th class="p-3">Options & Correct Key</th>
+                <th class="p-3">Uploaded On</th>
+                <th class="p-3 text-right">Delete / Action</th>
+              </tr>
+            </thead>
+            <tbody id="pyqTableBody" class="divide-y divide-slate-200 text-slate-700 bg-white">
+              <tr>
+                <td colspan="5" class="p-5 text-center text-slate-400">Loading previous year questions...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -425,6 +474,7 @@
       if (isAuthed === 'true') {
         document.getElementById('authOverlay').classList.add('hidden');
         loadAdminData();
+        loadPyqQuestions();
         initLiveSubscriptions();
       }
     });
@@ -531,6 +581,7 @@
         document.getElementById('authOverlay').classList.add('hidden');
         logAudit(`Administrator [${email}] authenticated successfully.`);
         loadAdminData();
+        loadPyqQuestions();
         initLiveSubscriptions();
       } else {
         errorBox.textContent = 'Invalid administrator credentials. Access denied.';
@@ -894,17 +945,106 @@
       }
     }
 
-    async function handleExcelUpload() {
-      const fileInput = document.getElementById('excelFileInput');
-      const exam = document.getElementById('examTargetSelect').value;
+    // ================= PYQ QUESTION MANAGEMENT FUNCTIONS =================
+    async function loadPyqQuestions() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('payments')
+          .select('id, razorpay_order_id, amount_paise, created_at')
+          .eq('status', 'pyq_question')
+          .order('created_at', { ascending: false });
+
+        const pyqBody = document.getElementById('pyqTableBody');
+        const countBadge = document.getElementById('pyqCountBadge');
+
+        if (error || !data || data.length === 0) {
+          pyqBody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No custom Previous Year Questions uploaded yet. Using standard 1,200 PYQ repository.</td></tr>';
+          countBadge.textContent = '0 custom PYQs active';
+          return;
+        }
+
+        countBadge.textContent = `${data.length} PYQ questions active`;
+
+        pyqBody.innerHTML = data.map(q => {
+          let item = {};
+          try {
+            item = JSON.parse(q.razorpay_order_id);
+          } catch (_) {
+            item = { question: q.razorpay_order_id, exam: 'UPSC', year: q.amount_paise };
+          }
+
+          const exam = item.exam || 'UPSC';
+          const year = item.year || q.amount_paise || '2024';
+          const qText = item.question || 'No question text';
+          const key = item.correct_answer || 'A';
+          const options = item.options ? Object.entries(item.options).map(([k, v]) => `<b>${k}:</b> ${v}`).join(' | ') : '';
+
+          const examBadge = exam === 'TNPSC' 
+            ? '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">TNPSC ' + year + '</span>'
+            : '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">UPSC ' + year + '</span>';
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 whitespace-nowrap">
+                ${examBadge}
+                <div class="text-[10px] text-slate-400 font-semibold mt-0.5">${item.subject || 'General Studies'}</div>
+              </td>
+              <td class="p-3 max-w-xs">
+                <div class="font-semibold text-slate-900 line-clamp-2">${qText}</div>
+              </td>
+              <td class="p-3">
+                <div class="text-[11px] text-slate-600 line-clamp-1">${options}</div>
+                <div class="text-[11px] font-bold text-emerald-700 mt-0.5">Key: Option (${key})</div>
+              </td>
+              <td class="p-3 text-[11px] font-mono text-slate-500 whitespace-nowrap">
+                ${new Date(q.created_at).toLocaleDateString()}
+              </td>
+              <td class="p-3 text-right whitespace-nowrap">
+                <button onclick="deletePyqQuestion('${q.id}')" class="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition flex items-center gap-1 inline-flex">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading PYQs:', err);
+      }
+    }
+
+    async function deletePyqQuestion(id) {
+      if (!confirm('Are you sure you want to delete this previous year question? Aspirant tests will immediately stop showing this question.')) return;
+      try {
+        const { error } = await supabaseClient
+          .from('payments')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        logAudit(`DELETED Previous Year Question (ID: ${id}) from question bank.`);
+        loadPyqQuestions();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    }
+
+    async function handlePyqUpload() {
+      const fileInput = document.getElementById('pyqFileInput');
+      const exam = document.getElementById('pyqExamSelect').value;
+      const year = document.getElementById('pyqYearSelect').value;
+      const btn = document.getElementById('btnUploadPyq');
 
       if (!fileInput.files.length) {
-        alert('Please choose an Excel or CSV file to upload questions.');
+        alert('Please choose an Excel or CSV file containing previous year questions.');
         return;
       }
 
       const file = fileInput.files[0];
       const reader = new FileReader();
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Ingesting...';
 
       reader.onload = async function(e) {
         try {
@@ -913,15 +1053,93 @@
           const firstSheet = workbook.SheetNames[0];
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-          logAudit(`Processed ${rows.length} questions from ${file.name} for ${exam}.`);
-          alert(`Successfully ingested ${rows.length} questions for ${exam}! Question bank updated.`);
+          if (rows.length === 0) {
+            alert('File is empty. Please check the sheet and columns.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-upload"></i> Ingest & Sync PYQ Paper';
+            return;
+          }
+
+          // Format each row into PYQ Question Model
+          const inserts = rows.map((r, idx) => {
+            const qText = r['question'] || r['Question'] || r['QUESTION'] || r['q'] || '';
+            const optA = (r['A'] ?? r['a'] ?? r['Option A'] ?? r['option_a'] ?? '').toString();
+            const optB = (r['B'] ?? r['b'] ?? r['Option B'] ?? r['option_b'] ?? '').toString();
+            const optC = (r['C'] ?? r['c'] ?? r['Option C'] ?? r['option_c'] ?? '').toString();
+            const optD = (r['D'] ?? r['d'] ?? r['Option D'] ?? r['option_d'] ?? '').toString();
+            const ans = (r['correct_answer'] ?? r['Answer'] ?? r['ans'] ?? r['Key'] ?? 'A').toString().toUpperCase().trim();
+            const exp = (r['explanation'] ?? r['Explanation'] ?? `Official ${exam} ${year} Answer Key`).toString();
+            const subject = (r['subject'] ?? r['Subject'] ?? `${exam} Previous Year Paper ${year}`).toString();
+            const topic = (r['topic'] ?? r['Topic'] ?? `${exam} ${year}`).toString();
+
+            return {
+              student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+              test_id: null,
+              amount_paise: parseInt(year) || 2024,
+              status: 'pyq_question',
+              razorpay_payment_id: 'pyq_question_bank',
+              razorpay_order_id: JSON.stringify({
+                exam: exam,
+                year: year,
+                subject: subject,
+                topic: topic,
+                question: qText,
+                options: { A: optA, B: optB, C: optC, D: optD },
+                correct_answer: ans,
+                explanation: exp
+              })
+            };
+          });
+
+          // Insert batch into Supabase
+          const { error } = await supabaseClient.from('payments').insert(inserts);
+          if (error) throw error;
+
+          logAudit(`Ingested ${inserts.length} Previous Year Questions for [${exam} ${year}] into live database.`);
+          alert(`Successfully ingested and activated ${inserts.length} previous year questions for ${exam} (${year})! The app will immediately display these with the "${exam} ${year} PYQ" badge.`);
           fileInput.value = '';
+          loadPyqQuestions();
         } catch (err) {
-          alert('Error processing file: ' + err.message);
+          alert('Error processing PYQ file: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-upload"></i> Ingest & Sync PYQ Paper';
         }
       };
 
       reader.readAsArrayBuffer(file);
+    }
+
+    function downloadPyqTemplate() {
+      const template = [
+        {
+          "question": "Which of the following bodies is entrusted with the audit of receipts and expenditure of the Union and of each State?",
+          "A": "Finance Commission",
+          "B": "Comptroller and Auditor General of India",
+          "C": "Public Accounts Committee",
+          "D": "Attorney General of India",
+          "correct_answer": "B",
+          "explanation": "Article 148 to 151 of the Indian Constitution defines the office and duties of the CAG.",
+          "subject": "Indian Polity & Constitution",
+          "topic": "Constitutional Bodies"
+        },
+        {
+          "question": "Consider the following statements regarding the Sangam Literature of ancient Tamil Nadu...",
+          "A": "1 only",
+          "B": "2 only",
+          "C": "Both 1 and 2",
+          "D": "Neither 1 nor 2",
+          "correct_answer": "C",
+          "explanation": "Sangam literature was patronized by the Pandya kings in Madurai.",
+          "subject": "Tamil Society & History",
+          "topic": "Sangam Age"
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(template);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "PYQ_Template");
+      XLSX.writeFile(wb, "test11_pyq_upload_template.xlsx");
     }
   </script>
 </body>

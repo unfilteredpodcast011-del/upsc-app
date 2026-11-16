@@ -404,6 +404,40 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                     runSpacing: 4,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
+                      // PYQ Previous Year Exam Badge
+                      if (currentQ.isPyq || currentQ.pyqYear != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFB45309), Color(0xFFD97706)],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.amber.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.history_edu, size: 14, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                'PYQ: ${currentQ.exam} ${currentQ.pyqYear ?? 'Official'}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       Chip(
                         label: Text(
                           currentQ.subject,

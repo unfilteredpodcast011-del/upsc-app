@@ -9,13 +9,14 @@ class TestRepository {
   List<QuestionModel>? _cachedTnpscQuestions;
   List<QuestionModel>? _cachedUpscQuestions;
 
-  /// Load questions from assets/data/
+  /// Load questions from assets/data/ merged with dynamic PYQ questions from Supabase
   Future<List<QuestionModel>> _loadQuestionsForExam(String exam) async {
+    List<QuestionModel> staticQuestions = [];
     if (exam == 'TNPSC') {
       if (_cachedTnpscQuestions != null) return _cachedTnpscQuestions!;
       final jsonStr = await rootBundle.loadString('assets/data/tnpsc_questions.json');
       final List<dynamic> list = jsonDecode(jsonStr);
-      _cachedTnpscQuestions = list.map((item) {
+      staticQuestions = list.map((item) {
         final Map<String, dynamic> m = item;
         final opts = (m['options'] as Map<String, dynamic>?)?.map(
               (k, v) => MapEntry(k, v.toString()),
@@ -59,15 +60,16 @@ class TestRepository {
           publishDate: '2026-11-16',
           correctAnswer: m['correct_answer'] ?? 'A',
           normalizedText: m['question'] ?? '',
+          pyqYear: m['year']?.toString() ?? m['pyq_year']?.toString(),
+          isPyq: m['is_pyq'] == true || m['year'] != null,
           translations: translationsMap,
         );
       }).toList();
-      return _cachedTnpscQuestions!;
     } else {
       if (_cachedUpscQuestions != null) return _cachedUpscQuestions!;
       final jsonStr = await rootBundle.loadString('assets/data/upsc_questions.json');
       final List<dynamic> list = jsonDecode(jsonStr);
-      _cachedUpscQuestions = list.map((item) {
+      staticQuestions = list.map((item) {
         final Map<String, dynamic> m = item;
         final opts = (m['options'] as Map<String, dynamic>?)?.map(
               (k, v) => MapEntry(k, v.toString()),
@@ -111,11 +113,74 @@ class TestRepository {
           publishDate: '2026-11-16',
           correctAnswer: m['correct_answer'] ?? 'A',
           normalizedText: m['question'] ?? '',
+          pyqYear: m['year']?.toString() ?? m['pyq_year']?.toString(),
+          isPyq: m['is_pyq'] == true || m['year'] != null,
           translations: translationsMap,
         );
       }).toList();
-      return _cachedUpscQuestions!;
     }
+
+    // Now dynamically fetch and prepend any admin uploaded PYQ questions from Supabase
+    try {
+      final res = await Supabase.instance.client
+          .from('payments')
+          .select('id, razorpay_order_id, amount_paise, created_at')
+          .eq('status', 'pyq_question')
+          .order('created_at', { ascending: false });
+
+      if (res.isNotEmpty) {
+        final List<QuestionModel> dynamicPyqs = [];
+        for (final row in res) {
+          try {
+            final raw = row['razorpay_order_id'];
+            if (raw == null) continue;
+            final Map<String, dynamic> data = jsonDecode(raw);
+            final rowExam = (data['exam'] ?? 'UPSC').toString().toUpperCase();
+            if (rowExam != exam) continue;
+
+            final qText = data['question'] ?? '';
+            final exp = data['explanation'] ?? 'Correct Answer: ${data['correct_answer']}';
+            final year = data['year']?.toString() ?? (row['amount_paise'] != 0 ? row['amount_paise'].toString() : '2024');
+            final Map<String, dynamic> rawOpts = data['options'] ?? {};
+            final Map<String, String> opts = {};
+            rawOpts.forEach((k, v) => opts[k.toString().toUpperCase()] = v.toString());
+
+            dynamicPyqs.add(
+              QuestionModel(
+                id: row['id'],
+                exam: exam,
+                subject: data['subject'] ?? (exam == 'TNPSC' ? 'TNPSC Previous Year Paper' : 'UPSC Previous Year Paper'),
+                topic: data['topic'] ?? 'Previous Year Question ($year)',
+                ncertChapter: '',
+                difficulty: 'medium',
+                publishDate: '2026-11-16',
+                correctAnswer: (data['correct_answer'] ?? 'A').toString().toUpperCase(),
+                normalizedText: qText,
+                pyqYear: year,
+                isPyq: true,
+                translations: {
+                  'en': QuestionTranslation(question: qText, options: opts, explanation: exp),
+                  'ta': QuestionTranslation(question: qText, options: opts, explanation: exp),
+                  'hi': QuestionTranslation(question: qText, options: opts, explanation: exp),
+                },
+              ),
+            );
+          } catch (_) {}
+        }
+
+        if (dynamicPyqs.isNotEmpty) {
+          staticQuestions = [...dynamicPyqs, ...staticQuestions];
+        }
+      }
+    } catch (_) {}
+
+    if (exam == 'TNPSC') {
+      _cachedTnpscQuestions = staticQuestions;
+    } else {
+      _cachedUpscQuestions = staticQuestions;
+    }
+
+    return staticQuestions;
   }
 
   /// Stream of available live tests for an exam (UPSC or TNPSC)

@@ -67,6 +67,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               publishDate: '2026-11-16',
               correctAnswer: m['correct_answer'] ?? 'A',
               normalizedText: qText,
+              pyqYear: m['pyq_year'] ?? m['pyqYear'] ?? (m['year'] != null ? m['year'].toString() : null),
+              isPyq: m['is_pyq'] == true || m['isPyq'] == true || m['year'] != null || m['pyqYear'] != null,
               translations: {
                 'en': QuestionTranslation(question: qText, options: opts, explanation: exp),
                 'ta': QuestionTranslation(question: qText, options: opts, explanation: exp),
@@ -325,6 +327,24 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                       : (isSkipped ? Colors.grey : Colors.red),
                                 ),
                               ),
+                              const Spacer(),
+                              if (q.isPyq || q.pyqYear != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.amber.shade300),
+                                  ),
+                                  child: Text(
+                                    'PYQ ${q.pyqYear ?? ''}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.amber.shade900,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                           const SizedBox(height: 10),
