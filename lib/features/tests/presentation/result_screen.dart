@@ -374,18 +374,20 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     final isCorrectOption = optionLetter == correctLetter;
     final isUserChoice = optionLetter == userAns;
 
-    Color bg = Colors.white;
-    Color border = Colors.grey.shade300;
-    Color textColor = Colors.black87;
+    Color bg = Theme.of(context).cardColor;
+    Color border = Theme.of(context).dividerColor;
+    Color textColor = Theme.of(context).colorScheme.onSurface;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (isCorrectOption) {
-      bg = Colors.green.shade50;
+      bg = isDark ? const Color(0xFF064E3B) : Colors.green.shade50;
       border = Colors.green;
-      textColor = Colors.green.shade900;
+      textColor = isDark ? const Color(0xFF6EE7B7) : Colors.green.shade900;
     } else if (isUserChoice) {
-      bg = Colors.red.shade50;
+      bg = isDark ? const Color(0xFF7F1D1D) : Colors.red.shade50;
       border = Colors.red;
-      textColor = Colors.red.shade900;
+      textColor = isDark ? const Color(0xFFFCA5A5) : Colors.red.shade900;
     }
 
     return Container(

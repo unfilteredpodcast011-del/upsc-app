@@ -474,12 +474,12 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                           padding: const EdgeInsets.all(14.0),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Theme.of(context).colorScheme.primary.withOpacity(0.12)
-                                : Colors.white,
+                                ? Theme.of(context).colorScheme.primary.withOpacity(0.18)
+                                : Theme.of(context).cardColor,
                             border: Border.all(
                               color: isSelected
                                   ? Theme.of(context).colorScheme.primary
-                                  : Colors.grey.shade300,
+                                  : Theme.of(context).dividerColor,
                               width: isSelected ? 2 : 1,
                             ),
                             borderRadius: BorderRadius.circular(12),
@@ -490,13 +490,13 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                                 radius: 14,
                                 backgroundColor: isSelected
                                     ? Theme.of(context).colorScheme.primary
-                                    : Colors.grey.shade200,
+                                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                                 child: Text(
                                   optKey,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
-                                    color: isSelected ? Colors.white : Colors.black87,
+                                    color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -506,6 +506,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                                   optText,
                                   style: TextStyle(
                                     fontSize: 15,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight:
                                         isSelected ? FontWeight.w600 : FontWeight.normal,
                                   ),

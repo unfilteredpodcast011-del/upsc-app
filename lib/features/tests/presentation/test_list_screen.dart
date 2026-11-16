@@ -194,36 +194,52 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 12),
-              // Color Presets Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              // Color Presets Wrap (Blue, Green, Sky Blue, Pink, Violet, Red)
+              Wrap(
+                alignment: WrapAlignment.spaceAround,
+                spacing: 12,
+                runSpacing: 12,
                 children: [
                   _themeColorCircle(
                     ctx,
                     preset: AppThemePreset.royalBlue,
                     color: const Color(0xFF1E3A8A),
-                    name: 'Royal Blue',
+                    name: 'Classic Blue',
                     isSelected: currentTheme.preset == AppThemePreset.royalBlue,
                   ),
                   _themeColorCircle(
                     ctx,
                     preset: AppThemePreset.forestGreen,
                     color: const Color(0xFF0F766E),
-                    name: 'Teal Forest',
+                    name: 'Green',
                     isSelected: currentTheme.preset == AppThemePreset.forestGreen,
                   ),
                   _themeColorCircle(
                     ctx,
-                    preset: AppThemePreset.imperialPurple,
-                    color: const Color(0xFF581C87),
-                    name: 'Imperial',
-                    isSelected: currentTheme.preset == AppThemePreset.imperialPurple,
+                    preset: AppThemePreset.skyBlue,
+                    color: const Color(0xFF0284C7),
+                    name: 'Sky Blue',
+                    isSelected: currentTheme.preset == AppThemePreset.skyBlue,
+                  ),
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.pink,
+                    color: const Color(0xFFDB2777),
+                    name: 'Pink',
+                    isSelected: currentTheme.preset == AppThemePreset.pink,
+                  ),
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.violet,
+                    color: const Color(0xFF7C3AED),
+                    name: 'Violet',
+                    isSelected: currentTheme.preset == AppThemePreset.violet,
                   ),
                   _themeColorCircle(
                     ctx,
                     preset: AppThemePreset.crimsonRed,
-                    color: const Color(0xFF991B1B),
-                    name: 'Crimson',
+                    color: const Color(0xFFDC2626),
+                    name: 'Red',
                     isSelected: currentTheme.preset == AppThemePreset.crimsonRed,
                   ),
                 ],

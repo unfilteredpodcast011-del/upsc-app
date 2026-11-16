@@ -7,13 +7,17 @@ class AppTheme {
   static Color getPrimaryColor(AppThemePreset preset) {
     switch (preset) {
       case AppThemePreset.royalBlue:
-        return const Color(0xFF1E3A8A); // Classic UPSC Blue
+        return const Color(0xFF1E3A8A); // Classic Blue
       case AppThemePreset.forestGreen:
-        return const Color(0xFF0F766E); // TNPSC Forest Teal
-      case AppThemePreset.imperialPurple:
-        return const Color(0xFF581C87); // Deep Imperial Purple
+        return const Color(0xFF0F766E); // Forest Green / Teal
+      case AppThemePreset.skyBlue:
+        return const Color(0xFF0284C7); // Vibrant Sky Blue
+      case AppThemePreset.pink:
+        return const Color(0xFFDB2777); // Vibrant Pink
+      case AppThemePreset.violet:
+        return const Color(0xFF7C3AED); // Royal Violet
       case AppThemePreset.crimsonRed:
-        return const Color(0xFF991B1B); // Crimson Red
+        return const Color(0xFFDC2626); // Crimson Red
     }
   }
 
@@ -29,10 +33,14 @@ class AppTheme {
         primary: primary,
         secondary: const Color(0xFFD97706),
         surface: const Color(0xFFF8FAFC),
+        onSurface: const Color(0xFF0F172A),
         error: const Color(0xFFDC2626),
       ),
       scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.light().textTheme),
+      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.light().textTheme).apply(
+        bodyColor: const Color(0xFF0F172A),
+        displayColor: const Color(0xFF0F172A),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: primary,
         foregroundColor: Colors.white,
@@ -84,6 +92,7 @@ class AppTheme {
 
   static ThemeData getDarkTheme(AppThemePreset preset) {
     final primary = getPrimaryColor(preset);
+    final accentPrimary = Color.lerp(primary, Colors.white, 0.35) ?? primary;
 
     return ThemeData(
       useMaterial3: true,
@@ -91,13 +100,23 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         brightness: Brightness.dark,
-        primary: Color.lerp(primary, Colors.white, 0.4) ?? primary,
+        primary: accentPrimary,
         secondary: const Color(0xFFFBBF24),
         surface: const Color(0xFF1E293B),
+        onSurface: Colors.white,
+        surfaceContainerHighest: const Color(0xFF334155),
         error: const Color(0xFFEF4444),
       ),
       scaffoldBackgroundColor: const Color(0xFF0F172A),
-      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.dark().textTheme),
+      // Crystal clear typography in Dark Mode so all text is 100% visible
+      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.dark().textTheme).copyWith(
+        bodyLarge: const TextStyle(color: Color(0xFFF1F5F9)),
+        bodyMedium: const TextStyle(color: Color(0xFFE2E8F0)),
+        bodySmall: const TextStyle(color: Color(0xFFCBD5E1)),
+        titleLarge: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        titleMedium: const TextStyle(color: Color(0xFFF8FAFC), fontWeight: FontWeight.w600),
+        titleSmall: const TextStyle(color: Color(0xFFE2E8F0)),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: const Color(0xFF1E293B),
         foregroundColor: Colors.white,
@@ -115,9 +134,13 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
       ),
+      listTileTheme: const ListTileThemeData(
+        textColor: Color(0xFFF1F5F9),
+        iconColor: Color(0xFFCBD5E1),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color.lerp(primary, Colors.white, 0.3) ?? primary,
+          backgroundColor: accentPrimary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -140,7 +163,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Color.lerp(primary, Colors.white, 0.4) ?? primary, width: 2),
+          borderSide: BorderSide(color: accentPrimary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),

@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum AppThemePreset {
   royalBlue,
   forestGreen,
-  imperialPurple,
+  skyBlue,
+  pink,
+  violet,
   crimsonRed,
 }
 

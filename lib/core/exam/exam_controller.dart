@@ -25,3 +25,4 @@ class SelectedExamNotifier extends StateNotifier<String> {
     await prefs.setString('target_exam', exam);
   }
 }
+

@@ -147,10 +147,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_agreedToPrivacyPolicy) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the Privacy Policy & Terms to continue.'),
-          backgroundColor: Colors.red,
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.shield_outlined, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Mandatory Acceptance'),
+            ],
+          ),
+          content: const Text(
+            'You must review and accept the Privacy Policy & Terms of Service by checking the box before proceeding to Test 11.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _showPrivacyPolicyModal();
+              },
+              child: const Text('Read Privacy Policy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                setState(() => _agreedToPrivacyPolicy = true);
+              },
+              child: const Text('I Accept'),
+            ),
+          ],
         ),
       );
       return;
