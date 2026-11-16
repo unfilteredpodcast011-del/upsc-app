@@ -56,6 +56,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       _studentId = prefs.getString('student_id') ?? 'student_guest';
+      _currentLanguage = prefs.getString('app_language') ?? 'en';
       final testRepo = ref.read(testRepoProvider);
 
       final test = await testRepo.getTestById(widget.testId);
@@ -383,8 +384,11 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Tags Row
-                  Row(
+                  // Tags & Badges Row (Wrap to avoid Right OverFlow on small screens)
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Chip(
                         label: Text(
@@ -392,8 +396,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                           style: const TextStyle(fontSize: 11),
                         ),
                         backgroundColor: Colors.blue.shade50,
+                        visualDensity: VisualDensity.compact,
                       ),
-                      const SizedBox(width: 6),
                       if (currentQ.topic.isNotEmpty)
                         Chip(
                           label: Text(
@@ -401,9 +405,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                             style: const TextStyle(fontSize: 11),
                           ),
                           backgroundColor: Colors.amber.shade50,
+                          visualDensity: VisualDensity.compact,
                         ),
-                      const Spacer(),
-                      // Important Badge
                       if (isImportant)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -412,6 +415,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.star, size: 14, color: Colors.orange),
                               SizedBox(width: 4),
@@ -426,7 +430,6 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                             ],
                           ),
                         ),
-                      // Mark for Review
                       IconButton(
                         icon: Icon(
                           currentAns?.markedForReview == true
@@ -438,6 +441,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                         ),
                         tooltip: 'Mark for Review',
                         onPressed: _toggleMarkForReview,
+                        visualDensity: VisualDensity.compact,
                       ),
                     ],
                   ),

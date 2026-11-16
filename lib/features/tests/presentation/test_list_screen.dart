@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../../core/localization/locale_controller.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/test_repository.dart';
 import '../domain/test_model.dart';
@@ -304,6 +306,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(userProfileProvider).value;
     final testStream = ref.watch(testRepoProvider).streamLiveTests(_selectedExam);
+    final currentLang = ref.watch(localeProvider).languageCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -375,7 +378,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hello, ${user?.displayName ?? 'Aspirant'}!',
+                            '${AppStrings.get('hello', currentLang)}, ${user?.displayName ?? 'Aspirant'}!',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -384,7 +387,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Target: $_selectedExam CSE • Day streak: ${user?.streakCount ?? 1} 🔥',
+                            '${AppStrings.get('target', currentLang)}: $_selectedExam CSE • ${AppStrings.get('day_streak', currentLang)}: ${user?.streakCount ?? 1} 🔥',
                             style: const TextStyle(color: Colors.white70, fontSize: 13),
                           ),
                         ],
@@ -400,7 +403,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         children: [
                           const Icon(Icons.stars, color: Colors.amberAccent),
                           Text(
-                            '${user?.totalPoints ?? 50} pts',
+                            '${user?.totalPoints ?? 50} ${AppStrings.get('points', currentLang)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -421,11 +424,11 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Available $_selectedExam Tests',
+                  '${AppStrings.get('available_tests', currentLang)} ($_selectedExam)',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '₹1 per test',
+                  AppStrings.get('per_test', currentLang),
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 13,
@@ -519,7 +522,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         ),
                         trailing: ElevatedButton(
                           onPressed: () => _onTestCardTapped(test),
-                          child: const Text('Start'),
+                          child: Text(AppStrings.get('start', currentLang)),
                         ),
                       ),
                     );

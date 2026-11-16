@@ -6,12 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
   <nav class="bg-indigo-900 text-white p-4 shadow-md flex justify-between items-center">
     <div>
       <h1 class="text-xl font-bold">ExamPrep Admin Dashboard</h1>
-      <p class="text-xs text-indigo-200">UPSC & TNPSC Student Registrations, Payments & Tests</p>
+      <p class="text-xs text-indigo-200">UPSC & TNPSC Student Registrations, Payments & Live Questions</p>
     </div>
     <div id="statusIndicator" class="text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-semibold">
       Connected to Supabase
@@ -37,6 +38,35 @@
         <h3 class="text-sm font-semibold text-slate-500 uppercase">Total Revenue (₹1 / test)</h3>
         <p id="totalRevenue" class="text-3xl font-extrabold text-amber-600 mt-2">₹0</p>
       </div>
+    </div>
+
+    <!-- Excel Question Uploader Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Upload Question Bank (Excel / XLSX / CSV)</h2>
+          <p class="text-xs text-slate-500">Upload 1,000+ TNPSC or UPSC Questions directly to the live database</p>
+        </div>
+        <span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full">Admin Tool</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Target Exam</label>
+          <select id="uploadExam" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+            <option value="TNPSC">TNPSC</option>
+            <option value="UPSC">UPSC</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Choose Excel / CSV File</label>
+          <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+        </div>
+        <div>
+          <button onclick="handleExcelUpload()" id="uploadBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-sm transition">Upload to Live App</button>
+        </div>
+      </div>
+      <div id="uploadProgress" class="hidden text-xs text-slate-600 font-medium"></div>
     </div>
 
     <!-- Students Table -->
@@ -98,10 +128,8 @@
 
   <script>
     const SUPABASE_URL = 'https://jkbndifpcepnsjgmyrfr.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    fetchData();
+    const SUPABASE_ANON_KEY = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function fetchData() {
       try {
@@ -166,6 +194,67 @@
         console.error('Error fetching data:', e);
       }
     }
+
+    async function handleExcelUpload() {
+      const fileInput = document.getElementById('excelFile');
+      const exam = document.getElementById('uploadExam').value;
+      const progress = document.getElementById('uploadProgress');
+      const btn = document.getElementById('uploadBtn');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please choose an Excel or CSV file first.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      progress.classList.remove('hidden');
+      progress.innerText = 'Reading Excel file...';
+      btn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet);
+
+          progress.innerText = `Parsed ${rows.length} questions from Excel. Uploading in batches...`;
+
+          const formatted = rows.map((r, i) => ({
+            question_text: r.Question || r.question || r.question_text || '',
+            option_a: String(r['Option A'] || r.A || r.option_a || ''),
+            option_b: String(r['Option B'] || r.B || r.option_b || ''),
+            option_c: String(r['Option C'] || r.C || r.option_c || ''),
+            option_d: String(r['Option D'] || r.D || r.option_d || ''),
+            correct_answer: String(r['Correct Answer'] || r.correct_answer || 'A').trim().toUpperCase().charAt(0),
+            exam: exam,
+            subject: r.Subject || r.subject || 'General Studies',
+            topic: r.Topic || r.topic || '',
+            difficulty: 'medium',
+            status: 'published'
+          })).filter(q => q.question_text.length > 0);
+
+          // Batch insert of 100
+          for (let i = 0; i < formatted.length; i += 100) {
+            const chunk = formatted.slice(i, i + 100);
+            await supabaseClient.from('questions').insert(chunk);
+            progress.innerText = `Uploaded ${Math.min(i + 100, formatted.length)} of ${formatted.length} questions...`;
+          }
+
+          progress.innerText = `Success! All ${formatted.length} questions uploaded to live database.`;
+          alert(`Successfully uploaded ${formatted.length} questions to ${exam}!`);
+        } catch (err) {
+          progress.innerText = 'Upload failed: ' + err.message;
+          console.error(err);
+        } finally {
+          btn.disabled = false;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    fetchData();
   </script>
 </body>
 </html>

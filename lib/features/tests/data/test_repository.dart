@@ -404,6 +404,24 @@ class TestRepository {
       }).toList()),
     );
 
+    // Save to local test attempts history list so Profile & Leaderboard display immediately
+    final historyKey = 'test_attempts_history_$userId';
+    final existingHistory = prefs.getStringList(historyKey) ?? [];
+    final attemptJson = jsonEncode({
+      'sessionId': sessionId,
+      'testId': testId,
+      'exam': exam,
+      'score': score,
+      'accuracy': accuracy,
+      'totalCorrect': correct,
+      'totalWrong': wrong,
+      'totalUnanswered': unanswered,
+      'timeTakenSeconds': timeTakenSeconds,
+      'submittedAt': DateTime.now().toIso8601String(),
+    });
+    existingHistory.insert(0, attemptJson);
+    await prefs.setStringList(historyKey, existingHistory);
+
     // Also record test attempt in Supabase if online
     try {
       await Supabase.instance.client.from('test_attempts').insert({
