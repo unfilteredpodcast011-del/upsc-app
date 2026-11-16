@@ -38,6 +38,9 @@ class AppStrings {
       'unanswered_badge': 'Unanswered',
       'role_student': 'STUDENT',
       'target': 'Target',
+      'target_exam': 'Target Exam',
+      'switching_exam': 'Switching Target Exam...',
+      'settings': 'Settings & Preferences',
     },
     'ta': {
       'app_title': 'Test 11',
@@ -77,6 +80,9 @@ class AppStrings {
       'unanswered_badge': 'பதிலளிக்கப்படவில்லை',
       'role_student': 'மாணவர்',
       'target': 'இலக்கு',
+      'target_exam': 'இலக்கு தேர்வு',
+      'switching_exam': 'இலக்கு தேர்வு மாற்றப்படுகிறது...',
+      'settings': 'அமைப்புகள் மற்றும் விருப்பங்கள்',
     },
     'hi': {
       'app_title': 'Test 11',
@@ -116,6 +122,9 @@ class AppStrings {
       'unanswered_badge': 'अनुत्तरित',
       'role_student': 'विद्यार्थी',
       'target': 'लक्ष्य',
+      'target_exam': 'लक्ष्य परीक्षा',
+      'switching_exam': 'लक्ष्य परीक्षा बदली जा रही है...',
+      'settings': 'सेटिंग्स और प्राथमिकताएं',
     },
   };
 

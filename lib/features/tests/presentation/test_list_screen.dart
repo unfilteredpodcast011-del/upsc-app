@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/exam/exam_controller.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/test_repository.dart';
 import '../domain/test_model.dart';
@@ -20,20 +21,9 @@ class TestListScreen extends ConsumerStatefulWidget {
 }
 
 class _TestListScreenState extends ConsumerState<TestListScreen> {
-  String _selectedExam = 'UPSC';
-
   @override
   void initState() {
     super.initState();
-    _loadStoredExam();
-  }
-
-  Future<void> _loadStoredExam() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString('target_exam');
-    if (saved != null && (saved == 'UPSC' || saved == 'TNPSC')) {
-      setState(() => _selectedExam = saved);
-    }
   }
 
   void _onTestCardTapped(TestModel test) async {
@@ -293,38 +283,51 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProfileProvider).value;
-    final testStream = ref.watch(testRepoProvider).streamLiveTests(_selectedExam);
+    final selectedExam = ref.watch(selectedExamProvider);
+    final testStream = ref.watch(testRepoProvider).streamLiveTests(selectedExam);
     final currentLang = ref.watch(localeProvider).languageCode;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(AppStrings.get('app_title', currentLang)),
         actions: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.18),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              child: DropdownButton<String>(
-                dropdownColor: Theme.of(context).colorScheme.primary,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                iconEnabledColor: Colors.white,
-                underline: const SizedBox.shrink(),
-                value: _selectedExam,
-                items: const [
-                  DropdownMenuItem(value: 'UPSC', child: Text('UPSC CSE')),
-                  DropdownMenuItem(value: 'TNPSC', child: Text('TNPSC')),
-                ],
-                onChanged: (val) async {
-                  if (val != null) {
-                    setState(() => _selectedExam = val);
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setString('target_exam', val);
-                  }
-                },
+          // Target Exam Badge Button (Tapping opens Profile/Settings)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => context.push('/profile'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white30, width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      selectedExam == 'TNPSC' ? Icons.account_balance : Icons.school,
+                      size: 15,
+                      color: Colors.amberAccent,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      selectedExam,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.settings, size: 12, color: Colors.white70),
+                  ],
+                ),
               ),
             ),
+          ),
           IconButton(
             icon: Icon(
               ref.watch(themeProvider).themeMode == ThemeMode.dark
@@ -378,7 +381,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${AppStrings.get('target', currentLang)}: $_selectedExam CSE • ${AppStrings.get('day_streak', currentLang)}: ${user?.streakCount ?? 1} 🔥',
+                            '${AppStrings.get('target', currentLang)}: $selectedExam • ${AppStrings.get('day_streak', currentLang)}: ${user?.streakCount ?? 1} 🔥',
                             style: const TextStyle(color: Colors.white70, fontSize: 13),
                           ),
                         ],
@@ -415,7 +418,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${AppStrings.get('available_tests', currentLang)} ($_selectedExam)',
+                  '${AppStrings.get('available_tests', currentLang)} ($selectedExam)',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
@@ -448,7 +451,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                           const Icon(Icons.hourglass_empty, size: 48, color: Colors.grey),
                           const SizedBox(height: 12),
                           Text(
-                            'No live $_selectedExam tests published yet for today.',
+                            'No live $selectedExam tests published yet for today.',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.grey[700]),
                           ),

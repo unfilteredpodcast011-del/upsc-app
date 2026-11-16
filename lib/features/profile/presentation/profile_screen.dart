@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/exam/exam_controller.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -51,6 +52,85 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
   }
 
+  void _switchExamWithTransition(String newExam) async {
+    final currentExam = ref.read(selectedExamProvider);
+    if (currentExam == newExam) return;
+
+    // Show professional loading dialog with smooth animation
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: newExam == 'TNPSC' ? Colors.teal.shade50 : Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        newExam == 'TNPSC' ? const Color(0xFF0F766E) : const Color(0xFF1E3A8A),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Switching to $newExam',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Configuring question banks, syllabus & mock tests for $newExam...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Simulate clean transition loading (1.2 seconds)
+    await Future.delayed(const Duration(milliseconds: 1200));
+    await ref.read(selectedExamProvider.notifier).setExam(newExam);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('target_exam', newExam);
+
+    if (mounted) {
+      setState(() => _targetExam = newExam);
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Text('Switched successfully to $newExam!'),
+            ],
+          ),
+          backgroundColor: newExam == 'TNPSC' ? const Color(0xFF0F766E) : const Color(0xFF1E3A8A),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   void _switchLanguage(String langCode) async {
     await ref.read(localeProvider.notifier).setLocale(langCode);
     if (mounted) {
@@ -69,6 +149,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
     final langCode = currentLocale.languageCode;
+    final currentExam = ref.watch(selectedExamProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -120,8 +201,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             children: [
                               Chip(
                                 label: Text(
-                                  '${AppStrings.get('target', langCode)}: $_targetExam',
-                                  style: const TextStyle(fontSize: 11),
+                                  '${AppStrings.get('target', langCode)}: $currentExam',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                                 visualDensity: VisualDensity.compact,
                               ),
@@ -168,6 +249,62 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   Colors.indigo,
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+
+            // Target Exam Settings Selector Card
+            Text(
+              AppStrings.get('target_exam', langCode),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      activeColor: const Color(0xFF1E3A8A),
+                      secondary: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.school, color: Color(0xFF1E3A8A), size: 22),
+                      ),
+                      title: const Text('UPSC Civil Services (CSE)', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: const Text('IAS, IPS, IFS • General Studies Paper 1 • Prelims Simulation', style: TextStyle(fontSize: 12)),
+                      value: 'UPSC',
+                      groupValue: currentExam,
+                      onChanged: (val) {
+                        if (val != null) _switchExamWithTransition(val);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    RadioListTile<String>(
+                      activeColor: const Color(0xFF0F766E),
+                      secondary: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.teal.shade50,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.account_balance, color: Color(0xFF0F766E), size: 22),
+                      ),
+                      title: const Text('TNPSC Combined Services', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Group 1, 2, 2A & 4 • General Studies & Mental Ability (1000 Bank)', style: TextStyle(fontSize: 12)),
+                      value: 'TNPSC',
+                      groupValue: currentExam,
+                      onChanged: (val) {
+                        if (val != null) _switchExamWithTransition(val);
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 

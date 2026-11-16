@@ -84,3 +84,4 @@ if __name__ == '__main__':
     process_file(upsc_path)
     process_file(tnpsc_path)
     print(f"Completed all translations in {time.time() - t0:.2f} seconds")
+
