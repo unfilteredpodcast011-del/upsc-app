@@ -176,19 +176,23 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
       appBar: AppBar(
         title: const Text('ExamPrep'),
         actions: [
-          DropdownButton<String>(
-            dropdownColor: Theme.of(context).colorScheme.primary,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            underline: const SizedBox.shrink(),
-            value: _selectedExam,
-            items: const [
-              DropdownMenuItem(value: 'UPSC', child: Text('UPSC')),
-              DropdownMenuItem(value: 'TNPSC', child: Text('TNPSC')),
-            ],
-            onChanged: (val) {
-              if (val != null) setState(() => _selectedExam = val);
-            },
-          ),
+            DropdownButton<String>(
+              dropdownColor: Theme.of(context).colorScheme.primary,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              underline: const SizedBox.shrink(),
+              value: _selectedExam,
+              items: const [
+                DropdownMenuItem(value: 'UPSC', child: Text('UPSC')),
+                DropdownMenuItem(value: 'TNPSC', child: Text('TNPSC')),
+              ],
+              onChanged: (val) async {
+                if (val != null) {
+                  setState(() => _selectedExam = val);
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('target_exam', val);
+                }
+              },
+            ),
           if (user?.isAdmin == true)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),

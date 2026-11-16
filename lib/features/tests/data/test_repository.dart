@@ -1,27 +1,171 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 
 class TestRepository {
-  final FirebaseFirestore _firestore;
+  List<QuestionModel>? _cachedTnpscQuestions;
+  List<QuestionModel>? _cachedUpscQuestions;
 
-  TestRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  /// Load questions from assets/data/
+  Future<List<QuestionModel>> _loadQuestionsForExam(String exam) async {
+    if (exam == 'TNPSC') {
+      if (_cachedTnpscQuestions != null) return _cachedTnpscQuestions!;
+      final jsonStr = await rootBundle.loadString('assets/data/tnpsc_questions.json');
+      final List<dynamic> list = jsonDecode(jsonStr);
+      _cachedTnpscQuestions = list.map((item) {
+        final Map<String, dynamic> m = item;
+        final opts = (m['options'] as Map<String, dynamic>?)?.map(
+              (k, v) => MapEntry(k, v.toString()),
+            ) ??
+            {};
+        return QuestionModel(
+          id: m['id'] ?? '',
+          exam: 'TNPSC',
+          subject: m['subject'] ?? 'General Studies',
+          topic: m['topic'] ?? '',
+          ncertChapter: '',
+          difficulty: 'medium',
+          publishDate: '2026-11-16',
+          correctAnswer: m['correct_answer'] ?? 'A',
+          normalizedText: m['question'] ?? '',
+          translations: {
+            'en': QuestionTranslation(
+              question: m['question'] ?? '',
+              options: opts,
+              explanation: 'Correct Answer: ${m['correct_answer']}',
+            ),
+          },
+        );
+      }).toList();
+      return _cachedTnpscQuestions!;
+    } else {
+      if (_cachedUpscQuestions != null) return _cachedUpscQuestions!;
+      final jsonStr = await rootBundle.loadString('assets/data/upsc_questions.json');
+      final List<dynamic> list = jsonDecode(jsonStr);
+      _cachedUpscQuestions = list.map((item) {
+        final Map<String, dynamic> m = item;
+        final opts = (m['options'] as Map<String, dynamic>?)?.map(
+              (k, v) => MapEntry(k, v.toString()),
+            ) ??
+            {};
+        return QuestionModel(
+          id: m['id'] ?? '',
+          exam: 'UPSC',
+          subject: m['subject'] ?? 'General Studies',
+          topic: m['topic'] ?? '',
+          ncertChapter: '',
+          difficulty: 'medium',
+          publishDate: '2026-11-16',
+          correctAnswer: m['correct_answer'] ?? 'A',
+          normalizedText: m['question'] ?? '',
+          translations: {
+            'en': QuestionTranslation(
+              question: m['question'] ?? '',
+              options: opts,
+              explanation: m['explanation'] ?? 'Correct Answer: ${m['correct_answer']}',
+            ),
+          },
+        );
+      }).toList();
+      return _cachedUpscQuestions!;
+    }
+  }
 
   /// Stream of available live tests for an exam (UPSC or TNPSC)
-  Stream<List<TestModel>> streamLiveTests(String exam) {
-    return _firestore
-        .collection('tests')
-        .where('exam', isEqualTo: exam)
-        .where('isLive', isEqualTo: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return TestModel.fromMap(doc.data(), doc.id);
-      }).toList();
-    });
+  Stream<List<TestModel>> streamLiveTests(String exam) async* {
+    yield await getLiveTests(exam);
+  }
+
+  /// Get defined tests for an exam
+  Future<List<TestModel>> getLiveTests(String exam) async {
+    if (exam == 'TNPSC') {
+      return [
+        TestModel(
+          id: 'tnpsc_mock_daily_1',
+          title: 'TNPSC Group 1/2 Daily Prelims Mock (Random 25)',
+          type: 'daily',
+          exam: 'TNPSC',
+          subject: 'General Studies & Mental Ability',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1500, // 25 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_mock_full_1',
+          title: 'TNPSC Full Model Mock Test (50 Questions)',
+          type: 'full_mock',
+          exam: 'TNPSC',
+          subject: 'Comprehensive Syllabus (From 1000 Bank)',
+          questionCount: 50,
+          questionIds: [],
+          defaultDurationSeconds: 3000, // 50 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_aptitude_special',
+          title: 'TNPSC Aptitude & Mental Ability Special (20 Qs)',
+          type: 'subject',
+          exam: 'TNPSC',
+          subject: 'General Aptitude',
+          questionCount: 20,
+          questionIds: [],
+          defaultDurationSeconds: 1200,
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+      ];
+    } else {
+      return [
+        TestModel(
+          id: 'upsc_mock_prelims_1',
+          title: 'UPSC CSE Prelims Daily Mock (Random 25)',
+          type: 'daily',
+          exam: 'UPSC',
+          subject: 'General Studies Paper 1',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'upsc_ancient_history_full',
+          title: 'UPSC Ancient Indian History Deep Mock (50 Qs)',
+          type: 'subject',
+          exam: 'UPSC',
+          subject: 'Ancient Indian History',
+          questionCount: 50,
+          questionIds: [],
+          defaultDurationSeconds: 3000,
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'upsc_comprehensive_mock',
+          title: 'UPSC CSE Full Prelims Simulation (100 Qs)',
+          type: 'full_mock',
+          exam: 'UPSC',
+          subject: 'General Studies Comprehensive',
+          questionCount: 100,
+          questionIds: [],
+          defaultDurationSeconds: 7200, // 2 hours
+          priceInPaise: 100,
+          publishDate: '2026-11-16',
+          isLive: true,
+        ),
+      ];
+    }
   }
 
   /// Check if user has unlocked the test (via Rs.1 Razorpay payment)
@@ -29,63 +173,129 @@ class TestRepository {
     required String userId,
     required String testId,
   }) async {
-    final doc = await _firestore
-        .collection('user_unlocked_tests')
-        .doc('${userId}_$testId')
-        .get();
-    return doc.exists;
+    final prefs = await SharedPreferences.getInstance();
+    final localKey = 'unlocked_${userId}_$testId';
+    if (prefs.getBool(localKey) == true) return true;
+
+    // Check Supabase if available
+    try {
+      final res = await Supabase.instance.client
+          .from('payments')
+          .select('id')
+          .eq('student_id', userId)
+          .eq('test_id', testId)
+          .eq('status', 'captured')
+          .maybeSingle();
+      if (res != null) {
+        await prefs.setBool(localKey, true);
+        return true;
+      }
+    } catch (_) {}
+
+    return false;
   }
 
   /// Fetch full test model
   Future<TestModel?> getTestById(String testId) async {
-    final doc = await _firestore.collection('tests').doc(testId).get();
-    if (!doc.exists || doc.data() == null) return null;
-    return TestModel.fromMap(doc.data()!, doc.id);
-  }
-
-  /// Fetch question list for a test
-  Future<List<QuestionModel>> getQuestionsForTest(List<String> questionIds) async {
-    final questions = <QuestionModel>[];
-    // In batches of 10 for Firestore 'whereIn' limits or direct get
-    for (int i = 0; i < questionIds.length; i += 10) {
-      final chunk = questionIds.sublist(
-        i,
-        i + 10 > questionIds.length ? questionIds.length : i + 10,
-      );
-      final snap = await _firestore
-          .collection('questions')
-          .where(FieldPath.documentId, whereIn: chunk)
-          .get();
-
-      for (final doc in snap.docs) {
-        questions.add(QuestionModel.fromMap(doc.data(), doc.id));
-      }
+    final upscTests = await getLiveTests('UPSC');
+    final tnpscTests = await getLiveTests('TNPSC');
+    for (final t in [...upscTests, ...tnpscTests]) {
+      if (t.id == testId) return t;
     }
-    return questions;
+    return null;
   }
 
-  /// Start or resume a test session with serverTimestamp validation
+  /// Generate or fetch questions for a test without repeating previously attended questions
+  Future<List<QuestionModel>> getQuestionsForTestSession({
+    required String testId,
+    required String exam,
+    required int count,
+    required String userId,
+  }) async {
+    final allQuestions = await _loadQuestionsForExam(exam);
+    final prefs = await SharedPreferences.getInstance();
+
+    // Load attended questions IDs for this user
+    final attendedKey = 'attended_questions_${userId}_$exam';
+    final attendedIds = prefs.getStringList(attendedKey)?.toSet() ?? <String>{};
+
+    // Filter unvisited questions first to prevent repetition
+    List<QuestionModel> available = allQuestions.where((q) => !attendedIds.contains(q.id)).toList();
+
+    // If available is smaller than needed, reset visited pool so student can re-cycle through whole 1000 bank
+    if (available.length < count) {
+      attendedIds.clear();
+      available = List<QuestionModel>.from(allQuestions);
+      await prefs.setStringList(attendedKey, []);
+    }
+
+    // Shuffle randomly to give a realistic fresh mock test every time
+    available.shuffle();
+    final selected = available.take(count).toList();
+
+    // Mark these as attended for future sessions
+    for (final q in selected) {
+      attendedIds.add(q.id);
+    }
+    await prefs.setStringList(attendedKey, attendedIds.toList());
+
+    return selected;
+  }
+
+  /// Mark question as Important (Starred)
+  Future<bool> toggleImportantQuestion({
+    required String userId,
+    required String questionId,
+    required bool isImportant,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'important_questions_$userId';
+    final set = prefs.getStringList(key)?.toSet() ?? <String>{};
+
+    if (isImportant) {
+      set.add(questionId);
+    } else {
+      set.remove(questionId);
+    }
+
+    await prefs.setStringList(key, set.toList());
+    return isImportant;
+  }
+
+  /// Check if question is marked important
+  Future<bool> isQuestionImportant({
+    required String userId,
+    required String questionId,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'important_questions_$userId';
+    final set = prefs.getStringList(key)?.toSet() ?? <String>{};
+    return set.contains(questionId);
+  }
+
+  /// Start or resume a test session
   Future<TestSessionModel> startOrResumeSession({
     required String userId,
     required String testId,
     required String exam,
     required int defaultDurationSeconds,
-    required int speedOption, // 100, 75, or 50%
+    required int speedOption,
+    required List<QuestionModel> questions,
   }) async {
     final sessionId = 'sess_${userId}_$testId';
-    final docRef = _firestore.collection('test_sessions').doc(sessionId);
-    final doc = await docRef.get();
-
     final allowedDuration = (defaultDurationSeconds * (speedOption / 100.0)).round();
 
-    if (doc.exists && doc.data() != null) {
-      final session = TestSessionModel.fromMap(doc.data()!, sessionId);
-      if (session.status == 'in_progress') {
-        return session;
-      }
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString('local_session_$sessionId');
+    if (cached != null) {
+      try {
+        final session = TestSessionModel.fromMap(jsonDecode(cached), sessionId);
+        if (session.status == 'in_progress') {
+          return session;
+        }
+      } catch (_) {}
     }
 
-    // New Session
     final newSession = TestSessionModel(
       id: sessionId,
       userId: userId,
@@ -98,30 +308,16 @@ class TestRepository {
       answers: {},
     );
 
-    await docRef.set({
-      ...newSession.toMap(),
-      'startedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-
-    // Save locally for offline durability
     await _cacheSessionLocally(newSession);
-
     return newSession;
   }
 
-  /// Incremental save to Firestore & Local Storage
+  /// Save answer progress locally
   Future<void> saveAnswerProgress({
     required String sessionId,
     required String questionId,
     required AnswerEntry answer,
   }) async {
-    // 1. Save to Firestore
-    await _firestore.collection('test_sessions').doc(sessionId).set({
-      'answers.$questionId': answer.toMap(),
-      'lastActiveAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-
-    // 2. Cache in local SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final key = 'local_session_$sessionId';
     final existingJson = prefs.getString(key);
@@ -131,13 +327,15 @@ class TestRepository {
     await prefs.setString(key, jsonEncode(data));
   }
 
-  /// Submit and evaluate test session
+  /// Submit and evaluate test session (+2 for correct, -0.66 for wrong)
   Future<TestSessionModel> evaluateAndSubmitSession({
     required String sessionId,
     required String testId,
+    required String exam,
     required List<QuestionModel> questions,
     required Map<String, AnswerEntry> answers,
     required int timeTakenSeconds,
+    required String userId,
   }) async {
     int correct = 0;
     int wrong = 0;
@@ -161,7 +359,6 @@ class TestRepository {
       }
     }
 
-    // Default +2 marks for correct, -0.66 for wrong
     final totalMarks = (correct * 2.0) - (wrong * 0.6666);
     final score = totalMarks < 0 ? 0.0 : double.parse(totalMarks.toStringAsFixed(2));
     final attempted = correct + wrong;
@@ -169,20 +366,14 @@ class TestRepository {
         ? double.parse(((correct / attempted) * 100).toStringAsFixed(1))
         : 0.0;
 
-    final docRef = _firestore.collection('test_sessions').doc(sessionId);
-    final snap = await docRef.get();
-    final firstAttempt = snap.data()?['firstAttempt'] ?? true;
-
-    final updated = TestSessionModel(
+    final session = TestSessionModel(
       id: sessionId,
-      userId: snap.data()?['userId'] ?? '',
+      userId: userId,
       testId: testId,
-      exam: snap.data()?['exam'] ?? 'UPSC',
-      startedAt: snap.data()?['startedAt'] != null
-          ? DateTime.tryParse(snap.data()!['startedAt'].toString()) ?? DateTime.now()
-          : DateTime.now(),
-      allowedDurationSeconds: snap.data()?['allowedDurationSeconds'] ?? 1200,
-      speedPracticePercent: snap.data()?['speedPracticePercent'] ?? 100,
+      exam: exam,
+      startedAt: DateTime.now().subtract(Duration(seconds: timeTakenSeconds)),
+      allowedDurationSeconds: timeTakenSeconds,
+      speedPracticePercent: 100,
       status: 'completed',
       answers: answers,
       score: score,
@@ -192,17 +383,42 @@ class TestRepository {
       totalUnanswered: unanswered,
       timeTakenSeconds: timeTakenSeconds,
       submittedAt: DateTime.now(),
-      firstAttempt: firstAttempt,
+      firstAttempt: true,
       subjectBreakdown: subjectScores,
     );
 
-    await docRef.set(updated.toMap(), SetOptions(merge: true));
-
-    // Clear local cache
+    // Save evaluated session to local storage for result display
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('local_session_$sessionId');
+    await prefs.setString('result_session_$sessionId', jsonEncode(session.toMap()));
+    await prefs.setString(
+      'result_questions_$sessionId',
+      jsonEncode(questions.map((q) => {
+        'id': q.id,
+        'exam': q.exam,
+        'subject': q.subject,
+        'topic': q.topic,
+        'question': q.normalizedText,
+        'options': q.getLocalizedOptions('en'),
+        'correct_answer': q.correctAnswer,
+        'explanation': q.getLocalizedExplanation('en'),
+      }).toList()),
+    );
 
-    return updated;
+    // Also record test attempt in Supabase if online
+    try {
+      await Supabase.instance.client.from('test_attempts').insert({
+        'student_id': userId,
+        'test_id': testId,
+        'score': score,
+        'accuracy': accuracy,
+        'total_correct': correct,
+        'total_wrong': wrong,
+        'total_unanswered': unanswered,
+        'time_taken_seconds': timeTakenSeconds,
+      });
+    } catch (_) {}
+
+    return session;
   }
 
   Future<void> _cacheSessionLocally(TestSessionModel session) async {
@@ -213,4 +429,3 @@ class TestRepository {
     );
   }
 }
-

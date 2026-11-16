@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/payment_repository.dart';
 import '../../tests/domain/test_model.dart';
@@ -15,7 +16,7 @@ class PaymentCheckoutHelper {
   final Function() onPaymentSuccess;
 
   // Razorpay Test Key ID (switchable in config)
-  static const String razorpayTestKeyId = 'rzp_test_YourKeyIdHere';
+  static const String razorpayTestKeyId = 'rzp_test_U0kJAgrYUcMteT';
 
   PaymentCheckoutHelper({
     required this.ref,
@@ -34,19 +35,16 @@ class PaymentCheckoutHelper {
   }
 
   Future<void> startCheckout() async {
-    final user = ref.read(userProfileProvider).value;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in before starting test.')),
-      );
-      return;
-    }
+    final prefs = await SharedPreferences.getInstance();
+    final studentEmail = prefs.getString('student_email') ?? 'student@examprep.com';
+    final studentPhone = prefs.getString('student_phone') ?? '9876543210';
+    final studentId = prefs.getString('student_id') ?? 'student_guest';
 
     try {
-      // Step 1: Create Order on server
+      // Step 1: Create Order
       final orderId = await ref.read(paymentRepoProvider).createRazorpayOrder(
             testId: test.id,
-            userId: user.uid,
+            userId: studentId,
           );
 
       // Step 2: Open Razorpay checkout modal
@@ -58,8 +56,8 @@ class PaymentCheckoutHelper {
         'description': 'Unlock Practice Test: ${test.title}',
         'timeout': 300, // 5 minutes
         'prefill': {
-          'contact': '9876543210',
-          'email': user.email,
+          'contact': studentPhone,
+          'email': studentEmail,
         },
         'theme': {
           'color': '#1E3A8A',
@@ -75,15 +73,15 @@ class PaymentCheckoutHelper {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    final user = ref.read(userProfileProvider).value;
-    if (user == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getString('student_id') ?? 'student_guest';
 
     final isVerified = await ref.read(paymentRepoProvider).verifyAndUnlockTest(
           orderId: response.orderId ?? '',
           paymentId: response.paymentId ?? '',
           signature: response.signature ?? '',
           testId: test.id,
-          userId: user.uid,
+          userId: studentId,
         );
 
     if (isVerified) {

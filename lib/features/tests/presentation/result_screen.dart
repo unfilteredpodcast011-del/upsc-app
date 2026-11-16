@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 import 'timed_engine_screen.dart';
@@ -29,19 +30,43 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
 
   Future<void> _loadResults() async {
     try {
-      final snap = await FirebaseFirestore.instance
-          .collection('test_sessions')
-          .doc(widget.sessionId)
-          .get();
+      final prefs = await SharedPreferences.getInstance();
+      final cachedSession = prefs.getString('result_session_${widget.sessionId}');
+      final cachedQuestions = prefs.getString('result_questions_${widget.sessionId}');
 
-      if (snap.exists && snap.data() != null) {
-        final session = TestSessionModel.fromMap(snap.data()!, snap.id);
+      if (cachedSession != null) {
+        final sessionMap = jsonDecode(cachedSession) as Map<String, dynamic>;
+        final session = TestSessionModel.fromMap(sessionMap, widget.sessionId);
         final testRepo = ref.read(testRepoProvider);
         final test = await testRepo.getTestById(session.testId);
 
         List<QuestionModel> questions = [];
-        if (test != null) {
-          questions = await testRepo.getQuestionsForTest(test.questionIds);
+        if (cachedQuestions != null) {
+          final List<dynamic> qList = jsonDecode(cachedQuestions);
+          questions = qList.map((m) {
+            final opts = (m['options'] as Map<String, dynamic>?)?.map(
+                  (k, v) => MapEntry(k, v.toString()),
+                ) ??
+                {};
+            return QuestionModel(
+              id: m['id'] ?? '',
+              exam: m['exam'] ?? 'UPSC',
+              subject: m['subject'] ?? 'General Studies',
+              topic: m['topic'] ?? '',
+              ncertChapter: '',
+              difficulty: 'medium',
+              publishDate: '2026-11-16',
+              correctAnswer: m['correct_answer'] ?? 'A',
+              normalizedText: m['question'] ?? '',
+              translations: {
+                'en': QuestionTranslation(
+                  question: m['question'] ?? '',
+                  options: opts,
+                  explanation: m['explanation'] ?? '',
+                ),
+              },
+            );
+          }).toList();
         }
 
         setState(() {

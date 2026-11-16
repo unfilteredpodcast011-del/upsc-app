@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../auth/presentation/auth_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WritingPracticeScreen extends ConsumerStatefulWidget {
   const WritingPracticeScreen({super.key});
@@ -19,14 +19,30 @@ class _WritingPracticeScreenState extends ConsumerState<WritingPracticeScreen> {
   int _secondsElapsed = 0;
   bool _isSaving = false;
 
-  final String _question =
+  String _currentExam = 'UPSC';
+  String _currentQuestion = '';
+
+  final String _upscQuestion =
       'Discuss the significance of the Bhakti and Sufi movements in shaping the composite culture and social harmony of medieval India. (150-250 words)';
+
+  final String _tnpscQuestion =
+      'Analyze the contribution of the Justice Party in promoting social justice and reservation policies in the Madras Presidency. (150-250 words)';
 
   @override
   void initState() {
     super.initState();
+    _loadExamAndQuestion();
     _startTimer();
     _answerController.addListener(_updateWordCount);
+  }
+
+  Future<void> _loadExamAndQuestion() async {
+    final prefs = await SharedPreferences.getInstance();
+    final exam = prefs.getString('target_exam') ?? 'UPSC';
+    setState(() {
+      _currentExam = exam;
+      _currentQuestion = exam == 'TNPSC' ? _tnpscQuestion : _upscQuestion;
+    });
   }
 
   @override
@@ -53,8 +69,8 @@ class _WritingPracticeScreenState extends ConsumerState<WritingPracticeScreen> {
   }
 
   Future<void> _saveAnswer() async {
-    final user = ref.read(userProfileProvider).value;
-    if (user == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getString('student_id') ?? 'student_guest';
 
     if (_answerController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,18 +81,23 @@ class _WritingPracticeScreenState extends ConsumerState<WritingPracticeScreen> {
 
     setState(() => _isSaving = true);
     try {
-      await FirebaseFirestore.instance
-          .collection('writing_practice_submissions')
-          .add({
-        'userId': user.uid,
-        'question': _question,
-        'exam': 'UPSC',
-        'wordLimit': _wordLimit,
-        'wordCount': _currentWordCount,
-        'content': _answerController.text.trim(),
-        'timeTakenSeconds': _secondsElapsed,
-        'submittedAt': FieldValue.serverTimestamp(),
-      });
+      // 1. Save locally in SharedPreferences for fast access
+      final submissionKey = 'submission_${_currentExam}_${DateTime.now().millisecondsSinceEpoch}';
+      await prefs.setString(submissionKey, _answerController.text.trim());
+
+      // 2. Safely upload to Supabase if configured
+      try {
+        await Supabase.instance.client.from('writing_submissions').insert({
+          'student_id': studentId,
+          'exam': _currentExam,
+          'question': _currentQuestion,
+          'word_count': _currentWordCount,
+          'content': _answerController.text.trim(),
+          'time_taken_seconds': _secondsElapsed,
+        });
+      } catch (_) {
+        // Table may not exist yet in Supabase, local save succeeds
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -129,9 +150,9 @@ class _WritingPracticeScreenState extends ConsumerState<WritingPracticeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'UPSC GS Paper 1 • Culture & History',
-                      style: TextStyle(
+                    Text(
+                      '$_currentExam Mains Practice • General Studies',
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue,
                         fontSize: 12,
@@ -139,7 +160,7 @@ class _WritingPracticeScreenState extends ConsumerState<WritingPracticeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _question,
+                      _currentQuestion.isNotEmpty ? _currentQuestion : _upscQuestion,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

@@ -1,0 +1,3002 @@
+[
+  {
+    "id": "UPSC00001",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "The Bhimbetka rock shelters, known for prehistoric rock paintings and a UNESCO World Heritage Site, are located in which State?",
+    "options": {
+      "A": "Madhya Pradesh",
+      "B": "Rajasthan",
+      "C": "Andhra Pradesh",
+      "D": "Karnataka"
+    },
+    "correct_answer": "A",
+    "explanation": "The Bhimbetka rock shelters lie in the Raisen district of Madhya Pradesh, near Bhopal. Their paintings range from the Mesolithic period onwards, and UNESCO inscribed the site in 2003."
+  },
+  {
+    "id": "UPSC00002",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "The beginning of agriculture, animal domestication and settled village life in the Indian subcontinent is associated with which phase?",
+    "options": {
+      "A": "Mesolithic",
+      "B": "Palaeolithic",
+      "C": "Iron Age",
+      "D": "Neolithic"
+    },
+    "correct_answer": "D",
+    "explanation": "The Neolithic (New Stone Age) saw the shift from food gathering to food production: cultivation of crops, domestication of animals, pottery and settled villages."
+  },
+  {
+    "id": "UPSC00003",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Consider the following statements about Mehrgarh:\n1. It is located in the Kachi plain of Balochistan, near the Bolan Pass.\n2. It provides some of the earliest evidence of wheat and barley cultivation and animal domestication in South Asia.\n3. It was a fully urbanised Mature Harappan city with a citadel and lower town.\nWhich of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "1 and 2 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "B",
+    "explanation": "Mehrgarh (c. 7000 BCE onwards) is a Neolithic-Chalcolithic site on the Kachi plain near the Bolan Pass. It shows early farming of wheat and barley and herding of cattle, sheep and goats. Statement 3 is wrong: Mehrgarh is a precursor of, not a Mature Harappan city."
+  },
+  {
+    "id": "UPSC00004",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Which Neolithic site in the Kashmir valley is known for pit-dwellings and for burials in which domesticated dogs were interred with their masters?",
+    "options": {
+      "A": "Burzahom",
+      "B": "Brahmagiri",
+      "C": "Chirand",
+      "D": "Koldihwa"
+    },
+    "correct_answer": "A",
+    "explanation": "Burzahom, near Srinagar, has pit-dwellings and graves with dogs buried alongside humans, a distinctive Neolithic feature of the valley."
+  },
+  {
+    "id": "UPSC00005",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "The Jorwe culture, a rural Chalcolithic culture with sites such as Daimabad and Inamgaon, is mainly associated with which present-day State?",
+    "options": {
+      "A": "Bihar",
+      "B": "Rajasthan",
+      "C": "Maharashtra",
+      "D": "Madhya Pradesh"
+    },
+    "correct_answer": "C",
+    "explanation": "Jorwe culture (c. 1400-700 BCE) flourished in the Deccan, chiefly in Maharashtra, at sites like Inamgaon, Daimabad and Nevasa."
+  },
+  {
+    "id": "UPSC00006",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "The Ochre Coloured Pottery (OCP) culture is generally associated with which of the following?",
+    "options": {
+      "A": "The pre-Harappan Hakra ware phase of Cholistan",
+      "B": "Deccan Chalcolithic farming villages",
+      "C": "The Neolithic ash-mound sites of Karnataka",
+      "D": "The Upper Ganga-Yamuna doab and the Copper Hoards"
+    },
+    "correct_answer": "D",
+    "explanation": "OCP is found chiefly in the Upper Ganga-Yamuna doab and is commonly linked with the Copper Hoard finds of the second millennium BCE, before the Painted Grey Ware phase."
+  },
+  {
+    "id": "UPSC00007",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Which of the following tool types is most characteristic of the Lower Palaeolithic (Acheulian) culture of India?",
+    "options": {
+      "A": "Hand-axes and cleavers",
+      "B": "Copper harpoons",
+      "C": "Polished stone celts",
+      "D": "Microliths"
+    },
+    "correct_answer": "A",
+    "explanation": "Acheulian assemblages, found for example at Attirampakkam and Hunsgi, are marked by large bifacial hand-axes and cleavers."
+  },
+  {
+    "id": "UPSC00008",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Neolithic 'ash mounds', formed from burnt cattle dung, are characteristic of which region?",
+    "options": {
+      "A": "The lower Ganga plain",
+      "B": "The Brahmaputra valley",
+      "C": "Northern Karnataka and adjoining Andhra Pradesh",
+      "D": "The Kashmir valley"
+    },
+    "correct_answer": "C",
+    "explanation": "Ash mounds at sites such as Utnur, Kupgal and Budihal in the Raichur-Bellary region point to cattle-keeping Neolithic communities of the southern Deccan."
+  },
+  {
+    "id": "UPSC00009",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Mohenjodaro was discovered in 1922 by:",
+    "options": {
+      "A": "Daya Ram Sahni",
+      "B": "Mortimer Wheeler",
+      "C": "Alexander Cunningham",
+      "D": "R.D. Banerji"
+    },
+    "correct_answer": "D",
+    "explanation": "R.D. Banerji identified Mohenjodaro in 1922. Daya Ram Sahni excavated Harappa from 1921. Marshall, then Director-General of the ASI, announced the civilisation in 1924."
+  },
+  {
+    "id": "UPSC00010",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "The Harappan site of Lothal, known for its dockyard, is located in which State?",
+    "options": {
+      "A": "Punjab",
+      "B": "Gujarat",
+      "C": "Haryana",
+      "D": "Rajasthan"
+    },
+    "correct_answer": "B",
+    "explanation": "Lothal, on the Bhogava river near the Gulf of Khambhat in Gujarat, was excavated by S.R. Rao (1955-62) and has a structure widely interpreted as a dockyard."
+  },
+  {
+    "id": "UPSC00011",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Dholavira, a Harappan city in Kutch, was inscribed as a UNESCO World Heritage Site in which year?",
+    "options": {
+      "A": "2023",
+      "B": "2019",
+      "C": "2021",
+      "D": "2017"
+    },
+    "correct_answer": "C",
+    "explanation": "UNESCO inscribed 'Dholavira: A Harappan City' in July 2021, recognising its three-part town plan and sophisticated water-management system."
+  },
+  {
+    "id": "UPSC00012",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which one of the following metals was NOT known to the Harappans?",
+    "options": {
+      "A": "Bronze",
+      "B": "Copper",
+      "C": "Gold",
+      "D": "Iron"
+    },
+    "correct_answer": "D",
+    "explanation": "The Harappans used copper, bronze, gold and silver, but iron was not in use; the Iron Age in India begins later."
+  },
+  {
+    "id": "UPSC00013",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Most Harappan seals were made of which material?",
+    "options": {
+      "A": "Gold",
+      "B": "Steatite",
+      "C": "Ivory",
+      "D": "Sandstone"
+    },
+    "correct_answer": "B",
+    "explanation": "Steatite (a soft stone), cut, carved and baked, was the commonest material for Harappan seals, though terracotta, faience and ivory were also used."
+  },
+  {
+    "id": "UPSC00014",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which Harappan site, near the Makran coast close to the present Pakistan-Iran border, served as a trading outpost?",
+    "options": {
+      "A": "Sutkagen Dor",
+      "B": "Surkotada",
+      "C": "Rangpur",
+      "D": "Alamgirpur"
+    },
+    "correct_answer": "A",
+    "explanation": "Sutkagen Dor, on the Dasht river near the Makran coast, was a western Harappan outpost for maritime and overland trade with Iran and beyond."
+  },
+  {
+    "id": "UPSC00015",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "The Harappan settlement at Shortughai in Afghanistan is believed to have been established mainly to:",
+    "options": {
+      "A": "Serve as a naval base on the Arabian Sea",
+      "B": "Access lapis lazuli and other resources of Badakhshan",
+      "C": "Mine copper in Rajasthan",
+      "D": "Control the Bolan Pass trade route to Iran"
+    },
+    "correct_answer": "B",
+    "explanation": "Shortughai, on the Oxus (Amu Darya) plain, is regarded as a Harappan trading colony near sources of lapis lazuli and tin in Badakhshan."
+  },
+  {
+    "id": "UPSC00016",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Evidence of a ploughed field and fire altars has been found at which Harappan site?",
+    "options": {
+      "A": "Ropar",
+      "B": "Banawali",
+      "C": "Rakhigarhi",
+      "D": "Kalibangan"
+    },
+    "correct_answer": "D",
+    "explanation": "Kalibangan, on the Ghaggar-Hakra in Rajasthan, yielded a ploughed field of the pre-Harappan phase with criss-cross furrows and fire altars in the Mature phase."
+  },
+  {
+    "id": "UPSC00017",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Consider the following statements about the Harappan script:\n1. It has not been deciphered to date.\n2. Most inscriptions are very short and are found on seals and sealings.\n3. It was always written strictly from left to right.\nWhich of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "1 and 2 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "B",
+    "explanation": "The Indus script remains undeciphered and most texts are only a few signs long on seals. Statement 3 is wrong: most lines run right to left, with some boustrophedon examples."
+  },
+  {
+    "id": "UPSC00018",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Harappan baked bricks were commonly made in a standardised ratio of length:breadth:thickness of about:",
+    "options": {
+      "A": "5:3:2",
+      "B": "3:2:1",
+      "C": "4:2:1",
+      "D": "2:2:1"
+    },
+    "correct_answer": "C",
+    "explanation": "Bricks across Harappan sites typically follow a 4:2:1 ratio, reflecting standardisation in construction."
+  },
+  {
+    "id": "UPSC00019",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "In Mesopotamian records, 'Meluhha' is generally identified with:",
+    "options": {
+      "A": "The Indus region",
+      "B": "Oman",
+      "C": "Bahrain",
+      "D": "Egypt"
+    },
+    "correct_answer": "A",
+    "explanation": "Cuneiform texts mention Dilmun (Bahrain), Magan (Oman) and Meluhha (the Indus region) as trade partners."
+  },
+  {
+    "id": "UPSC00020",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which Harappan city is noted as the only major site lacking a citadel and is known for bead-making?",
+    "options": {
+      "A": "Harappa",
+      "B": "Kalibangan",
+      "C": "Mohenjodaro",
+      "D": "Chanhudaro"
+    },
+    "correct_answer": "D",
+    "explanation": "Chanhudaro in Sindh is usually described as the major Harappan town without a citadel, with workshops for beads, shell and bone objects."
+  },
+  {
+    "id": "UPSC00021",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "The famous Harappan bronze 'Dancing Girl' figure was made using which technique?",
+    "options": {
+      "A": "Lost-wax (cire perdue) casting",
+      "B": "Cold hammering only",
+      "C": "Sand-mould casting",
+      "D": "Electroplating"
+    },
+    "correct_answer": "A",
+    "explanation": "Harappan metalworkers cast bronze figurines by the lost-wax method."
+  },
+  {
+    "id": "UPSC00022",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Harappan weights, mostly of cubical chert, generally followed which system?",
+    "options": {
+      "A": "A base-12 series",
+      "B": "A purely decimal series",
+      "C": "A binary series (1, 2, 4, 8 ...)",
+      "D": "No fixed system"
+    },
+    "correct_answer": "C",
+    "explanation": "Weights follow a binary progression in the lower denominations (1, 2, 4, 8, 16, 32 ...), showing standardised trade."
+  },
+  {
+    "id": "UPSC00023",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Consider the following statements:\n1. The Harappan civilisation was primarily urban, whereas the Rigvedic culture was primarily rural and pastoral.\n2. The horse is prominent in the Rigveda, whereas its presence in Harappan contexts is doubtful.\n3. Iron was widely used in the Rigvedic period.\nWhich of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "1 and 2 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "C",
+    "explanation": "Statements 1 and 2 reflect standard contrasts. Statement 3 is wrong: iron use becomes widespread only in the Later Vedic phase (c. 1000 BCE onwards)."
+  },
+  {
+    "id": "UPSC00024",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Which is the oldest of the four Vedas?",
+    "options": {
+      "A": "Yajurveda",
+      "B": "Rigveda",
+      "C": "Samaveda",
+      "D": "Atharvaveda"
+    },
+    "correct_answer": "B",
+    "explanation": "The Rigveda, a collection of 1,028 hymns in ten mandalas, is the oldest Veda."
+  },
+  {
+    "id": "UPSC00025",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The origin of Indian classical music is traditionally traced to which Veda?",
+    "options": {
+      "A": "Rigveda",
+      "B": "Yajurveda",
+      "C": "Atharvaveda",
+      "D": "Samaveda"
+    },
+    "correct_answer": "D",
+    "explanation": "The Samaveda sets Rigvedic verses to melodies for chanting and is regarded as the source of Indian musical tradition."
+  },
+  {
+    "id": "UPSC00026",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The 'Dasarajna' (Battle of Ten Kings) was fought on the banks of which river, and who was the victorious Bharata chief?",
+    "options": {
+      "A": "Parushni (Ravi); Sudas",
+      "B": "Vitasta (Jhelum); Divodasa",
+      "C": "Vipasa (Beas); Divodasa",
+      "D": "Sutudri (Sutlej); Sudas"
+    },
+    "correct_answer": "A",
+    "explanation": "Sudas of the Bharata tribe defeated a coalition of ten tribes on the Parushni (modern Ravi)."
+  },
+  {
+    "id": "UPSC00027",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Purusha Sukta, which refers to the origin of the four varnas, is found in which mandala of the Rigveda?",
+    "options": {
+      "A": "Third",
+      "B": "Seventh",
+      "C": "Tenth",
+      "D": "First"
+    },
+    "correct_answer": "C",
+    "explanation": "The Purusha Sukta is in the tenth mandala, a late addition, and is the earliest Vedic reference to the four-fold varna division."
+  },
+  {
+    "id": "UPSC00028",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Gayatri Mantra, found in the third mandala of the Rigveda and attributed to Vishwamitra, is addressed to which deity?",
+    "options": {
+      "A": "Savitri",
+      "B": "Indra",
+      "C": "Agni",
+      "D": "Varuna"
+    },
+    "correct_answer": "A",
+    "explanation": "The Gayatri Mantra (Rigveda 3.62.10) is a hymn to Savitri, the Sun as a vivifying deity."
+  },
+  {
+    "id": "UPSC00029",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The national motto 'Satyameva Jayate' is taken from which Upanishad?",
+    "options": {
+      "A": "Chandogya Upanishad",
+      "B": "Mundaka Upanishad",
+      "C": "Katha Upanishad",
+      "D": "Isha Upanishad"
+    },
+    "correct_answer": "B",
+    "explanation": "'Satyameva Jayate' appears in the Mundaka Upanishad (3.1.6)."
+  },
+  {
+    "id": "UPSC00030",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Which of the following was regarded as the most ancient Rigvedic assembly, in which women are also believed to have participated?",
+    "options": {
+      "A": "Gana",
+      "B": "Vidatha",
+      "C": "Samiti",
+      "D": "Sabha"
+    },
+    "correct_answer": "B",
+    "explanation": "The Vidatha is considered the earliest tribal assembly, with religious, military and social functions, and women took part in it."
+  },
+  {
+    "id": "UPSC00031",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Painted Grey Ware (PGW) culture is generally associated with:",
+    "options": {
+      "A": "The Later Vedic phase and the early use of iron in the Upper Gangetic plain",
+      "B": "The Megalithic cultures of South India",
+      "C": "The decline of the Harappan cities",
+      "D": "The Neolithic cultures of north-east India"
+    },
+    "correct_answer": "A",
+    "explanation": "PGW (c. 1100-500 BCE) in Haryana, Punjab and the Upper Ganga plain corresponds broadly to the Later Vedic period and coincides with early iron."
+  },
+  {
+    "id": "UPSC00032",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Consider the following pairs of Vedic and modern river names:\n1. Vitasta - Jhelum\n2. Parushni - Ravi\n3. Vipasa - Sutlej\n4. Asikni - Chenab\nWhich of the pairs given above are correctly matched?",
+    "options": {
+      "A": "1, 2 and 4 only",
+      "B": "1 and 3 only",
+      "C": "2, 3 and 4 only",
+      "D": "1, 2, 3 and 4"
+    },
+    "correct_answer": "A",
+    "explanation": "Vitasta is the Jhelum, Parushni the Ravi, Asikni the Chenab. Vipasa is the Beas, while the Sutlej was Shutudri, so pair 3 is wrong."
+  },
+  {
+    "id": "UPSC00033",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Which Vedanga deals with astronomy?",
+    "options": {
+      "A": "Shiksha",
+      "B": "Jyotisha",
+      "C": "Chhanda",
+      "D": "Nirukta"
+    },
+    "correct_answer": "B",
+    "explanation": "Jyotisha deals with astronomy and the fixing of auspicious times for rituals."
+  },
+  {
+    "id": "UPSC00034",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Which deity is addressed in the largest number of hymns of the Rigveda?",
+    "options": {
+      "A": "Soma",
+      "B": "Indra",
+      "C": "Varuna",
+      "D": "Agni"
+    },
+    "correct_answer": "B",
+    "explanation": "Indra, the warrior god and rain-bringer, has the most hymns (around 250), followed by Agni."
+  },
+  {
+    "id": "UPSC00035",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "In the Rigveda, the term 'gavishti' literally means:",
+    "options": {
+      "A": "Cow worship",
+      "B": "Cattle tax",
+      "C": "Cow herd",
+      "D": "Search for cows, hence battles"
+    },
+    "correct_answer": "D",
+    "explanation": "Gavishti means 'search for cows' and came to denote fighting, reflecting the importance of cattle raiding in Rigvedic society."
+  },
+  {
+    "id": "UPSC00036",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Brahmanas are best described as:",
+    "options": {
+      "A": "Grammar texts of Sanskrit",
+      "B": "Epics narrating the lives of kings",
+      "C": "Prose texts explaining the meaning and performance of Vedic rituals",
+      "D": "Biographies of the Buddha"
+    },
+    "correct_answer": "C",
+    "explanation": "Brahmanas are ritual commentaries attached to the Vedas, explaining sacrifices."
+  },
+  {
+    "id": "UPSC00037",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "In the Rigvedic polity, the head of a village (grama) was called:",
+    "options": {
+      "A": "Rajan",
+      "B": "Gramani",
+      "C": "Vrajapati",
+      "D": "Senani"
+    },
+    "correct_answer": "B",
+    "explanation": "The Gramani headed a grama. The Vrajapati was the head of a pasture ground and the Rajan the tribal chief."
+  },
+  {
+    "id": "UPSC00038",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Gautama Buddha delivered his first sermon at:",
+    "options": {
+      "A": "Lumbini",
+      "B": "Kushinagar",
+      "C": "Bodh Gaya",
+      "D": "Sarnath"
+    },
+    "correct_answer": "D",
+    "explanation": "The Buddha's first sermon (Dhammachakkappavattana) was delivered at Sarnath (Isipatana)."
+  },
+  {
+    "id": "UPSC00039",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "In the Jain tradition, Mahavira is counted as which Tirthankara?",
+    "options": {
+      "A": "23rd",
+      "B": "22nd",
+      "C": "24th",
+      "D": "1st"
+    },
+    "correct_answer": "C",
+    "explanation": "Vardhamana Mahavira was the 24th and last Tirthankara; Parshvanatha was the 23rd."
+  },
+  {
+    "id": "UPSC00040",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Consider the following pairs of Mahajanapadas and their capitals:\n1. Vatsa - Kaushambi\n2. Anga - Champa\n3. Kuru - Mathura\nWhich of the pairs given above is/are correctly matched?",
+    "options": {
+      "A": "1 only",
+      "B": "1 and 2 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "B",
+    "explanation": "Vatsa had its capital at Kaushambi and Anga at Champa. Kuru's capital was Indraprastha (Hastinapura), while Mathura was the capital of Surasena."
+  },
+  {
+    "id": "UPSC00041",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Fourth Buddhist Council, presided over by Vasumitra, was held in Kashmir under the patronage of:",
+    "options": {
+      "A": "Bimbisara",
+      "B": "Harsha",
+      "C": "Kanishka",
+      "D": "Ashoka"
+    },
+    "correct_answer": "C",
+    "explanation": "The Fourth Council, traditionally at Kundalvana in Kashmir, was held under Kushana king Kanishka with Vasumitra as president."
+  },
+  {
+    "id": "UPSC00042",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Kathavatthu, a text of the Abhidhamma Pitaka, is attributed to:",
+    "options": {
+      "A": "Moggaliputta Tissa",
+      "B": "Ananda",
+      "C": "Upali",
+      "D": "Vasumitra"
+    },
+    "correct_answer": "A",
+    "explanation": "Moggaliputta Tissa, who presided over the Third Council at Pataliputra, is credited with the Kathavatthu."
+  },
+  {
+    "id": "UPSC00043",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The 'Triratna' (three jewels) of Jainism are:",
+    "options": {
+      "A": "Right Faith, Right Knowledge and Right Conduct",
+      "B": "Truth, Non-violence and Non-stealing",
+      "C": "Birth, Life and Death",
+      "D": "Right View, Right Intention and Right Speech"
+    },
+    "correct_answer": "A",
+    "explanation": "Jain teachings stress samyak darshana, samyak jnana and samyak charitra."
+  },
+  {
+    "id": "UPSC00044",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The final compilation of the Jain canon (Agamas) is traditionally associated with the council held at:",
+    "options": {
+      "A": "Ujjain",
+      "B": "Vaishali",
+      "C": "Pataliputra",
+      "D": "Valabhi"
+    },
+    "correct_answer": "D",
+    "explanation": "The Valabhi council (5th century CE) under Devardhi Kshamashramana committed the Svetambara canon to writing."
+  },
+  {
+    "id": "UPSC00045",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which of the following is NOT a part of the Buddhist Noble Eightfold Path?",
+    "options": {
+      "A": "Right Livelihood",
+      "B": "Right Action",
+      "C": "Right Mindfulness",
+      "D": "Right Faith"
+    },
+    "correct_answer": "D",
+    "explanation": "The Eightfold Path comprises Right View, Intention, Speech, Action, Livelihood, Effort, Mindfulness and Concentration. 'Right Faith' belongs to the Jain Triratna."
+  },
+  {
+    "id": "UPSC00046",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Nagarjuna is known as the exponent of which Buddhist school of thought?",
+    "options": {
+      "A": "Theravada",
+      "B": "Vaibhashika",
+      "C": "Madhyamaka (Shunyavada)",
+      "D": "Sautrantika"
+    },
+    "correct_answer": "C",
+    "explanation": "Nagarjuna founded Madhyamaka, the school of the 'middle way' centred on emptiness (shunyata)."
+  },
+  {
+    "id": "UPSC00047",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which Magadhan ruler is traditionally credited with shifting the capital from Rajagriha to Pataliputra?",
+    "options": {
+      "A": "Bimbisara",
+      "B": "Chandragupta Maurya",
+      "C": "Mahapadma Nanda",
+      "D": "Udayin"
+    },
+    "correct_answer": "D",
+    "explanation": "Udayin, son of Ajatashatru, moved the capital to Pataliputra (Kusumapura) at the confluence of the Ganga and Son."
+  },
+  {
+    "id": "UPSC00048",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Ajivika sect, founded by Makkhali Gosala, is best known for its doctrine of:",
+    "options": {
+      "A": "Niyati (fate or determinism)",
+      "B": "The Middle Path",
+      "C": "Nirguna bhakti",
+      "D": "Ahimsa as the highest virtue"
+    },
+    "correct_answer": "A",
+    "explanation": "The Ajivikas held that everything is governed by niyati and that human effort has no effect."
+  },
+  {
+    "id": "UPSC00049",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Alexander defeated the Indian ruler Porus at the Battle of the Hydaspes in which year?",
+    "options": {
+      "A": "300 BCE",
+      "B": "321 BCE",
+      "C": "356 BCE",
+      "D": "326 BCE"
+    },
+    "correct_answer": "D",
+    "explanation": "The Battle of the Hydaspes (Jhelum) took place in 326 BCE."
+  },
+  {
+    "id": "UPSC00050",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which of the following Mahajanapadas was a republic (gana-sangha)?",
+    "options": {
+      "A": "Magadha",
+      "B": "Avanti",
+      "C": "Vajji",
+      "D": "Kosala"
+    },
+    "correct_answer": "C",
+    "explanation": "The Vajji (Vriji) confederacy with its capital at Vaishali was a republican gana-sangha."
+  },
+  {
+    "id": "UPSC00051",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which Ashokan inscription records his visit to the Buddha's birthplace and a tax concession to the village?",
+    "options": {
+      "A": "Sarnath Pillar Edict",
+      "B": "Maski Minor Rock Edict",
+      "C": "Rummindei (Lumbini) Pillar Inscription",
+      "D": "Kandahar Bilingual Inscription"
+    },
+    "correct_answer": "C",
+    "explanation": "The Rummindei pillar inscription records Ashoka's pilgrimage to Lumbini and a reduction of the land revenue to one-eighth."
+  },
+  {
+    "id": "UPSC00052",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Who is traditionally regarded as the mentor of Chandragupta Maurya in founding the Mauryan Empire?",
+    "options": {
+      "A": "Bhadrabahu",
+      "B": "Megasthenes",
+      "C": "Chanakya (Kautilya)",
+      "D": "Radhagupta"
+    },
+    "correct_answer": "C",
+    "explanation": "Chanakya (Kautilya) is traditionally credited with guiding Chandragupta to overthrow the Nandas, and with the Arthashastra."
+  },
+  {
+    "id": "UPSC00053",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Ashoka gave up conquest by war and adopted Dhamma after the conquest of:",
+    "options": {
+      "A": "Avanti",
+      "B": "Vanga",
+      "C": "Kalinga",
+      "D": "Gandhara"
+    },
+    "correct_answer": "C",
+    "explanation": "The Kalinga war (c. 261 BCE) and the suffering it caused, described in Rock Edict XIII, led Ashoka to adopt Dhamma."
+  },
+  {
+    "id": "UPSC00054",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Which one of the following is NOT among the seven elements (Saptanga) of the state in Kautilya's Arthashastra?",
+    "options": {
+      "A": "Kosha",
+      "B": "Danda",
+      "C": "Mitra",
+      "D": "Dharma"
+    },
+    "correct_answer": "D",
+    "explanation": "The Saptanga elements are Swami, Amatya, Janapada, Durga, Kosha, Danda and Mitra. Dharma is not one of them."
+  },
+  {
+    "id": "UPSC00055",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Megasthenes, author of 'Indica', was an ambassador of which ruler at the court of Chandragupta Maurya?",
+    "options": {
+      "A": "Antiochus I",
+      "B": "Seleucus Nicator",
+      "C": "Ptolemy II",
+      "D": "Alexander"
+    },
+    "correct_answer": "B",
+    "explanation": "Megasthenes was sent by Seleucus I Nicator; his work survives only in fragments quoted by later writers."
+  },
+  {
+    "id": "UPSC00056",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Who deciphered the Brahmi script of the Ashokan inscriptions in 1837?",
+    "options": {
+      "A": "James Prinsep",
+      "B": "John Marshall",
+      "C": "William Jones",
+      "D": "Alexander Cunningham"
+    },
+    "correct_answer": "A",
+    "explanation": "James Prinsep deciphered Ashokan Brahmi in 1837, revealing 'Devanampiya Piyadassi' as Ashoka."
+  },
+  {
+    "id": "UPSC00057",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Ashokan edicts written in the Kharosthi script are found at:",
+    "options": {
+      "A": "Sopara",
+      "B": "Shahbazgarhi",
+      "C": "Girnar",
+      "D": "Dhauli"
+    },
+    "correct_answer": "B",
+    "explanation": "Shahbazgarhi and Mansehra, in the north-west, have Kharosthi versions; most other edicts are in Brahmi."
+  },
+  {
+    "id": "UPSC00058",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "In Ashoka's Rock Edict XIII, the name 'Amtiyoka' refers to:",
+    "options": {
+      "A": "Antiochus II Theos of Syria",
+      "B": "Ptolemy II Philadelphus of Egypt",
+      "C": "Magas of Cyrene",
+      "D": "Antigonus Gonatas of Macedonia"
+    },
+    "correct_answer": "A",
+    "explanation": "The edict names five Hellenistic kings: Amtiyoka (Antiochus II), Turamaya (Ptolemy II), Amtikini (Antigonus Gonatas), Maka (Magas) and Alikasudara (Alexander of Epirus)."
+  },
+  {
+    "id": "UPSC00059",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Dhamma Mahamattas were first appointed by Ashoka in which regnal year?",
+    "options": {
+      "A": "8th year",
+      "B": "26th year",
+      "C": "20th year",
+      "D": "13th year"
+    },
+    "correct_answer": "D",
+    "explanation": "Rock Edict V states that Dhamma Mahamattas were first appointed in the 13th year of his reign to promote Dhamma and welfare."
+  },
+  {
+    "id": "UPSC00060",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Mauryan pillars were mostly made of which stone, given a characteristic lustrous polish?",
+    "options": {
+      "A": "Basalt",
+      "B": "Chunar sandstone",
+      "C": "Granite",
+      "D": "Marble"
+    },
+    "correct_answer": "B",
+    "explanation": "The pillars are monolithic Chunar sandstone with the famous Mauryan polish."
+  },
+  {
+    "id": "UPSC00061",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "The Sudarshana lake in Kathiawar was constructed under the Mauryan governor:",
+    "options": {
+      "A": "Pushyagupta",
+      "B": "Rudradaman",
+      "C": "Tushaspa",
+      "D": "Chanakya"
+    },
+    "correct_answer": "A",
+    "explanation": "The Junagadh rock inscription of Rudradaman says Pushyagupta, governor of Chandragupta Maurya, built the lake and that Tushaspa, Ashoka's governor, added canals."
+  },
+  {
+    "id": "UPSC00062",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "The last Mauryan ruler Brihadratha was assassinated by his commander-in-chief:",
+    "options": {
+      "A": "Agnimitra",
+      "B": "Devabhuti",
+      "C": "Vasumitra",
+      "D": "Pushyamitra Shunga"
+    },
+    "correct_answer": "D",
+    "explanation": "Pushyamitra Shunga killed Brihadratha around 185 BCE and founded the Shunga dynasty."
+  },
+  {
+    "id": "UPSC00063",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Which of the following minor rock edicts explicitly names 'Devanampiya Asoka'?",
+    "options": {
+      "A": "Sahasram",
+      "B": "Bairat",
+      "C": "Maski",
+      "D": "Rupnath"
+    },
+    "correct_answer": "C",
+    "explanation": "The Maski edict (Karnataka), along with Gujarra, Nittur and Udegolam, gives Ashoka's personal name."
+  },
+  {
+    "id": "UPSC00064",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Kautilya's 'Mandala theory' deals primarily with:",
+    "options": {
+      "A": "Taxation of trade",
+      "B": "Village administration",
+      "C": "Religious tolerance",
+      "D": "Relations between states (foreign policy)"
+    },
+    "correct_answer": "D",
+    "explanation": "The Mandala theory classifies neighbouring states as allies or enemies in concentric circles and guides inter-state relations."
+  },
+  {
+    "id": "UPSC00065",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Ashoka's policy of Dhamma is best described as:",
+    "options": {
+      "A": "An ethical code of conduct emphasising tolerance and social responsibility",
+      "B": "A system of taxation",
+      "C": "A military doctrine for expansion",
+      "D": "A new state religion based on Buddhism"
+    },
+    "correct_answer": "A",
+    "explanation": "Dhamma was a moral policy promoting non-violence, tolerance, respect for elders and welfare; it was not a sectarian religion."
+  },
+  {
+    "id": "UPSC00066",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Satavahana inscriptions were mostly written in which language and script?",
+    "options": {
+      "A": "Pali in Kharosthi",
+      "B": "Sanskrit in Kharosthi",
+      "C": "Tamil in Vatteluttu",
+      "D": "Prakrit in Brahmi"
+    },
+    "correct_answer": "D",
+    "explanation": "Satavahana records, including Nasik and Nanaghat, are in Prakrit using Brahmi."
+  },
+  {
+    "id": "UPSC00067",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Saka era (78 CE) is traditionally believed to have been started by:",
+    "options": {
+      "A": "Kanishka",
+      "B": "Gautamiputra Satakarni",
+      "C": "Rudradaman",
+      "D": "Chandragupta II"
+    },
+    "correct_answer": "A",
+    "explanation": "The Saka era, adopted as the national calendar of India, is traditionally traced to Kanishka's accession in 78 CE."
+  },
+  {
+    "id": "UPSC00068",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Which school of ancient Indian art used spotted red sandstone and produced indigenous Buddha, Jain and Hindu images?",
+    "options": {
+      "A": "Amaravati school",
+      "B": "Sarnath school",
+      "C": "Mathura school",
+      "D": "Gandhara school"
+    },
+    "correct_answer": "C",
+    "explanation": "The Mathura school used spotted red sandstone and was largely indigenous in style."
+  },
+  {
+    "id": "UPSC00069",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Tamil epic 'Silappadikaram' was composed by:",
+    "options": {
+      "A": "Sittalai Sattanar",
+      "B": "Ilango Adigal",
+      "C": "Tolkappiyar",
+      "D": "Thiruvalluvar"
+    },
+    "correct_answer": "B",
+    "explanation": "Ilango Adigal composed Silappadikaram, the story of Kannagi and Kovalan."
+  },
+  {
+    "id": "UPSC00070",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Consider the following pairs of Sangam kingdoms and capitals:\n1. Chola - Uraiyur\n2. Pandya - Madurai\n3. Chera - Kanchipuram\nWhich of the pairs given above is/are correctly matched?",
+    "options": {
+      "A": "1 only",
+      "B": "1 and 2 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "B",
+    "explanation": "Cholas had Uraiyur, the Pandyas Madurai, and the Cheras Vanji; Kanchipuram was a Pallava capital."
+  },
+  {
+    "id": "UPSC00071",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Which Sangam Chola king is associated with the Battle of Venni?",
+    "options": {
+      "A": "Rajaraja I",
+      "B": "Elara",
+      "C": "Karikala",
+      "D": "Kulottunga I"
+    },
+    "correct_answer": "C",
+    "explanation": "Karikala defeated a Chera-Pandya confederacy at Venni and is credited with early Kaveri embankments."
+  },
+  {
+    "id": "UPSC00072",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The 'Milindapanha' records a dialogue between the Indo-Greek king Menander and which Buddhist monk?",
+    "options": {
+      "A": "Nagasena",
+      "B": "Nagarjuna",
+      "C": "Vasubandhu",
+      "D": "Ashvaghosha"
+    },
+    "correct_answer": "A",
+    "explanation": "Milinda (Menander) debates with Nagasena in the Milindapanha, leading to Menander's sympathy for Buddhism."
+  },
+  {
+    "id": "UPSC00073",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Among post-Mauryan dynasties, which issued gold coins on a large scale, influenced by Roman trade?",
+    "options": {
+      "A": "Satavahanas",
+      "B": "Kanvas",
+      "C": "Kushanas",
+      "D": "Shungas"
+    },
+    "correct_answer": "C",
+    "explanation": "The Kushanas issued many gold coins, linked to Roman trade and to Central Asian metal flows."
+  },
+  {
+    "id": "UPSC00074",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Hathigumpha inscription at Udayagiri near Bhubaneswar records the achievements of:",
+    "options": {
+      "A": "Rudradaman",
+      "B": "Gautamiputra Satakarni",
+      "C": "Kanishka",
+      "D": "Kharavela"
+    },
+    "correct_answer": "D",
+    "explanation": "The Hathigumpha inscription is a Prakrit record of the Chedi king Kharavela of Kalinga."
+  },
+  {
+    "id": "UPSC00075",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Gupta era is reckoned from which year?",
+    "options": {
+      "A": "78 CE",
+      "B": "57 BCE",
+      "C": "606 CE",
+      "D": "319-320 CE"
+    },
+    "correct_answer": "D",
+    "explanation": "The Gupta era is taken to start with the accession of Chandragupta I in 319-320 CE."
+  },
+  {
+    "id": "UPSC00076",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Prayag Prashasti (Allahabad Pillar Inscription) of Samudragupta was composed by:",
+    "options": {
+      "A": "Ravikirti",
+      "B": "Banabhatta",
+      "C": "Kalidasa",
+      "D": "Harishena"
+    },
+    "correct_answer": "D",
+    "explanation": "Harishena, Samudragupta's court poet and minister, composed the Prayag Prashasti."
+  },
+  {
+    "id": "UPSC00077",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Chinese pilgrim Fa-Hien visited India during the reign of:",
+    "options": {
+      "A": "Samudragupta",
+      "B": "Ashoka",
+      "C": "Harshavardhana",
+      "D": "Chandragupta II"
+    },
+    "correct_answer": "D",
+    "explanation": "Fa-Hien came c. 399-414 CE during Chandragupta II (Vikramaditya)."
+  },
+  {
+    "id": "UPSC00078",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Iron Pillar at Mehrauli (Delhi) is attributed on the basis of its inscription to which king?",
+    "options": {
+      "A": "Chandra (identified with Chandragupta II)",
+      "B": "Skandagupta",
+      "C": "Samudragupta",
+      "D": "Ashoka"
+    },
+    "correct_answer": "A",
+    "explanation": "The pillar's inscription praises a king named Chandra, usually identified with Chandragupta II."
+  },
+  {
+    "id": "UPSC00079",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Nalanda Mahavihara is traditionally believed to have been founded under the patronage of:",
+    "options": {
+      "A": "Kumaragupta I",
+      "B": "Samudragupta",
+      "C": "Dharmapala",
+      "D": "Harsha"
+    },
+    "correct_answer": "A",
+    "explanation": "Tradition credits Kumaragupta I (Shakraditya) with founding Nalanda in the 5th century CE."
+  },
+  {
+    "id": "UPSC00080",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Gupta ruler who successfully repulsed the first Huna invasions was:",
+    "options": {
+      "A": "Skandagupta",
+      "B": "Budhagupta",
+      "C": "Narasimhagupta",
+      "D": "Kumaragupta I"
+    },
+    "correct_answer": "A",
+    "explanation": "Skandagupta, according to the Bhitari pillar inscription, checked the Hunas, though the effort strained the empire."
+  },
+  {
+    "id": "UPSC00081",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Gupta gold coins were known as:",
+    "options": {
+      "A": "Dinaras",
+      "B": "Karshapanas",
+      "C": "Nishkas",
+      "D": "Tankas"
+    },
+    "correct_answer": "A",
+    "explanation": "The Guptas issued many gold coins called Dinaras, derived from the Roman denarius."
+  },
+  {
+    "id": "UPSC00082",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The astronomer-mathematician Aryabhata wrote the 'Aryabhatiya' in:",
+    "options": {
+      "A": "606 CE",
+      "B": "712 CE",
+      "C": "499 CE",
+      "D": "320 CE"
+    },
+    "correct_answer": "C",
+    "explanation": "Aryabhata composed the Aryabhatiya in 499 CE at the age of 23."
+  },
+  {
+    "id": "UPSC00083",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Dashavatara temple of the Gupta period is located at:",
+    "options": {
+      "A": "Bhitargaon",
+      "B": "Khajuraho",
+      "C": "Deogarh (Uttar Pradesh)",
+      "D": "Pattadakal"
+    },
+    "correct_answer": "C",
+    "explanation": "The Dashavatara temple at Deogarh in Lalitpur district is a notable Gupta stone temple with Vishnu panels."
+  },
+  {
+    "id": "UPSC00084",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The later phase of the Ajanta cave paintings and sculptures is associated with the patronage of which dynasty?",
+    "options": {
+      "A": "Palas",
+      "B": "Pallavas",
+      "C": "Vakatakas",
+      "D": "Cholas"
+    },
+    "correct_answer": "C",
+    "explanation": "The Mahayana phase of Ajanta (5th century CE) is linked to Vakataka patronage, especially Harishena."
+  },
+  {
+    "id": "UPSC00085",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Harshavardhana was defeated on the banks of the Narmada by:",
+    "options": {
+      "A": "Narasimhavarman I",
+      "B": "Pulakeshin II",
+      "C": "Skandagupta",
+      "D": "Dharmapala"
+    },
+    "correct_answer": "B",
+    "explanation": "Pulakeshin II of the Chalukyas halted Harsha's southern expansion, as recorded in the Aihole inscription."
+  },
+  {
+    "id": "UPSC00086",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Aihole inscription describing the victories of Pulakeshin II was composed by:",
+    "options": {
+      "A": "Bilhana",
+      "B": "Banabhatta",
+      "C": "Ravikirti",
+      "D": "Harishena"
+    },
+    "correct_answer": "C",
+    "explanation": "Ravikirti, a Jain poet, composed the Aihole prashasti in 634 CE."
+  },
+  {
+    "id": "UPSC00087",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Shore Temple at Mahabalipuram was built by which Pallava ruler?",
+    "options": {
+      "A": "Mahendravarman I",
+      "B": "Nandivarman II",
+      "C": "Narasimhavarman I (Mamalla)",
+      "D": "Narasimhavarman II (Rajasimha)"
+    },
+    "correct_answer": "D",
+    "explanation": "The Shore Temple dates to the reign of Narasimhavarman II (Rajasimha), in the early 8th century."
+  },
+  {
+    "id": "UPSC00088",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The travelogue 'Si-Yu-Ki' was written by:",
+    "options": {
+      "A": "Al-Biruni",
+      "B": "Hiuen Tsang",
+      "C": "I-Tsing",
+      "D": "Fa-Hien"
+    },
+    "correct_answer": "B",
+    "explanation": "Hiuen Tsang's 'Si-Yu-Ki' describes India under Harsha."
+  },
+  {
+    "id": "UPSC00089",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Prabhavatigupta, who ruled as regent in the Vakataka kingdom, was the daughter of:",
+    "options": {
+      "A": "Chandragupta II",
+      "B": "Kumaragupta I",
+      "C": "Samudragupta",
+      "D": "Skandagupta"
+    },
+    "correct_answer": "A",
+    "explanation": "Prabhavatigupta, daughter of Chandragupta II, married the Vakataka king Rudrasena II and ruled as regent after his death."
+  },
+  {
+    "id": "UPSC00090",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Who founded the Chalukya dynasty of Badami with Vatapi as capital?",
+    "options": {
+      "A": "Vikramaditya I",
+      "B": "Pulakeshin I",
+      "C": "Pulakeshin II",
+      "D": "Kirtivarman I"
+    },
+    "correct_answer": "B",
+    "explanation": "Pulakeshin I (c. 543 CE) founded the Badami Chalukya dynasty."
+  },
+  {
+    "id": "UPSC00091",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Who wrote 'Abhijnanashakuntalam'?",
+    "options": {
+      "A": "Bhasa",
+      "B": "Shudraka",
+      "C": "Kalidasa",
+      "D": "Vishakhadatta"
+    },
+    "correct_answer": "C",
+    "explanation": "Kalidasa, the Gupta-era poet, wrote the play Abhijnanashakuntalam."
+  },
+  {
+    "id": "UPSC00092",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Consider the following statements about the Allahabad Pillar:\n1. It bears Ashokan edicts.\n2. It bears the Prayag Prashasti of Samudragupta.\n3. It also bears an inscription of the Mughal emperor Jahangir.\nWhich of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "1 and 2 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "D",
+    "explanation": "The Allahabad (Prayag) pillar carries Ashokan edicts, Samudragupta's prashasti and a later inscription of Jahangir."
+  },
+  {
+    "id": "UPSC00093",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Which political play of the Gupta age is attributed to Vishakhadatta?",
+    "options": {
+      "A": "Nagananda",
+      "B": "Mudrarakshasa",
+      "C": "Mricchakatika",
+      "D": "Svapnavasavadatta"
+    },
+    "correct_answer": "B",
+    "explanation": "Vishakhadatta wrote the Mudrarakshasa, centred on Chanakya's political strategy."
+  },
+  {
+    "id": "UPSC00094",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Consider the following statements about the Ahar-Banas culture:\n1. It was a Chalcolithic culture of south-eastern Rajasthan.\n2. Its people were known for copper smelting, and Ganeshwar is a related copper-working site.\n3. Its people were primarily nomadic hunter-gatherers who did not live in settled villages.\nWhich of the statements given above is/are correct?",
+    "options": {
+      "A": "1 and 2 only",
+      "B": "1 only",
+      "C": "2 and 3 only",
+      "D": "1, 2 and 3"
+    },
+    "correct_answer": "A",
+    "explanation": "The Ahar-Banas culture (c. 3000-1500 BCE) developed in the Banas valley of south-eastern Rajasthan, with settled villages and copper working, and is linked with the copper-source site of Ganeshwar. Statement 3 is wrong because its people were settled farmers."
+  },
+  {
+    "id": "UPSC00095",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which of the following Harappan sites is located on the Hindon river and marks the eastern-most known extent of the Harappan civilisation?",
+    "options": {
+      "A": "Daimabad",
+      "B": "Manda",
+      "C": "Alamgirpur",
+      "D": "Sutkagen Dor"
+    },
+    "correct_answer": "C",
+    "explanation": "Alamgirpur in Meerut district, Uttar Pradesh, on the Hindon river, is the eastern-most known Harappan site."
+  },
+  {
+    "id": "UPSC00096",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "According to Megasthenes, the Mauryan city administration was run by six committees of five members each. Which of the following was among the matters handled by these committees?",
+    "options": {
+      "A": "Industrial arts, foreigners, births and deaths, trade, manufactured goods and sales tax",
+      "B": "Temple endowments only",
+      "C": "Recruitment of scribes only",
+      "D": "Maintenance of irrigation canals only"
+    },
+    "correct_answer": "A",
+    "explanation": "Greek accounts based on Megasthenes describe six committees dealing with industrial arts, foreigners, registration of births and deaths, trade and commerce, manufactured goods, and collection of the sales tax."
+  },
+  {
+    "id": "UPSC00097",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Nasik inscription of Gautami Balashri, which praises the victories of Gautamiputra Satakarni over the Shakas (Western Kshatrapas), was issued in the reign of whom?",
+    "options": {
+      "A": "Yajna Sri Satakarni",
+      "B": "Vasishthiputra Pulumavi",
+      "C": "Simuka",
+      "D": "Hala"
+    },
+    "correct_answer": "B",
+    "explanation": "Gautami Balashri, mother of Gautamiputra Satakarni, issued the Nasik cave inscription in the reign of her grandson Vasishthiputra Pulumavi, recording her son's defeat of Nahapana's Kshaharata power."
+  },
+  {
+    "id": "UPSC00098",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Garuda pillar at Besnagar (Vidisha), which mentions devotion to Vasudeva, was erected by:",
+    "options": {
+      "A": "Menander, the Indo-Greek king",
+      "B": "Rudradaman, the Western Kshatrapa",
+      "C": "Heliodorus, a Greek envoy of Antialcidas",
+      "D": "Kanishka, the Kushana king"
+    },
+    "correct_answer": "C",
+    "explanation": "Heliodorus, ambassador of the Indo-Greek king Antialcidas to the Shunga court, set up the pillar and called himself a Bhagavata."
+  },
+  {
+    "id": "UPSC00099",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which one of the following Buddhist councils is traditionally associated with the first compilation of the Sutta and Vinaya Pitakas, with Mahakassapa presiding?",
+    "options": {
+      "A": "Fourth Council in Kashmir",
+      "B": "Third Council at Pataliputra",
+      "C": "Second Council at Vaishali",
+      "D": "First Council at Rajagriha"
+    },
+    "correct_answer": "D",
+    "explanation": "According to tradition, the First Council at Rajagriha, under the patronage of Ajatashatru, saw Ananda recite the Dhamma and Upali the Vinaya under Mahakassapa."
+  },
+  {
+    "id": "UPSC00100",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The 'Periplus of the Erythraean Sea', a source on Indo-Roman trade, was written by:",
+    "options": {
+      "A": "Ptolemy the geographer",
+      "B": "Strabo",
+      "C": "Pliny the Elder",
+      "D": "An anonymous Greek sailor-merchant of Roman Egypt"
+    },
+    "correct_answer": "D",
+    "explanation": "The Periplus (1st century CE) is by an unnamed Greek merchant-navigator based in Roman Egypt, describing ports and goods of the Indian Ocean."
+  },
+  {
+    "id": "UPSC00101",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "The earliest coins circulated in ancient India, from about the 6th century BCE, were:",
+    "options": {
+      "A": "Indo-Greek portrait coins",
+      "B": "Die-struck gold coins",
+      "C": "Kushana gold dinaras",
+      "D": "Punch-marked coins"
+    },
+    "correct_answer": "D",
+    "explanation": "Punch-marked silver and copper coins (Karshapanas) are the oldest Indian coinage; they bear symbols punched onto metal pieces."
+  },
+  {
+    "id": "UPSC00102",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "Which technique is most commonly used to date organic archaeological remains such as charcoal, wood and bone up to about 50,000 years old?",
+    "options": {
+      "A": "Potassium-argon dating",
+      "B": "Radiocarbon (C-14) dating",
+      "C": "Relative stratigraphy",
+      "D": "Thermoluminescence of pottery"
+    },
+    "correct_answer": "B",
+    "explanation": "Radiocarbon dating measures the decay of carbon-14 in once-living material and works up to roughly 50,000 years."
+  },
+  {
+    "id": "UPSC00103",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "Which ancient centre of learning in Gandhara is associated with scholars such as Panini and Kautilya?",
+    "options": {
+      "A": "Nalanda",
+      "B": "Vikramashila",
+      "C": "Taxila",
+      "D": "Valabhi"
+    },
+    "correct_answer": "C",
+    "explanation": "Taxila (Takshashila) was a renowned centre of learning in the north-west and is linked to Kautilya as a teacher and to Panini's Gandhara region."
+  },
+  {
+    "id": "UPSC00104",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "The 'Rajatarangini', a chronicle of the kings of Kashmir, was written by:",
+    "options": {
+      "A": "Kshemendra",
+      "B": "Kalhana",
+      "C": "Bilhana",
+      "D": "Banabhatta"
+    },
+    "correct_answer": "B",
+    "explanation": "Kalhana composed the Rajatarangini in the 12th century and is often regarded as the first true historian of India."
+  },
+  {
+    "id": "UPSC00105",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "The Vikrama Samvat is reckoned from which year?",
+    "options": {
+      "A": "78 CE",
+      "B": "606 CE",
+      "C": "319 CE",
+      "D": "57 BCE"
+    },
+    "correct_answer": "D",
+    "explanation": "The Vikrama Samvat begins in 57 BCE and is traditionally linked to King Vikramaditya of Ujjain; it is widely used in north India and is the origin of the common date offset from the Gregorian year (57 years)."
+  },
+  {
+    "id": "UPSC00106",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sources of Ancient History",
+    "question": "Which statement about the Kharosthi script is correct?",
+    "options": {
+      "A": "It was written from left to right and used mainly in southern India",
+      "B": "It was the script of Ashoka's Girnar edicts",
+      "C": "It was used for Tamil-Brahmi inscriptions",
+      "D": "It was written from right to left and used mainly in the north-west"
+    },
+    "correct_answer": "D",
+    "explanation": "Kharosthi, derived from Aramaic, runs right to left and was used in Gandhara and the north-west, including Shahbazgarhi and Mansehra."
+  },
+  {
+    "id": "UPSC00107",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "The Great Bath, a large water tank believed to have been used for ritual bathing, belongs to which Harappan site?",
+    "options": {
+      "A": "Dholavira",
+      "B": "Harappa",
+      "C": "Lothal",
+      "D": "Mohenjodaro"
+    },
+    "correct_answer": "D",
+    "explanation": "The Great Bath on the citadel mound of Mohenjodaro in Sindh is the best-known Harappan public structure."
+  },
+  {
+    "id": "UPSC00108",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which fibre did the Harappans cultivate and spin, and which the Greeks later called 'sindon'?",
+    "options": {
+      "A": "Jute",
+      "B": "Cotton",
+      "C": "Silk",
+      "D": "Flax"
+    },
+    "correct_answer": "B",
+    "explanation": "Cotton fragments are found at Mohenjodaro, and the Greek name 'sindon' is thought to derive from Sind."
+  },
+  {
+    "id": "UPSC00109",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which animal figure appears most frequently on Harappan seals?",
+    "options": {
+      "A": "Horse",
+      "B": "Elephant",
+      "C": "The 'unicorn' bull",
+      "D": "Tiger"
+    },
+    "correct_answer": "C",
+    "explanation": "The one-horned 'unicorn' bull is the commonest motif on Harappan seals."
+  },
+  {
+    "id": "UPSC00110",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which Harappan city is unusual in having its settlement divided into three parts: citadel, middle town and lower town?",
+    "options": {
+      "A": "Lothal",
+      "B": "Mohenjodaro",
+      "C": "Dholavira",
+      "D": "Kalibangan"
+    },
+    "correct_answer": "C",
+    "explanation": "Dholavira has a three-part layout with a remarkable system of reservoirs and channels."
+  },
+  {
+    "id": "UPSC00111",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "The Mature Harappan phase is generally dated to about:",
+    "options": {
+      "A": "2600-1900 BCE",
+      "B": "3500-3000 BCE",
+      "C": "1500-1000 BCE",
+      "D": "800-500 BCE"
+    },
+    "correct_answer": "A",
+    "explanation": "Calibrated radiocarbon dates place the Mature Harappan phase at roughly 2600-1900 BCE."
+  },
+  {
+    "id": "UPSC00112",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Which site in Karnataka, excavated by Mortimer Wheeler in 1947, revealed a sequence from Neolithic to Megalithic and has Ashokan minor rock edicts nearby?",
+    "options": {
+      "A": "Brahmagiri",
+      "B": "Hallur",
+      "C": "Maski",
+      "D": "Piklihal"
+    },
+    "correct_answer": "A",
+    "explanation": "Wheeler's excavation at Brahmagiri in Chitradurga district established a Neolithic-Megalithic sequence for the Deccan."
+  },
+  {
+    "id": "UPSC00113",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Which site in Karnataka has yielded some of the earliest evidence of iron in South India, around 1000 BCE?",
+    "options": {
+      "A": "Lothal",
+      "B": "Hallur",
+      "C": "Chirand",
+      "D": "Burzahom"
+    },
+    "correct_answer": "B",
+    "explanation": "Hallur in Haveri district shows early iron use in the southern Megalithic context."
+  },
+  {
+    "id": "UPSC00114",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Megalithic burial monuments associated with iron tools are most abundant in which region?",
+    "options": {
+      "A": "The Indus plain",
+      "B": "Peninsular India",
+      "C": "The Kashmir valley",
+      "D": "The Assam plain"
+    },
+    "correct_answer": "B",
+    "explanation": "Cist burials, dolmens and urn burials cluster across the Deccan and South India between about 1000 BCE and 300 CE."
+  },
+  {
+    "id": "UPSC00115",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The earliest text to mention all four ashramas (brahmacharya, grihastha, vanaprastha, sannyasa) together is generally held to be the:",
+    "options": {
+      "A": "Jabala Upanishad",
+      "B": "Rigveda",
+      "C": "Manusmriti",
+      "D": "Arthashastra"
+    },
+    "correct_answer": "A",
+    "explanation": "The Jabala Upanishad is usually cited as the first to list all four stages of life together."
+  },
+  {
+    "id": "UPSC00116",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The four 'purusharthas' of Hindu tradition are:",
+    "options": {
+      "A": "Jnana, Bhakti, Karma and Raja",
+      "B": "Satya, Ahimsa, Asteya and Aparigraha",
+      "C": "Dharma, Artha, Kama and Moksha",
+      "D": "Brahma, Vishnu, Shiva and Shakti"
+    },
+    "correct_answer": "C",
+    "explanation": "The purusharthas are the four aims of life: righteousness, wealth, desire and liberation."
+  },
+  {
+    "id": "UPSC00117",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Bhagavad Gita forms a part of which parva of the Mahabharata?",
+    "options": {
+      "A": "Shanti Parva",
+      "B": "Drona Parva",
+      "C": "Udyoga Parva",
+      "D": "Bhishma Parva"
+    },
+    "correct_answer": "D",
+    "explanation": "The Gita occurs in the Bhishma Parva, before the war begins at Kurukshetra."
+  },
+  {
+    "id": "UPSC00118",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The Mahabharata is traditionally attributed to which author, and about how many verses does it have?",
+    "options": {
+      "A": "Vyasa; around 100,000",
+      "B": "Valmiki; about 24,000",
+      "C": "Tulsidas; about 12,000",
+      "D": "Kalidasa; about 10,000"
+    },
+    "correct_answer": "A",
+    "explanation": "Vyasa is the traditional author of the Mahabharata, said to have about 100,000 verses, the longest epic."
+  },
+  {
+    "id": "UPSC00119",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "In the Dharmashastras, 'Gandharva' marriage refers to a marriage:",
+    "options": {
+      "A": "By mutual consent and love of the couple",
+      "B": "By payment to the bride's father",
+      "C": "Arranged after a gift of a cow pair",
+      "D": "By capture of the bride"
+    },
+    "correct_answer": "A",
+    "explanation": "Of the eight forms of marriage in the Manusmriti, Gandharva was by mutual attraction and consent."
+  },
+  {
+    "id": "UPSC00120",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Patanjali's 'Mahabhashya' is a commentary on the work of:",
+    "options": {
+      "A": "Kalidasa",
+      "B": "Charaka",
+      "C": "Panini",
+      "D": "Kautilya"
+    },
+    "correct_answer": "C",
+    "explanation": "The Mahabhashya is a great commentary on Panini's Ashtadhyayi, including Katyayana's vartikas."
+  },
+  {
+    "id": "UPSC00121",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Jataka tales, a part of the Buddhist canon, narrate:",
+    "options": {
+      "A": "The life of Mahavira",
+      "B": "The history of the Mauryan kings",
+      "C": "The previous births of the Buddha",
+      "D": "Rules for monks"
+    },
+    "correct_answer": "C",
+    "explanation": "Jatakas are stories about the Buddha's earlier lives as a Bodhisattva and appear in the Khuddaka Nikaya of the Sutta Pitaka."
+  },
+  {
+    "id": "UPSC00122",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Which Pitaka of the Tripitaka mainly contains rules of monastic discipline?",
+    "options": {
+      "A": "Jataka Pitaka",
+      "B": "Sutta Pitaka",
+      "C": "Vinaya Pitaka",
+      "D": "Abhidhamma Pitaka"
+    },
+    "correct_answer": "C",
+    "explanation": "The Vinaya Pitaka lays down rules for monks and nuns of the Sangha."
+  },
+  {
+    "id": "UPSC00123",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The canonical texts (Agamas) of Jainism were composed in:",
+    "options": {
+      "A": "Tamil",
+      "B": "Classical Sanskrit",
+      "C": "Pali",
+      "D": "Ardhamagadhi Prakrit"
+    },
+    "correct_answer": "D",
+    "explanation": "The Svetambara Agamas are in Ardhamagadhi Prakrit, whereas the Pali canon is Buddhist."
+  },
+  {
+    "id": "UPSC00124",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Who was the first woman to be ordained into the Buddhist Sangha?",
+    "options": {
+      "A": "Sanghamitra",
+      "B": "Ambapali",
+      "C": "Yashodhara",
+      "D": "Mahaprajapati Gotami"
+    },
+    "correct_answer": "D",
+    "explanation": "The Buddha's foster mother Mahaprajapati Gotami was admitted after Ananda's intercession."
+  },
+  {
+    "id": "UPSC00125",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "According to the Digambara tradition, which Jain teacher led the migration of monks to the south during a famine in Magadha?",
+    "options": {
+      "A": "Bhadrabahu",
+      "B": "Parshvanatha",
+      "C": "Sthulabhadra",
+      "D": "Devardhi"
+    },
+    "correct_answer": "A",
+    "explanation": "Bhadrabahu is said to have led a group to the south, whereas Sthulabhadra stayed in Magadha, leading to the Digambara-Svetambara divide."
+  },
+  {
+    "id": "UPSC00126",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "In which period did the Buddha first begin to be represented in human form in sculpture?",
+    "options": {
+      "A": "The Pallava period",
+      "B": "The Kushana period",
+      "C": "The Gupta period",
+      "D": "The Mauryan period"
+    },
+    "correct_answer": "B",
+    "explanation": "Before the Kushana period, early Buddhist art used symbols such as the wheel, footprints and the Bodhi tree. Human images appeared at Mathura and Gandhara under the Kushanas."
+  },
+  {
+    "id": "UPSC00127",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The elaborately carved toranas (gateways) of the Great Stupa at Sanchi were added during the rule of the:",
+    "options": {
+      "A": "Mauryas",
+      "B": "Satavahanas",
+      "C": "Kushanas",
+      "D": "Guptas"
+    },
+    "correct_answer": "B",
+    "explanation": "The original stupa is attributed to Ashoka, and the four gateways were added around the 1st century BCE in the Satavahana period."
+  },
+  {
+    "id": "UPSC00128",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The Bharhut stupa, famous for railings carved with Jataka scenes, belongs to which period?",
+    "options": {
+      "A": "Shunga",
+      "B": "Gupta",
+      "C": "Pallava",
+      "D": "Chola"
+    },
+    "correct_answer": "A",
+    "explanation": "Bharhut (Satna district, Madhya Pradesh) belongs to the Shunga period (2nd-1st century BCE)."
+  },
+  {
+    "id": "UPSC00129",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The Amaravati stupa, noted for its white marble-like limestone reliefs, stands on the banks of which river?",
+    "options": {
+      "A": "Godavari",
+      "B": "Krishna",
+      "C": "Tungabhadra",
+      "D": "Kaveri"
+    },
+    "correct_answer": "B",
+    "explanation": "Amaravati, in Andhra Pradesh, lies on the Krishna river and gave its name to a major Satavahana-era school of sculpture."
+  },
+  {
+    "id": "UPSC00130",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The Barabar caves near Gaya, excavated in Mauryan times, were dedicated by Ashoka and Dasharatha to which sect?",
+    "options": {
+      "A": "Jains",
+      "B": "Charvakas",
+      "C": "Buddhists",
+      "D": "Ajivikas"
+    },
+    "correct_answer": "D",
+    "explanation": "Inscriptions in the Barabar and Nagarjuni caves record their donation to the Ajivika monks."
+  },
+  {
+    "id": "UPSC00131",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The Karle chaitya hall, among the largest rock-cut chaitya halls, is in which State?",
+    "options": {
+      "A": "Maharashtra",
+      "B": "Karnataka",
+      "C": "Gujarat",
+      "D": "Odisha"
+    },
+    "correct_answer": "A",
+    "explanation": "Karle, near Lonavala in Maharashtra, was excavated during the Satavahana period."
+  },
+  {
+    "id": "UPSC00132",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "In Buddhist architecture, a 'chaitya' is:",
+    "options": {
+      "A": "A monastery for monks",
+      "B": "A prayer hall with a stupa",
+      "C": "A gateway to the stupa",
+      "D": "A pillar with a lion capital"
+    },
+    "correct_answer": "B",
+    "explanation": "A chaitya is a prayer hall containing a stupa, while a vihara is a monastery."
+  },
+  {
+    "id": "UPSC00133",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "In the structure of a stupa, the 'harmika' is:",
+    "options": {
+      "A": "A square railing on top of the dome",
+      "B": "The hemispherical dome",
+      "C": "The circular base",
+      "D": "The gateway"
+    },
+    "correct_answer": "A",
+    "explanation": "The harmika is a square railing atop the dome (anda) from which the chhatra rises."
+  },
+  {
+    "id": "UPSC00134",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Which of the following animals is NOT depicted on the abacus of the Sarnath Lion Capital?",
+    "options": {
+      "A": "Horse",
+      "B": "Camel",
+      "C": "Bull",
+      "D": "Elephant"
+    },
+    "correct_answer": "B",
+    "explanation": "The abacus shows an elephant, a bull, a horse and a lion separated by Dharma chakras; a camel is not represented."
+  },
+  {
+    "id": "UPSC00135",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The Ajanta caves are located on which river in Maharashtra?",
+    "options": {
+      "A": "Tapi",
+      "B": "Krishna",
+      "C": "Waghora",
+      "D": "Godavari"
+    },
+    "correct_answer": "C",
+    "explanation": "The Ajanta caves are cut into the horseshoe-shaped gorge of the Waghora river in Aurangabad district."
+  },
+  {
+    "id": "UPSC00136",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Ashoka sent his children to Sri Lanka to spread Buddhism. They were:",
+    "options": {
+      "A": "Jalauka and Mahendra",
+      "B": "Kunala and Charumati",
+      "C": "Mahendra and Sanghamitra",
+      "D": "Tivara and Kaluvaki"
+    },
+    "correct_answer": "C",
+    "explanation": "Mahendra and Sanghamitra carried Buddhism to Sri Lanka in Ashoka's reign."
+  },
+  {
+    "id": "UPSC00137",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Under the treaty of c. 305 BCE, which regions did Seleucus Nicator cede to Chandragupta Maurya?",
+    "options": {
+      "A": "Arachosia, Gedrosia and Paropamisadae",
+      "B": "Ionia, Lydia and Phrygia",
+      "C": "Bactria, Sogdiana and Parthia",
+      "D": "Egypt, Syria and Anatolia"
+    },
+    "correct_answer": "A",
+    "explanation": "Seleucus ceded the eastern satrapies of Arachosia, Gedrosia and Paropamisadae in exchange for 500 elephants."
+  },
+  {
+    "id": "UPSC00138",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "In Kautilya's Arthashastra, 'Sita' refers to:",
+    "options": {
+      "A": "A tax on forests",
+      "B": "Customs duty on trade",
+      "C": "The land tax at one-sixth of produce",
+      "D": "Revenue from crown lands"
+    },
+    "correct_answer": "D",
+    "explanation": "Sita lands were crown lands cultivated for the state, and the revenue from them was called sita."
+  },
+  {
+    "id": "UPSC00139",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "The separate Kalinga Rock Edicts of Ashoka are found at Dhauli and Jaugada in which State?",
+    "options": {
+      "A": "Uttar Pradesh",
+      "B": "Gujarat",
+      "C": "Odisha",
+      "D": "Karnataka"
+    },
+    "correct_answer": "C",
+    "explanation": "Dhauli (near Bhubaneswar) and Jaugada (Ganjam) are in Odisha, ancient Kalinga."
+  },
+  {
+    "id": "UPSC00140",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "The remains of an 80-pillared hall associated with the Mauryan capital Pataliputra were found at:",
+    "options": {
+      "A": "Lauriya Nandangarh",
+      "B": "Rampurva",
+      "C": "Vaishali",
+      "D": "Kumrahar"
+    },
+    "correct_answer": "D",
+    "explanation": "Excavations at Kumrahar in Patna revealed the pillared hall of the Mauryan palace complex."
+  },
+  {
+    "id": "UPSC00141",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "The Sangam assemblies of poets were held at Madurai under the patronage of which dynasty?",
+    "options": {
+      "A": "Pallavas",
+      "B": "Pandyas",
+      "C": "Cheras",
+      "D": "Cholas"
+    },
+    "correct_answer": "B",
+    "explanation": "Tradition links the Sangams at Madurai to the Pandya kings."
+  },
+  {
+    "id": "UPSC00142",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "Muziris, a major port on the Malabar coast known for pepper and Roman trade, belonged to which Sangam dynasty?",
+    "options": {
+      "A": "Cholas",
+      "B": "Pandyas",
+      "C": "Pallavas",
+      "D": "Cheras"
+    },
+    "correct_answer": "D",
+    "explanation": "Muziris (near Kodungallur) was a leading Chera port visited by Roman ships."
+  },
+  {
+    "id": "UPSC00143",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "The Keeladi excavations, which point to an urban Sangam-period settlement, are located in which district of Tamil Nadu?",
+    "options": {
+      "A": "Tirunelveli",
+      "B": "Kanchipuram",
+      "C": "Thanjavur",
+      "D": "Sivaganga"
+    },
+    "correct_answer": "D",
+    "explanation": "Keeladi, near Madurai, lies in Sivaganga district; excavations reveal brick structures, Tamil-Brahmi potsherds and ancient crafts."
+  },
+  {
+    "id": "UPSC00144",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "Puhar (Kaveripattinam) was an important port of which Sangam dynasty?",
+    "options": {
+      "A": "Cholas",
+      "B": "Satavahanas",
+      "C": "Pandyas",
+      "D": "Cheras"
+    },
+    "correct_answer": "A",
+    "explanation": "Puhar at the mouth of the Kaveri was the Chola port and a centre of overseas trade."
+  },
+  {
+    "id": "UPSC00145",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "Which Pandya port was famous for pearl fisheries?",
+    "options": {
+      "A": "Tondi",
+      "B": "Korkai",
+      "C": "Puhar",
+      "D": "Muziris"
+    },
+    "correct_answer": "B",
+    "explanation": "Korkai on the Gulf of Mannar was renowned for pearls."
+  },
+  {
+    "id": "UPSC00146",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "The Tolkappiyam, the oldest extant Tamil grammar, is divided into which three sections?",
+    "options": {
+      "A": "Aram, Porul and Inbam",
+      "B": "Eluttu, Sol and Porul",
+      "C": "Akam, Puram and Kural",
+      "D": "Kappiyam, Kural and Veda"
+    },
+    "correct_answer": "B",
+    "explanation": "The Tolkappiyam treats letters (eluttu), words (sol) and subject matter (porul)."
+  },
+  {
+    "id": "UPSC00147",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "The Tirukkural by Thiruvalluvar consists of how many couplets?",
+    "options": {
+      "A": "108",
+      "B": "1,000",
+      "C": "1,330",
+      "D": "4,000"
+    },
+    "correct_answer": "C",
+    "explanation": "The work has 133 chapters of ten couplets each, giving 1,330 couplets."
+  },
+  {
+    "id": "UPSC00148",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The earliest inscriptional records of grants of land to Brahmins in India are generally associated with which dynasty?",
+    "options": {
+      "A": "Satavahanas",
+      "B": "Mauryas",
+      "C": "Guptas",
+      "D": "Kushanas"
+    },
+    "correct_answer": "A",
+    "explanation": "Satavahana inscriptions of the early centuries CE, such as at Nasik, record the earliest land grants to Brahmins and monks."
+  },
+  {
+    "id": "UPSC00149",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "Which Chera king is said to have installed an image of Kannagi (Pattini) and held a great ceremony for her?",
+    "options": {
+      "A": "Neduncheliyan",
+      "B": "Senguttuvan",
+      "C": "Nedunjeral Adan",
+      "D": "Karikala"
+    },
+    "correct_answer": "B",
+    "explanation": "Senguttuvan is credited in the Silappadikaram with the Pattini cult."
+  },
+  {
+    "id": "UPSC00150",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "The Greek name 'Barygaza' refers to which ancient port on the west coast?",
+    "options": {
+      "A": "Surat",
+      "B": "Sopara",
+      "C": "Bharuch",
+      "D": "Tamralipti"
+    },
+    "correct_answer": "C",
+    "explanation": "Barygaza is Bharuch at the mouth of the Narmada, a major port in the Periplus."
+  },
+  {
+    "id": "UPSC00151",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "Tamralipti, a major port for trade with Southeast Asia and Sri Lanka, was in which present State?",
+    "options": {
+      "A": "West Bengal",
+      "B": "Odisha",
+      "C": "Tamil Nadu",
+      "D": "Andhra Pradesh"
+    },
+    "correct_answer": "A",
+    "explanation": "Tamralipti is identified with Tamluk in West Bengal."
+  },
+  {
+    "id": "UPSC00152",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "In ancient India, craft and merchant guilds were known as:",
+    "options": {
+      "A": "Parishads",
+      "B": "Ganas",
+      "C": "Shrenis",
+      "D": "Mahajanapadas"
+    },
+    "correct_answer": "C",
+    "explanation": "Shrenis were guilds that regulated trade and crafts and sometimes acted as banks."
+  },
+  {
+    "id": "UPSC00153",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "The 'Karshapana' of ancient India was a:",
+    "options": {
+      "A": "Roman gold coin",
+      "B": "Gupta gold coin",
+      "C": "Mughal copper coin",
+      "D": "Silver punch-marked coin"
+    },
+    "correct_answer": "D",
+    "explanation": "The Karshapana was the standard silver punch-marked coin of the Mahajanapada and Mauryan periods."
+  },
+  {
+    "id": "UPSC00154",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Sangam Age and South India",
+    "question": "The 'Pattupattu' in Sangam literature refers to:",
+    "options": {
+      "A": "The Eighteen Minor Works",
+      "B": "The Eight Anthologies",
+      "C": "The Five Great Epics",
+      "D": "The Ten Idylls"
+    },
+    "correct_answer": "D",
+    "explanation": "Pattupattu is the collection of ten long poems."
+  },
+  {
+    "id": "UPSC00155",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Trade and Economy",
+    "question": "Which empire controlled key sections of the Silk Route linking China, Central Asia, India and Rome in the early centuries CE?",
+    "options": {
+      "A": "Gupta",
+      "B": "Mauryan",
+      "C": "Kushana",
+      "D": "Chola"
+    },
+    "correct_answer": "C",
+    "explanation": "The Kushanas controlled the overland routes and benefited from Silk Route trade."
+  },
+  {
+    "id": "UPSC00156",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Rabatak inscription, found in Afghanistan, is associated with which ruler?",
+    "options": {
+      "A": "Gondophernes",
+      "B": "Kanishka",
+      "C": "Rudradaman",
+      "D": "Menander"
+    },
+    "correct_answer": "B",
+    "explanation": "The Rabatak inscription is a Bactrian record in Greek script that lists Kanishka's predecessors."
+  },
+  {
+    "id": "UPSC00157",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Which Indo-Parthian ruler is traditionally associated with the arrival of St Thomas in India?",
+    "options": {
+      "A": "Maues",
+      "B": "Azes",
+      "C": "Gondophernes",
+      "D": "Demetrius"
+    },
+    "correct_answer": "C",
+    "explanation": "Gondophernes (c. 1st century CE) is the Indo-Parthian king mentioned in the Acts of Thomas."
+  },
+  {
+    "id": "UPSC00158",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The first Kushana ruler to issue a large series of gold coins is generally held to be:",
+    "options": {
+      "A": "Kujula Kadphises",
+      "B": "Kanishka",
+      "C": "Vasudeva I",
+      "D": "Vima Kadphises"
+    },
+    "correct_answer": "D",
+    "explanation": "Vima Kadphises introduced large gold coinage, later expanded by Kanishka."
+  },
+  {
+    "id": "UPSC00159",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "The Ayodhya inscription of Dhanadeva records that which ruler performed two Ashvamedha sacrifices?",
+    "options": {
+      "A": "Pushyamitra Shunga",
+      "B": "Kharavela",
+      "C": "Agnimitra",
+      "D": "Gautamiputra Satakarni"
+    },
+    "correct_answer": "A",
+    "explanation": "Dhanadeva's inscription says Pushyamitra performed two Ashvamedhas."
+  },
+  {
+    "id": "UPSC00160",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Menander (Milinda) is traditionally associated with which capital?",
+    "options": {
+      "A": "Sakala (Sialkot)",
+      "B": "Taxila",
+      "C": "Purushapura",
+      "D": "Pushkalavati"
+    },
+    "correct_answer": "A",
+    "explanation": "Menander ruled from Sakala, which the Milindapanha describes."
+  },
+  {
+    "id": "UPSC00161",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Under the Guptas, a province was called a:",
+    "options": {
+      "A": "Janapada",
+      "B": "Bhukti",
+      "C": "Rashtra",
+      "D": "Mandala"
+    },
+    "correct_answer": "B",
+    "explanation": "Gupta empire was divided into bhuktis headed by uparikas, subdivided into vishayas."
+  },
+  {
+    "id": "UPSC00162",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Fa-Hien noted that which group lived outside towns and had to announce their approach by striking a piece of wood?",
+    "options": {
+      "A": "Chandalas",
+      "B": "Shudras",
+      "C": "Brahmanas",
+      "D": "Vaishyas"
+    },
+    "correct_answer": "A",
+    "explanation": "Fa-Hien described Chandalas as untouchables who lived outside towns."
+  },
+  {
+    "id": "UPSC00163",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The 'Panchasiddhantika', a summary of five astronomical systems, was composed by:",
+    "options": {
+      "A": "Bhaskara I",
+      "B": "Brahmagupta",
+      "C": "Aryabhata",
+      "D": "Varahamihira"
+    },
+    "correct_answer": "D",
+    "explanation": "Varahamihira summarised five earlier siddhantas in the Panchasiddhantika."
+  },
+  {
+    "id": "UPSC00164",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Which mathematician-astronomer wrote the 'Brahmasphutasiddhanta' (628 CE), which gives rules for operations with zero?",
+    "options": {
+      "A": "Varahamihira",
+      "B": "Bhaskara II",
+      "C": "Aryabhata",
+      "D": "Brahmagupta"
+    },
+    "correct_answer": "D",
+    "explanation": "Brahmagupta, in 628 CE, laid out rules for zero and negative numbers."
+  },
+  {
+    "id": "UPSC00165",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Mandasor inscription of the Gupta period refers to a guild of:",
+    "options": {
+      "A": "Oil pressers",
+      "B": "Silk weavers",
+      "C": "Horse traders",
+      "D": "Goldsmiths"
+    },
+    "correct_answer": "B",
+    "explanation": "It records silk weavers who migrated from Lata to Dashapura and built a sun temple."
+  },
+  {
+    "id": "UPSC00166",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The earliest epigraphic evidence of sati in India is generally traced to the Eran inscription of:",
+    "options": {
+      "A": "Samudragupta (c. 350 CE)",
+      "B": "Chandragupta I",
+      "C": "Bhanugupta (510 CE)",
+      "D": "Harsha (7th century)"
+    },
+    "correct_answer": "C",
+    "explanation": "The Eran pillar inscription (510 CE) records Goparaja's wife burning herself on his funeral pyre."
+  },
+  {
+    "id": "UPSC00167",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Which king of Malwa, according to the Mandasor inscription, defeated the Huna ruler Mihirakula?",
+    "options": {
+      "A": "Yashodharman",
+      "B": "Skandagupta",
+      "C": "Pulakeshin II",
+      "D": "Harshavardhana"
+    },
+    "correct_answer": "A",
+    "explanation": "Yashodharman of Malwa is credited with defeating Mihirakula around 532 CE."
+  },
+  {
+    "id": "UPSC00168",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Harshavardhana shifted his capital from Thanesar to:",
+    "options": {
+      "A": "Mathura",
+      "B": "Pataliputra",
+      "C": "Ujjain",
+      "D": "Kanauj"
+    },
+    "correct_answer": "D",
+    "explanation": "Harsha ruled from Kanauj (Kanyakubja) and made it the political centre of north India."
+  },
+  {
+    "id": "UPSC00169",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Which of the following plays was composed by Harshavardhana?",
+    "options": {
+      "A": "Mudrarakshasa",
+      "B": "Ratnavali",
+      "C": "Svapnavasavadatta",
+      "D": "Mricchakatika"
+    },
+    "correct_answer": "B",
+    "explanation": "Harsha wrote Ratnavali, Priyadarshika and Nagananda."
+  },
+  {
+    "id": "UPSC00170",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Chinese pilgrim Hiuen Tsang studied at Nalanda under which teacher?",
+    "options": {
+      "A": "Vasubandhu",
+      "B": "Dignaga",
+      "C": "Shilabhadra",
+      "D": "Dharmapala"
+    },
+    "correct_answer": "C",
+    "explanation": "Hiuen Tsang studied under Shilabhadra, the head of Nalanda."
+  },
+  {
+    "id": "UPSC00171",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Vikramashila Mahavihara was founded by which Pala king?",
+    "options": {
+      "A": "Gopala",
+      "B": "Dharmapala",
+      "C": "Devapala",
+      "D": "Ramapala"
+    },
+    "correct_answer": "B",
+    "explanation": "Dharmapala founded Vikramashila in the late 8th century."
+  },
+  {
+    "id": "UPSC00172",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The tripartite struggle for control of Kanauj involved which three powers?",
+    "options": {
+      "A": "Guptas, Vakatakas and Hunas",
+      "B": "Cholas, Pandyas and Cheras",
+      "C": "Palas, Gurjara-Pratiharas and Rashtrakutas",
+      "D": "Chalukyas, Pallavas and Cholas"
+    },
+    "correct_answer": "C",
+    "explanation": "From the 8th century the Palas of Bengal, the Gurjara-Pratiharas and the Rashtrakutas fought for Kanauj."
+  },
+  {
+    "id": "UPSC00173",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Pancha Rathas of Mahabalipuram were carved under which Pallava king?",
+    "options": {
+      "A": "Narasimhavarman I (Mamalla)",
+      "B": "Nandivarman II",
+      "C": "Mahendravarman I",
+      "D": "Rajasimha"
+    },
+    "correct_answer": "A",
+    "explanation": "The monolithic rathas date to Narasimhavarman I (Mamalla), after whom Mamallapuram is named."
+  },
+  {
+    "id": "UPSC00174",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Virupaksha temple at Pattadakal, built around 740 CE to commemorate a victory over the Pallavas, was commissioned by:",
+    "options": {
+      "A": "Prabhavatigupta",
+      "B": "Chandralekha",
+      "C": "Trailokyamahadevi, another queen of Vikramaditya II",
+      "D": "Lokamahadevi, queen of Vikramaditya II"
+    },
+    "correct_answer": "D",
+    "explanation": "Lokamahadevi had the Virupaksha temple built to mark Vikramaditya II's capture of Kanchipuram."
+  },
+  {
+    "id": "UPSC00175",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The 'Kavirajamarga', the earliest extant Kannada poetics, is attributed to the Rashtrakuta king:",
+    "options": {
+      "A": "Amoghavarsha I",
+      "B": "Govinda III",
+      "C": "Krishna I",
+      "D": "Dantidurga"
+    },
+    "correct_answer": "A",
+    "explanation": "The Kavirajamarga is attributed to Amoghavarsha I (or his court poet Sri Vijaya)."
+  },
+  {
+    "id": "UPSC00176",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Kailasa temple at Ellora was carved under which Rashtrakuta king?",
+    "options": {
+      "A": "Dantidurga",
+      "B": "Krishna I",
+      "C": "Govinda III",
+      "D": "Amoghavarsha I"
+    },
+    "correct_answer": "B",
+    "explanation": "Krishna I commissioned the Kailasa temple (Cave 16) at Ellora in the 8th century."
+  },
+  {
+    "id": "UPSC00177",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Which Pallava king wrote the Sanskrit farce 'Mattavilasa Prahasana'?",
+    "options": {
+      "A": "Simhavishnu",
+      "B": "Narasimhavarman I",
+      "C": "Mahendravarman I",
+      "D": "Nandivarman II"
+    },
+    "correct_answer": "C",
+    "explanation": "Mahendravarman I authored the Mattavilasa Prahasana."
+  },
+  {
+    "id": "UPSC00178",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Kadamba dynasty, founded by Mayurasharman, had its capital at:",
+    "options": {
+      "A": "Manyakheta",
+      "B": "Badami",
+      "C": "Talakad",
+      "D": "Banavasi"
+    },
+    "correct_answer": "D",
+    "explanation": "Mayurasharman established the Kadambas at Banavasi in the 4th century."
+  },
+  {
+    "id": "UPSC00179",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The monolithic Gommateshwara statue at Shravanabelagola was erected by:",
+    "options": {
+      "A": "Chamundaraya, minister of the Western Gangas",
+      "B": "Krishnadevaraya",
+      "C": "Amoghavarsha",
+      "D": "Vishnuvardhana"
+    },
+    "correct_answer": "A",
+    "explanation": "Chamundaraya, a minister of the Western Ganga kings, set up the statue around 981 CE."
+  },
+  {
+    "id": "UPSC00180",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The ruins of Nalanda Mahavihara were inscribed as a UNESCO World Heritage Site in:",
+    "options": {
+      "A": "2019",
+      "B": "2012",
+      "C": "2016",
+      "D": "2004"
+    },
+    "correct_answer": "C",
+    "explanation": "UNESCO inscribed the Archaeological Site of Nalanda Mahavihara in 2016."
+  },
+  {
+    "id": "UPSC00181",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "Panini's 'Ashtadhyayi' is a classic treatise on:",
+    "options": {
+      "A": "Sanskrit grammar",
+      "B": "Astronomy",
+      "C": "Statecraft",
+      "D": "Medicine"
+    },
+    "correct_answer": "A",
+    "explanation": "Panini composed the Ashtadhyayi (c. 4th century BCE), a systematic grammar of Sanskrit."
+  },
+  {
+    "id": "UPSC00182",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "Valabhi, a famous centre of learning in the 6th-7th centuries, was in the kingdom of the:",
+    "options": {
+      "A": "Maitrakas",
+      "B": "Guptas",
+      "C": "Pandyas",
+      "D": "Palas"
+    },
+    "correct_answer": "A",
+    "explanation": "The Maitrakas of Gujarat patronised Valabhi, which rivalled Nalanda."
+  },
+  {
+    "id": "UPSC00183",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "The play 'Mricchakatika' (The Little Clay Cart) was written by:",
+    "options": {
+      "A": "Shudraka",
+      "B": "Kalidasa",
+      "C": "Bhasa",
+      "D": "Vishakhadatta"
+    },
+    "correct_answer": "A",
+    "explanation": "Shudraka wrote the Mricchakatika, a social drama."
+  },
+  {
+    "id": "UPSC00184",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Gupta Age and After",
+    "question": "The Group of Monuments at Mahabalipuram was built mainly by which dynasty?",
+    "options": {
+      "A": "Cholas",
+      "B": "Pallavas",
+      "C": "Pandyas",
+      "D": "Chalukyas"
+    },
+    "correct_answer": "B",
+    "explanation": "Mahabalipuram's rathas, caves and Shore Temple were built by the Pallavas."
+  },
+  {
+    "id": "UPSC00185",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Art, Architecture and Literature",
+    "question": "Which cave complex in Maharashtra has Buddhist, Hindu and Jain monuments?",
+    "options": {
+      "A": "Elephanta",
+      "B": "Karle",
+      "C": "Ellora",
+      "D": "Ajanta"
+    },
+    "correct_answer": "C",
+    "explanation": "Ellora contains Buddhist, Hindu and Jain caves from different periods."
+  },
+  {
+    "id": "UPSC00186",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Harappa, the first site of the Indus civilisation to be discovered, lies on the banks of the:",
+    "options": {
+      "A": "Ghaggar",
+      "B": "Sutlej",
+      "C": "Indus",
+      "D": "Ravi"
+    },
+    "correct_answer": "D",
+    "explanation": "Harappa lies on a dried course of the Ravi in Punjab, Pakistan."
+  },
+  {
+    "id": "UPSC00187",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "The capital of the Mauryan Empire was:",
+    "options": {
+      "A": "Ujjain",
+      "B": "Taxila",
+      "C": "Rajagriha",
+      "D": "Pataliputra"
+    },
+    "correct_answer": "D",
+    "explanation": "Pataliputra (modern Patna), at the confluence of the Ganga and Son, was the capital of the Mauryan Empire, described by Megasthenes as Palibothra and supported by excavations at Kumrahar and Bulandibagh."
+  },
+  {
+    "id": "UPSC00188",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "According to Jain tradition, Chandragupta Maurya spent his last years at which place?",
+    "options": {
+      "A": "Taxila",
+      "B": "Pataliputra",
+      "C": "Shravanabelagola",
+      "D": "Ujjain"
+    },
+    "correct_answer": "C",
+    "explanation": "Jain tradition says Chandragupta renounced the throne and fasted to death at Shravanabelagola."
+  },
+  {
+    "id": "UPSC00189",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mauryan Empire",
+    "question": "Ashoka's father and predecessor was:",
+    "options": {
+      "A": "Chandragupta",
+      "B": "Bindusara",
+      "C": "Brihadratha",
+      "D": "Dasharatha"
+    },
+    "correct_answer": "B",
+    "explanation": "Bindusara, son of Chandragupta, ruled before Ashoka."
+  },
+  {
+    "id": "UPSC00190",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The 'Buddhacharita', a life of the Buddha in Sanskrit, was composed by:",
+    "options": {
+      "A": "Ashvaghosha",
+      "B": "Kalidasa",
+      "C": "Nagarjuna",
+      "D": "Vasubandhu"
+    },
+    "correct_answer": "A",
+    "explanation": "Ashvaghosha, linked to the Kushana court, wrote the Buddhacharita."
+  },
+  {
+    "id": "UPSC00191",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "Vardhamana Mahavira was born at Kundagrama near:",
+    "options": {
+      "A": "Pataliputra",
+      "B": "Sarnath",
+      "C": "Vaishali",
+      "D": "Kapilavastu"
+    },
+    "correct_answer": "C",
+    "explanation": "Vardhamana Mahavira was born around 540 BCE at Kundagrama, a suburb of Vaishali in present-day Bihar, to Siddhartha of the Jnatrika clan and Trishala, a Lichchhavi princess."
+  },
+  {
+    "id": "UPSC00192",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Buddha attained enlightenment at Bodh Gaya on the banks of the:",
+    "options": {
+      "A": "Son",
+      "B": "Gandak",
+      "C": "Niranjana (Phalgu)",
+      "D": "Ganga"
+    },
+    "correct_answer": "C",
+    "explanation": "He attained enlightenment under the Bodhi tree on the banks of the Niranjana."
+  },
+  {
+    "id": "UPSC00193",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Mahajanapadas, Buddhism and Jainism",
+    "question": "The Buddha attained Mahaparinirvana at:",
+    "options": {
+      "A": "Lumbini",
+      "B": "Kushinagar",
+      "C": "Rajagriha",
+      "D": "Sarnath"
+    },
+    "correct_answer": "B",
+    "explanation": "The Buddha attained Mahaparinirvana at Kushinagar (Kushinara) in the Malla territory, in present-day Uttar Pradesh, around 483 BCE according to traditional chronology."
+  },
+  {
+    "id": "UPSC00194",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "The region of the Rigvedic Aryans is commonly referred to as:",
+    "options": {
+      "A": "Dakshinapatha",
+      "B": "Sapta Sindhu",
+      "C": "Aryavarta",
+      "D": "Jambudvipa"
+    },
+    "correct_answer": "B",
+    "explanation": "The Rigveda describes the land of the seven rivers, Sapta Sindhu."
+  },
+  {
+    "id": "UPSC00195",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Vedic Age",
+    "question": "Which Veda contains spells and charms reflecting popular beliefs and healing practices?",
+    "options": {
+      "A": "Yajurveda",
+      "B": "Atharvaveda",
+      "C": "Samaveda",
+      "D": "Rigveda"
+    },
+    "correct_answer": "B",
+    "explanation": "The Atharvaveda contains charms and healing hymns."
+  },
+  {
+    "id": "UPSC00196",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Arikamedu, an ancient Indo-Roman trading site near Puducherry, was excavated by:",
+    "options": {
+      "A": "Daya Ram Sahni",
+      "B": "Alexander Cunningham",
+      "C": "John Marshall",
+      "D": "Mortimer Wheeler"
+    },
+    "correct_answer": "D",
+    "explanation": "Wheeler excavated Arikamedu in 1945, finding Roman pottery."
+  },
+  {
+    "id": "UPSC00197",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Indus Valley Civilisation",
+    "question": "Which Harappan site in Kutch has yielded remains that some scholars regard as horse bones?",
+    "options": {
+      "A": "Surkotada",
+      "B": "Lothal",
+      "C": "Kalibangan",
+      "D": "Chanhudaro"
+    },
+    "correct_answer": "A",
+    "explanation": "Surkotada has bones identified by some as horse, though this remains debated."
+  },
+  {
+    "id": "UPSC00198",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Which Satavahana king claimed to have destroyed the Shakas, Yavanas and Pahlavas?",
+    "options": {
+      "A": "Simuka",
+      "B": "Vasishthiputra Pulumavi",
+      "C": "Gautamiputra Satakarni",
+      "D": "Hala"
+    },
+    "correct_answer": "C",
+    "explanation": "The Nasik prashasti credits Gautamiputra Satakarni with defeating these groups."
+  },
+  {
+    "id": "UPSC00199",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Post-Mauryan Period",
+    "question": "Kharavela of Kalinga was a patron of which religion?",
+    "options": {
+      "A": "Vaishnavism",
+      "B": "Buddhism",
+      "C": "Shaivism",
+      "D": "Jainism"
+    },
+    "correct_answer": "D",
+    "explanation": "The Hathigumpha inscription begins with an invocation to the Arhats, marking him as a Jain patron."
+  },
+  {
+    "id": "UPSC00200",
+    "exam": "UPSC",
+    "subject": "Ancient Indian History",
+    "topic": "Prehistory and Protohistory",
+    "question": "Which Chalcolithic site in Maharashtra is noted for burials of children inside pots beneath house floors?",
+    "options": {
+      "A": "Nevasa",
+      "B": "Daimabad",
+      "C": "Jorwe",
+      "D": "Inamgaon"
+    },
+    "correct_answer": "D",
+    "explanation": "Inamgaon, in Pune district, is known for house-floor burials of children in urns."
+  }
+]

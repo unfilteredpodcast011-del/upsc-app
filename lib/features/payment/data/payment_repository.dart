@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaymentRepository {
   final FirebaseFirestore _firestore;
@@ -27,17 +29,19 @@ class PaymentRepository {
       });
       return result.data['orderId'] as String;
     } catch (e) {
-      // Direct Firestore fallback for testing environments without deployed functions
+      // Direct local/Supabase record for payments
       final orderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
-      await _firestore.collection('payments').doc(orderId).set({
-        'orderId': orderId,
-        'userId': userId,
-        'testId': testId,
-        'amountPaise': 100, // Rs. 1
-        'currency': 'INR',
-        'status': 'created',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      try {
+        await Supabase.instance.client.from('payments').insert({
+          'student_id': userId,
+          'test_id': testId,
+          'razorpay_order_id': orderId,
+          'amount_paise': 100,
+          'status': 'created',
+        });
+      } catch (e) {
+        // Continue
+      }
       return orderId;
     }
   }
@@ -75,24 +79,21 @@ class PaymentRepository {
       }
 
       if (isValid) {
-        // 1. Mark payment as captured
-        await _firestore.collection('payments').doc(orderId).set({
-          'status': 'captured',
-          'paymentId': paymentId,
-          'signature': signature,
-          'verifiedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        // 1. Mark in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('unlocked_${userId}_$testId', true);
 
-        // 2. Unlock test permanently for this student
-        await _firestore
-            .collection('user_unlocked_tests')
-            .doc('${userId}_$testId')
-            .set({
-          'userId': userId,
-          'testId': testId,
-          'orderId': orderId,
-          'unlockedAt': FieldValue.serverTimestamp(),
-        });
+        // 2. Mark in Supabase
+        try {
+          await Supabase.instance.client.from('payments').insert({
+            'student_id': userId,
+            'test_id': testId,
+            'razorpay_order_id': orderId,
+            'razorpay_payment_id': paymentId,
+            'amount_paise': 100,
+            'status': 'captured',
+          });
+        } catch (_) {}
 
         return true;
       }

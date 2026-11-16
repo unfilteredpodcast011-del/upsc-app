@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../auth/presentation/auth_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data/test_repository.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
@@ -29,10 +29,12 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
   TestModel? _test;
   List<QuestionModel> _questions = [];
   TestSessionModel? _session;
+  String _studentId = 'student_guest';
 
   int _currentIndex = 0;
-  String _currentLanguage = 'en'; // 'en', 'ta', 'hi'
+  String _currentLanguage = 'en';
   final Map<String, AnswerEntry> _answers = {};
+  final Set<String> _importantQuestionIds = {};
 
   Timer? _countdownTimer;
   int _secondsRemaining = 0;
@@ -52,24 +54,34 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
 
   Future<void> _initializeTest() async {
     try {
-      final user = ref.read(userProfileProvider).value;
-      if (user == null) throw 'User not authenticated.';
-
-      _currentLanguage = user.preferredLanguage;
-
+      final prefs = await SharedPreferences.getInstance();
+      _studentId = prefs.getString('student_id') ?? 'student_guest';
       final testRepo = ref.read(testRepoProvider);
+
       final test = await testRepo.getTestById(widget.testId);
       if (test == null) throw 'Test not found.';
 
-      final questions = await testRepo.getQuestionsForTest(test.questionIds);
+      // Load questions for this test session without repeating previously attended ones
+      final questions = await testRepo.getQuestionsForTestSession(
+        testId: test.id,
+        exam: test.exam,
+        count: test.questionCount,
+        userId: _studentId,
+      );
+
       if (questions.isEmpty) throw 'No questions loaded for this test.';
 
+      // Load important questions saved for this user
+      final savedImportant = prefs.getStringList('important_questions_$_studentId')?.toSet() ?? <String>{};
+      _importantQuestionIds.addAll(savedImportant);
+
       final session = await testRepo.startOrResumeSession(
-        userId: user.uid,
+        userId: _studentId,
         testId: test.id,
         exam: test.exam,
         defaultDurationSeconds: test.defaultDurationSeconds,
         speedOption: widget.speedOption,
+        questions: questions,
       );
 
       _test = test;
@@ -77,20 +89,17 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
       _session = session;
       _answers.addAll(session.answers);
 
-      // Calculate elapsed time from server timestamp to prevent clock cheating
       final now = DateTime.now();
       final elapsed = now.difference(session.startedAt).inSeconds;
       _totalDurationSeconds = session.allowedDurationSeconds;
       _secondsRemaining = _totalDurationSeconds - (elapsed > 0 ? elapsed : 0);
 
       if (_secondsRemaining <= 0) {
-        // Auto-submit expired session
         _autoSubmit();
         return;
       }
 
       _startTimer();
-
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() {
@@ -149,6 +158,35 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     }
   }
 
+  Future<void> _toggleImportantQuestion() async {
+    final currentQ = _questions[_currentIndex];
+    final isImp = _importantQuestionIds.contains(currentQ.id);
+    final newImp = !isImp;
+
+    setState(() {
+      if (newImp) {
+        _importantQuestionIds.add(currentQ.id);
+      } else {
+        _importantQuestionIds.remove(currentQ.id);
+      }
+    });
+
+    await ref.read(testRepoProvider).toggleImportantQuestion(
+          userId: _studentId,
+          questionId: currentQ.id,
+          isImportant: newImp,
+        );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newImp ? 'Marked as Important Question ⭐' : 'Removed from Important'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   void _clearResponse() {
     final currentQ = _questions[_currentIndex];
     final existing = _answers[currentQ.id] ?? AnswerEntry();
@@ -168,13 +206,14 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
   }
 
   Future<void> _submitTest() async {
+    final answeredCount = _answers.values.where((a) => a.selectedOption != null).length;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Submit Practice Test?'),
         content: Text(
-          'You have answered ${_answers.values.where((a) => a.selectedOption != null).length} of ${_questions.length} questions.\n'
-          'Are you sure you want to finish?',
+          'You have answered $answeredCount of ${_questions.length} questions.\n\n'
+          'Are you sure you want to finish and calculate your score?',
         ),
         actions: [
           TextButton(
@@ -182,8 +221,9 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Submit'),
+            child: const Text('Submit Now', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -198,7 +238,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Time is up! Automatically evaluating your test...'),
+          content: Text('Time is up! Evaluating your test...'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -214,11 +254,13 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
 
     final completedSession =
         await ref.read(testRepoProvider).evaluateAndSubmitSession(
-              sessionId: _session!.id,
-              testId: _test!.id,
+              sessionId: _session?.id ?? 'sess_${DateTime.now().millisecondsSinceEpoch}',
+              testId: _test?.id ?? widget.testId,
+              exam: _test?.exam ?? 'UPSC',
               questions: _questions,
               answers: _answers,
               timeTakenSeconds: timeTaken > 0 ? timeTaken : 1,
+              userId: _studentId,
             );
 
     if (mounted) {
@@ -277,6 +319,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     final currentAns = _answers[currentQ.id];
     final options = currentQ.getLocalizedOptions(_currentLanguage);
     final questionText = currentQ.getLocalizedQuestion(_currentLanguage);
+    final isImportant = _importantQuestionIds.contains(currentQ.id);
 
     final progressRatio = _totalDurationSeconds > 0
         ? _secondsRemaining / _totalDurationSeconds
@@ -300,22 +343,20 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
               ),
             ),
             Text(
-              'Question ${_currentIndex + 1} of ${_questions.length}',
+              'Q ${_currentIndex + 1} of ${_questions.length}',
               style: const TextStyle(fontSize: 12, color: Colors.white70),
             ),
           ],
         ),
         actions: [
-          // Language Switcher in-test without losing progress
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.translate),
-            tooltip: 'Switch Language',
-            onSelected: (lang) => setState(() => _currentLanguage = lang),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'en', child: Text('English')),
-              PopupMenuItem(value: 'ta', child: Text('தமிழ் (Tamil)')),
-              PopupMenuItem(value: 'hi', child: Text('हिन्दी (Hindi)')),
-            ],
+          // Important Question Star Toggle
+          IconButton(
+            icon: Icon(
+              isImportant ? Icons.star : Icons.star_border,
+              color: isImportant ? Colors.amberAccent : Colors.white70,
+            ),
+            tooltip: isImportant ? 'Marked as Important' : 'Mark as Important',
+            onPressed: _toggleImportantQuestion,
           ),
           IconButton(
             icon: const Icon(Icons.check_circle_outline),
@@ -362,6 +403,29 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                           backgroundColor: Colors.amber.shade50,
                         ),
                       const Spacer(),
+                      // Important Badge
+                      if (isImportant)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.star, size: 14, color: Colors.orange),
+                              SizedBox(width: 4),
+                              Text(
+                                'Important',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       // Mark for Review
                       IconButton(
                         icon: Icon(
@@ -391,16 +455,16 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                   const SizedBox(height: 20),
 
                   // Options List
-                  ...['a', 'b', 'c', 'd'].map((optKey) {
-                    final optText = options[optKey] ?? '';
+                  ...['A', 'B', 'C', 'D'].map((optKey) {
+                    final optText = options[optKey] ?? options[optKey.toLowerCase()] ?? '';
                     if (optText.isEmpty) return const SizedBox.shrink();
 
-                    final isSelected = currentAns?.selectedOption?.toLowerCase() == optKey;
+                    final isSelected = currentAns?.selectedOption?.toUpperCase() == optKey;
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: InkWell(
-                        onTap: () => _selectOption(optKey.toUpperCase()),
+                        onTap: () => _selectOption(optKey),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.all(14.0),
@@ -424,7 +488,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                                     ? Theme.of(context).colorScheme.primary
                                     : Colors.grey.shade200,
                                 child: Text(
-                                  optKey.toUpperCase(),
+                                  optKey,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
@@ -485,7 +549,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                       ? () => setState(() => _currentIndex++)
                       : _submitTest,
                   child: Text(
-                    _currentIndex < _questions.length - 1 ? 'Next' : 'Submit',
+                    _currentIndex < _questions.length - 1 ? 'Next' : 'Submit Test',
                   ),
                 ),
               ],
@@ -512,63 +576,78 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              // Legend
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
                 children: [
                   _legendItem(Colors.green, 'Answered'),
-                  _legendItem(Colors.grey.shade400, 'Unanswered'),
                   _legendItem(Colors.purple, 'Review'),
+                  _legendItem(Colors.amber, 'Important ⭐'),
+                  _legendItem(Colors.grey.shade400, 'Unvisited'),
                 ],
               ),
-              const SizedBox(height: 16),
-              const Divider(),
+              const Divider(height: 24),
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 5,
-                    crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
                   ),
                   itemCount: _questions.length,
                   itemBuilder: (ctx, idx) {
                     final q = _questions[idx];
                     final ans = _answers[q.id];
-                    final isAnswered = ans?.selectedOption != null;
-                    final isReview = ans?.markedForReview == true;
-                    final isCurrent = idx == _currentIndex;
+                    final isAns = ans?.selectedOption != null;
+                    final isRev = ans?.markedForReview == true;
+                    final isImp = _importantQuestionIds.contains(q.id);
 
                     Color bg = Colors.grey.shade200;
-                    if (isReview) {
-                      bg = Colors.purple.shade300;
-                    } else if (isAnswered) {
-                      bg = Colors.green.shade500;
+                    Color textCol = Colors.black87;
+
+                    if (isRev) {
+                      bg = Colors.purple;
+                      textCol = Colors.white;
+                    } else if (isAns) {
+                      bg = Colors.green;
+                      textCol = Colors.white;
                     }
 
-                    return InkWell(
-                      onTap: () {
-                        setState(() => _currentIndex = idx);
-                        Navigator.pop(ctx);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: bg,
-                          border: isCurrent
-                              ? Border.all(color: Colors.blue, width: 2.5)
-                              : null,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${idx + 1}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isAnswered || isReview ? Colors.white : Colors.black87,
+                    return Stack(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            setState(() => _currentIndex = idx);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: bg,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: _currentIndex == idx
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${idx + 1}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: textCol,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        if (isImp)
+                          const Positioned(
+                            top: 2,
+                            right: 2,
+                            child: Icon(Icons.star, size: 12, color: Colors.amber),
+                          ),
+                      ],
                     );
                   },
                 ),
@@ -584,12 +663,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
+        CircleAvatar(radius: 6, backgroundColor: color),
+        const SizedBox(width: 4),
         Text(text, style: const TextStyle(fontSize: 12)),
       ],
     );
