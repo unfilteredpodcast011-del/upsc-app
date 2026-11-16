@@ -134,17 +134,6 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           ),
           actions: [
             IconButton(
-              icon: _isGeneratingPdf
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.picture_as_pdf),
-              tooltip: 'Download PDF Report',
-              onPressed: _isGeneratingPdf ? null : _downloadPdfReport,
-            ),
-            IconButton(
               icon: const Icon(Icons.home),
               tooltip: 'Home Dashboard',
               onPressed: () => context.go('/home'),
@@ -231,7 +220,31 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // Dedicated Full PDF Download Button placed directly below Wrong Questions switch
+            ElevatedButton.icon(
+              onPressed: _isGeneratingPdf ? null : _downloadPdfReport,
+              icon: _isGeneratingPdf
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.picture_as_pdf, color: Colors.white),
+              label: Text(
+                _isGeneratingPdf ? 'Generating PDF Scorecard...' : 'Download Official PDF Scorecard & Review',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Question & Answer List (No explanations shown)
             Text(

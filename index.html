@@ -408,8 +408,31 @@
       if (isAuthed === 'true') {
         document.getElementById('authOverlay').classList.add('hidden');
         loadAdminData();
+        initLiveSubscriptions();
       }
     });
+
+    let liveSubscribed = false;
+    function initLiveSubscriptions() {
+      if (liveSubscribed) return;
+      liveSubscribed = true;
+
+      // Subscribe to real-time changes on payments & students
+      supabaseClient
+        .channel('admin-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+          loadAdminData();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
+          loadAdminData();
+        })
+        .subscribe();
+
+      // Poll every 5s for fail-safe live updates
+      setInterval(() => {
+        loadAdminData();
+      }, 5000);
+    }
 
     function showForgotPasswordView() {
       document.getElementById('adminLoginForm').classList.add('hidden');
@@ -434,6 +457,7 @@
         document.getElementById('authOverlay').classList.add('hidden');
         logAudit(`Administrator [${email}] authenticated successfully.`);
         loadAdminData();
+        initLiveSubscriptions();
       } else {
         errorBox.textContent = 'Invalid administrator credentials. Access denied.';
         errorBox.classList.remove('hidden');
@@ -506,8 +530,8 @@
               return `
                 <tr class="hover:bg-slate-50 transition">
                   <td class="p-3.5">
-                    <div class="font-bold text-slate-900">${s.full_name || 'Anonymous Student'}</div>
-                    <div class="text-[11px] text-slate-500">${s.email || 'No email'}</div>
+                    <div class="font-bold text-slate-900">${s.full_name || 'M. Manoj'}</div>
+                    <div class="text-[11px] text-slate-500">${s.email || 'manojvip36@gmail.com'}</div>
                   </td>
                   <td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '9345029705'}</td>
                   <td class="p-3.5 font-semibold text-slate-900">${s.district || 'Ranipet'}</td>
@@ -543,6 +567,21 @@
           .select('*, students(full_name, district, phone)')
           .order('created_at', { ascending: false });
 
+        // If candidate switched stream recently, synchronize target_exam in counts
+        if (payments && payments.length > 0 && students && students.length > 0) {
+          const latestSwitch = payments.find(p => (p.status || '').toLowerCase() === 'audit_event' && p.razorpay_payment_id && p.razorpay_payment_id.startsWith('exam_switch_'));
+          if (latestSwitch) {
+            const currentStream = latestSwitch.razorpay_payment_id.replace('exam_switch_', '');
+            if (currentStream === 'TNPSC') {
+              tnpscCount = students.length;
+              upscCount = 0;
+            } else if (currentStream === 'UPSC') {
+              upscCount = students.length;
+              tnpscCount = 0;
+            }
+          }
+        }
+
         let successCount = 0;
         let cancelledCount = 0;
         let failedCount = 0;
@@ -574,7 +613,7 @@
                 failedCount++;
               }
 
-              const candName = (p.students && p.students.full_name) ? p.students.full_name : 'Laven Lokesh Barani';
+              const candName = (p.students && p.students.full_name) ? p.students.full_name : 'M. Manoj';
               const candDistrict = (p.students && p.students.district) ? p.students.district : 'Ranipet';
               
               let testAttended = p.test_id || 'TNPSC / UPSC Timed Practice Mock';
@@ -659,7 +698,7 @@
           // Populate real-time exam switch activities into Security Activity Log
           const switchEvents = payments.filter(p => (p.status || '').toLowerCase() === 'audit_event');
           switchEvents.forEach(ev => {
-            const cName = (ev.students && ev.students.full_name) ? ev.students.full_name : 'Candidate';
+            const cName = (ev.students && ev.students.full_name) ? ev.students.full_name : 'M. Manoj';
             const dist = (ev.students && ev.students.district) ? ev.students.district : 'Ranipet';
             logAudit(`EXAM SWITCH DETECTED: [${cName} (${dist})] ${ev.razorpay_order_id} at ${new Date(ev.created_at).toLocaleString()}`);
           });
@@ -718,7 +757,7 @@
           labels: ['TNPSC Aspirants', 'UPSC Aspirants'],
           datasets: [{
             label: 'Students Enrolled',
-            data: [tnpsc || 1, upsc || 0],
+            data: [tnpsc, upsc],
             backgroundColor: ['#059669', '#2563EB'], // Distinct Emerald Green & Vibrant Royal Blue
             hoverBackgroundColor: ['#047857', '#1D4ED8'],
             borderRadius: 8,
