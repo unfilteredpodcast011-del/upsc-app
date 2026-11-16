@@ -26,6 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _educationLevel = 'college'; // 'school' or 'college'
   String _collegeDegreeType = 'UG'; // 'UG' or 'PG'
 
+  bool _agreedToPrivacyPolicy = false;
   bool _isSubmitting = false;
 
   final List<String> _yearsOptions = [
@@ -47,8 +48,113 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  void _showPrivacyPolicyModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          maxChildSize: 0.95,
+          minChildSize: 0.5,
+          expand: false,
+          builder: (_, controller) {
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: ListView(
+                controller: controller,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Privacy Policy & Terms',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '1. Data Collection & Usage',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'ExamPrep collects your name, email, phone number, district, and academic details strictly to personalize your exam practice, track test scores, and provide accurate performance analytics. We never sell or share your personal data with third-party advertisers.',
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '2. Payment Processing (Razorpay)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Each practice test access fee is ₹1.00 (One Rupee). Payments are processed securely via RBI-compliant payment gateway Razorpay using 128-bit bank-grade encryption. ExamPrep does not store your card, CVV, or UPI PIN credentials.',
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '3. Instant Access & Refund Terms',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Upon payment capture, the mock test is instantly unlocked for your account. Since test access is delivered digitally and immediately, test purchases are non-refundable once started. For duplicate deductions or technical failures, contact support at manojvip36@gmail.com.',
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '4. Test Integrity & Fairness',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Exam test timers, negative marking (-0.66 per wrong answer), and score evaluations simulate actual UPSC and TNPSC preliminary exam rules to give you the most accurate benchmark.',
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      setState(() => _agreedToPrivacyPolicy = true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('I Understand & Agree'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _submitStudentDetails() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_agreedToPrivacyPolicy) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Privacy Policy & Terms to continue.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
     try {
@@ -142,7 +248,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Please tell us about your exam preparation to personalize your mock tests.',
+                  'Please fill in your details to customize your prelims mock tests.',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: const Color(0xFF64748B),
                   ),
@@ -380,7 +486,59 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 20),
                 ],
 
+                // Mandatory Privacy Policy & Terms Checkbox
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _agreedToPrivacyPolicy ? Colors.indigo.shade50 : Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: _agreedToPrivacyPolicy ? Colors.indigo.shade200 : Colors.red.shade200,
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: _agreedToPrivacyPolicy,
+                        activeColor: const Color(0xFF1E3A8A),
+                        onChanged: (val) {
+                          setState(() => _agreedToPrivacyPolicy = val ?? false);
+                        },
+                      ),
+                      Expanded(
+                        child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            const Text(
+                              'I agree to the ',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            InkWell(
+                              onTap: _showPrivacyPolicyModal,
+                              child: const Text(
+                                'Privacy Policy & Terms *',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E3A8A),
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            const Text(
+                              ' (Mandatory)',
+                              style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 16),
+
                 ElevatedButton(
                   onPressed: _isSubmitting ? null : _submitStudentDetails,
                   style: ElevatedButton.styleFrom(
@@ -409,4 +567,3 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-

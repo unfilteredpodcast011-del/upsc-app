@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
-import 'features/auth/presentation/auth_controller.dart';
 
 class ExamPrepApp extends ConsumerWidget {
   const ExamPrepApp({super.key});
@@ -12,14 +11,6 @@ class ExamPrepApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    final userProfile = ref.watch(userProfileProvider).value;
-
-    Locale currentLocale = const Locale('en');
-    if (userProfile?.preferredLanguage == 'ta') {
-      currentLocale = const Locale('ta');
-    } else if (userProfile?.preferredLanguage == 'hi') {
-      currentLocale = const Locale('hi');
-    }
 
     return MaterialApp.router(
       title: 'ExamPrep',
@@ -27,7 +18,7 @@ class ExamPrepApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      locale: currentLocale,
+      locale: const Locale('en'),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
