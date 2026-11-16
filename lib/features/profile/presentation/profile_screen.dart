@@ -345,16 +345,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Official Support & Help Desk Card
+            // Official Support & Feedback Desk Card
             Card(
               child: ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: Color(0xFFEFF6FF),
-                  child: Icon(Icons.headset_mic_rounded, color: Color(0xFF2563EB)),
+                  child: Icon(Icons.support_agent_rounded, color: Color(0xFF2563EB)),
                 ),
-                title: const Text('Support & Help Desk', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('plantgreeninertiamanagement@gmail.com', style: TextStyle(fontSize: 12, fontFamily: 'monospace')),
-                trailing: const Icon(Icons.mail_outline),
+                title: const Text('Help, Grievance & Feedback Form', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Submit queries, payment issues or feedback directly to admin', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.send_rounded, color: Color(0xFF2563EB), size: 20),
                 onTap: () => _showSupportDialog(context),
               ),
             ),
@@ -478,72 +478,165 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-    void _showSupportDialog(BuildContext context) {
+  void _showSupportDialog(BuildContext context) {
+    final nameCtrl = TextEditingController(text: _displayName != 'Aspirant' ? _displayName : '');
+    final emailCtrl = TextEditingController(text: _email);
+    final orderCtrl = TextEditingController();
+    final messageCtrl = TextEditingController();
+    bool isSubmitting = false;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.headset_mic_rounded, color: Colors.blueAccent),
-            SizedBox(width: 10),
-            Text('Support & Help Desk', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Encountered a payment deduction error, timer issue, or technical glitch?',
-              style: TextStyle(fontSize: 13, height: 1.4),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.shade200),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Official Support Email:',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  SizedBox(height: 3),
-                  SelectableText(
-                    'plantgreeninertiamanagement@gmail.com',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.blueAccent,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Feel free to email us with screenshots or your Razorpay Payment ID. Our technical support team is dedicated to resolving all aspirant queries promptly.',
-              style: TextStyle(fontSize: 12, color: Colors.grey, height: 1.3),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Understood'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.support_agent_rounded, color: Color(0xFF2563EB)),
+              SizedBox(width: 10),
+              Text('Feedback & Support Desk', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+            ],
           ),
-        ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Facing an issue, payment glitch, or question suggestion? Submit your feedback directly to the administrator team:',
+                  style: TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Your Name',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email Address',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: orderCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Razorpay Payment / Order ID (Optional)',
+                    hintText: 'pay_... or order_...',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: messageCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Describe Your Issue / Feedback',
+                    hintText: 'Explain the error or suggestion in detail...',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.blue.shade100),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.email_outlined, size: 16, color: Color(0xFF2563EB)),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Direct Email: plantgreeninertiamanagement@gmail.com',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      final name = nameCtrl.text.trim();
+                      final email = emailCtrl.text.trim();
+                      final message = messageCtrl.text.trim();
+                      final orderId = orderCtrl.text.trim();
+
+                      if (message.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter your feedback or grievance details.')),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isSubmitting = true);
+
+                      try {
+                        final summary = 'INQUIRY: ${name.isEmpty ? _displayName : name} (${email.isEmpty ? _email : email}) ${orderId.isNotEmpty ? '[Order: ' + orderId + ']' : ''} - $message';
+
+                        final prefs = await SharedPreferences.getInstance();
+                        final studentId = prefs.getString('student_id') ?? '8294c73f-be46-4f65-939c-9eaebe11273f';
+
+                        await Supabase.instance.client.from('payments').insert({
+                          'student_id': studentId.contains('-') ? studentId : '8294c73f-be46-4f65-939c-9eaebe11273f',
+                          'razorpay_order_id': summary,
+                          'razorpay_payment_id': 'app_feedback_inquiry',
+                          'amount_paise': 0,
+                          'status': 'support_inquiry',
+                        });
+
+                        if (context.mounted) {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Thank you! Your feedback has been sent directly to the Admin Portal.'),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      } catch (err) {
+                        setDialogState(() => isSubmitting = false);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Submission failed: $err'), backgroundColor: Colors.red),
+                          );
+                        }
+                      }
+                    },
+              child: isSubmitting
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Text('Submit Feedback'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -16,6 +16,23 @@
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 min-h-screen antialiased">
 
+  <!-- Real-time Admin Toast Notification Container -->
+  <div id="adminNotificationToast" class="fixed top-5 right-5 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full bg-white rounded-2xl shadow-2xl border-2 border-emerald-500 p-4">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-lg shadow-sm">
+        <i id="notifIcon" class="fa-solid fa-bell animate-bounce"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center justify-between">
+          <span id="notifCategory" class="text-[11px] font-black uppercase tracking-wider text-emerald-700">Live Notification</span>
+          <span class="text-[10px] text-slate-400 font-mono" id="notifTime">Just Now</span>
+        </div>
+        <p id="notifTitle" class="text-xs font-bold text-slate-900 mt-0.5">New Support Message Received</p>
+        <p id="notifMessage" class="text-[11px] text-slate-600 mt-0.5 line-clamp-2">Candidate submitted feedback.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= AUTHENTICATION MODAL / LOGIN SCREEN ================= -->
   <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-8 relative">
@@ -412,7 +429,50 @@
       }
     });
 
+    // Sound & Visual Alert Functions
+    function playNotificationSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.36);
+      } catch (e) {
+        console.warn('Audio chime notice:', e);
+      }
+    }
+
+    let toastTimer = null;
+    function triggerAdminNotification(category, title, message) {
+      playNotificationSound();
+      const toast = document.getElementById('adminNotificationToast');
+      if (!toast) return;
+
+      document.getElementById('notifCategory').textContent = category;
+      document.getElementById('notifTitle').textContent = title;
+      document.getElementById('notifMessage').textContent = message;
+      document.getElementById('notifTime').textContent = new Date().toLocaleTimeString();
+
+      toast.classList.remove('translate-x-full', 'opacity-0');
+      toast.classList.add('translate-x-0', 'opacity-100');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('translate-x-0', 'opacity-100');
+        toast.classList.add('translate-x-full', 'opacity-0');
+      }, 7000);
+    }
+
     let liveSubscribed = false;
+    let knownPaymentIds = new Set();
+
     function initLiveSubscriptions() {
       if (liveSubscribed) return;
       liveSubscribed = true;
@@ -420,7 +480,21 @@
       // Subscribe to real-time changes on payments & students
       supabaseClient
         .channel('admin-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payments' }, payload => {
+          const rec = payload.new;
+          if (rec) {
+            const st = (rec.status || '').toLowerCase();
+            if (st === 'support_inquiry') {
+              triggerAdminNotification('NEW INQUIRY RECEIVED', 'Support / Feedback Submission', rec.razorpay_order_id || 'User submitted contact form');
+            } else if (st === 'captured' || st === 'success') {
+              triggerAdminNotification('NEW TEST PAYMENT', '₹1 Fee Paid Successfully', `Order: ${rec.razorpay_order_id || rec.id}`);
+            } else if (st === 'audit_event') {
+              triggerAdminNotification('CANDIDATE EXAM SWITCH', 'UPSC ⇄ TNPSC Change', rec.razorpay_order_id || 'Candidate modified exam stream');
+            }
+          }
+          loadAdminData();
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'payments' }, () => {
           loadAdminData();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
@@ -428,7 +502,7 @@
         })
         .subscribe();
 
-      // Poll every 5s for fail-safe live updates
+      // Poll every 5s for fail-safe live updates and detect new inquiries
       setInterval(() => {
         loadAdminData();
       }, 5000);
@@ -671,6 +745,10 @@
           } else {
             inqBody.innerHTML = inquiryEvents.map(iq => {
               const textContent = iq.razorpay_order_id || 'Support Inquiry';
+              const sourceChannel = (iq.razorpay_payment_id === 'app_feedback_inquiry')
+                ? '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-mobile-screen text-[10px]"></i> Android Mobile App</span>'
+                : '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-globe text-[10px]"></i> Website Contact Form</span>';
+
               return `
                 <tr class="hover:bg-blue-50/40 transition">
                   <td class="p-3.5 font-mono text-xs text-slate-500 whitespace-nowrap">${new Date(iq.created_at).toLocaleString()}</td>
@@ -679,10 +757,7 @@
                     <div class="text-[11px] text-slate-500 mt-0.5">Reference ID: ${iq.id}</div>
                   </td>
                   <td class="p-3.5">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[11px] font-bold">
-                      <i class="fa-solid fa-globe text-[10px]"></i>
-                      Website Contact Form
-                    </span>
+                    ${sourceChannel}
                   </td>
                   <td class="p-3.5 text-right">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">
