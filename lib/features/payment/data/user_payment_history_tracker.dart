@@ -66,13 +66,19 @@ class UserPaymentHistoryTracker {
 
     // Sync to Supabase
     try {
+      // test_id in supabase payments table expects a valid UUID or null if string slug is passed
+      String? testUuid;
+      if (testId.contains('-') && testId.length >= 32) {
+        testUuid = testId;
+      }
+      
       await Supabase.instance.client.from('payments').insert({
-        'student_id': studentId,
-        'test_id': testId,
+        'student_id': studentId.contains('-') ? studentId : null,
+        'test_id': testUuid,
         'razorpay_order_id': orderId,
         'razorpay_payment_id': paymentId,
         'amount_paise': 100,
-        'status': status.toLowerCase(),
+        'status': status == 'SUCCESS' ? 'captured' : status.toLowerCase(),
       });
     } catch (_) {}
   }

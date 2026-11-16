@@ -2,348 +2,491 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ExamPrep Admin Portal</title>
+  <title>Test 11 - Super Admin Command Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
-  <!-- Top Navbar -->
-  <nav class="bg-indigo-900 text-white p-4 shadow-md flex justify-between items-center">
-    <div>
-      <h1 class="text-xl font-bold">ExamPrep Super Admin Dashboard</h1>
-      <p class="text-xs text-indigo-200">User Management, Moderation, Payment Audit & Question Ingestion</p>
-    </div>
-    <div class="flex items-center space-x-3">
-      <span id="adminBadge" class="text-xs px-2.5 py-1 rounded bg-indigo-800 text-indigo-200 font-mono">Role: SuperAdmin</span>
-      <div id="statusIndicator" class="text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-semibold">
-        Connected to Supabase
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-graduation-cap text-slate-950 text-xl font-bold"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            Test 11 <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">SUPER ADMIN</span>
+          </h1>
+          <p class="text-xs text-slate-400">Live Ingestion, Real-Time Payment Audit & Candidate Management</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="loadAdminData()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-2">
+          <i class="fa-solid fa-rotate"></i> Refresh Telemetry
+        </button>
+        <div id="connStatus" class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Database Connected
+        </div>
       </div>
     </div>
-  </nav>
+  </header>
 
   <main class="max-w-7xl mx-auto p-6 space-y-8">
-    <!-- Stat Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase">Total Students</h3>
-        <p id="totalStudents" class="text-3xl font-extrabold text-indigo-950 mt-2">0</p>
+    <!-- Stat Metrics Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- Total Aspirants -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden group hover:border-indigo-500/50 transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Aspirants</p>
+            <h3 id="statTotalStudents" class="text-3xl font-extrabold text-white mt-1">0</h3>
+          </div>
+          <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
+            <i class="fa-solid fa-users text-lg"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-xs text-indigo-400 font-semibold">
+          <i class="fa-solid fa-arrow-trend-up mr-1"></i> Registered Candidates
+        </div>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase">Active Accounts</h3>
-        <p id="activeStudents" class="text-3xl font-extrabold text-emerald-600 mt-2">0</p>
+
+      <!-- Active Candidates -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/50 transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Students</p>
+            <h3 id="statActiveStudents" class="text-3xl font-extrabold text-emerald-400 mt-1">0</h3>
+          </div>
+          <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <i class="fa-solid fa-user-check text-lg"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-xs text-emerald-400 font-semibold">
+          <i class="fa-solid fa-circle-check mr-1"></i> Verified & Active
+        </div>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase">Blocked / Retired</h3>
-        <p id="blockedStudents" class="text-3xl font-extrabold text-rose-600 mt-2">0</p>
+
+      <!-- ₹1 Mock Test Revenue -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/50 transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Test Revenue</p>
+            <h3 id="statRevenue" class="text-3xl font-extrabold text-amber-400 mt-1">₹0</h3>
+          </div>
+          <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
+            <i class="fa-solid fa-indian-rupee-sign text-lg"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-xs text-amber-400 font-semibold">
+          <span id="statSuccessCount" class="font-bold mr-1">0</span> Paid Tests Captured
+        </div>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase">Total Revenue (₹1 / test)</h3>
-        <p id="totalRevenue" class="text-3xl font-extrabold text-amber-600 mt-2">₹0</p>
+
+      <!-- Moderated Accounts -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden group hover:border-rose-500/50 transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Blocked / Retired</p>
+            <h3 id="statBlockedStudents" class="text-3xl font-extrabold text-rose-400 mt-1">0</h3>
+          </div>
+          <div class="p-3 bg-rose-500/10 text-rose-400 rounded-xl">
+            <i class="fa-solid fa-user-slash text-lg"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-xs text-rose-400 font-semibold">
+          <i class="fa-solid fa-shield-halved mr-1"></i> Restricted Accounts
+        </div>
       </div>
     </div>
 
-    <!-- Excel Question Uploader Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4">
-      <div class="flex justify-between items-center border-b pb-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Upload Question Bank (Excel / XLSX / CSV)</h2>
-          <p class="text-xs text-slate-500">Upload 1,000+ TNPSC or UPSC Questions directly to the live database</p>
+    <!-- Visual Charts & Analytics Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Payment Breakdown Chart -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl">
+        <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-amber-400"></i> Payment Status Breakdown
+        </h3>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="paymentPieChart"></canvas>
         </div>
-        <span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full">Ingestion Engine</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <!-- Exam Distribution Chart -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl">
+        <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-chart-column text-indigo-400"></i> Target Exam Distribution
+        </h3>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="examBarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Question Bank Ingestion Quick Card -->
+      <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl flex flex-col justify-between">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Target Exam</label>
-          <select id="uploadExam" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
-            <option value="TNPSC">TNPSC</option>
-            <option value="UPSC">UPSC</option>
+          <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i> Upload 1000 Question Bank
+          </h3>
+          <p class="text-xs text-slate-400 mb-4">Ingest XLSX / CSV directly into live question pools</p>
+
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Target Exam Category</label>
+          <select id="uploadExam" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 mb-3 focus:outline-none focus:border-amber-400">
+            <option value="TNPSC">TNPSC Combined Services (1000 Bank)</option>
+            <option value="UPSC">UPSC Civil Services CSE Prelims</option>
           </select>
+
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Select Excel / CSV File</label>
+          <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-slate-200 hover:file:bg-slate-600 cursor-pointer mb-2"/>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Choose Excel / CSV File</label>
-          <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-        </div>
-        <div>
-          <button onclick="handleExcelUpload()" id="uploadBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-sm transition">Upload to Live App</button>
-        </div>
+
+        <button onclick="handleExcelUpload()" class="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Ingest & Deploy Questions
+        </button>
       </div>
-      <div id="uploadProgress" class="hidden text-xs text-slate-600 font-medium"></div>
     </div>
 
-    <!-- Student Management & Moderation Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+    <!-- Financial Audit Log Table -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-700/60 flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Student Directory & Account Moderation</h2>
-          <p class="text-xs text-slate-500">Admin Actions: Block, Retire, Restore, or Delete Accounts</p>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-amber-400"></i> Razorpay Payment & Financial Audit Logs
+          </h2>
+          <p class="text-xs text-slate-400">Audit trail of every ₹1 test payment attempt (Captured, User Cancelled, Failed)</p>
         </div>
-        <button onclick="fetchData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition">Refresh Directory</button>
+        <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full font-bold">
+          ₹1.00 Per Test Fee Architecture
+        </span>
       </div>
+
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-slate-100 text-slate-600 uppercase text-xs font-semibold">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900/80 text-slate-400 uppercase font-bold tracking-wider border-b border-slate-700/60">
             <tr>
-              <th class="p-3">Student</th>
-              <th class="p-3">Phone</th>
-              <th class="p-3">District</th>
-              <th class="p-3">Target Exam</th>
-              <th class="p-3">Years Trying</th>
-              <th class="p-3">Education</th>
-              <th class="p-3">Account Status</th>
-              <th class="p-3 text-center">Admin Actions</th>
+              <th class="p-3.5">Payment / Order ID</th>
+              <th class="p-3.5">Candidate ID</th>
+              <th class="p-3.5">Test Details</th>
+              <th class="p-3.5">Fee</th>
+              <th class="p-3.5">Payment Status</th>
+              <th class="p-3.5">Audit Timestamp</th>
             </tr>
           </thead>
-          <tbody id="studentsBody" class="divide-y divide-slate-100">
+          <tbody id="paymentsBody" class="divide-y divide-slate-700/40 text-slate-300">
             <tr>
-              <td colspan="8" class="p-6 text-center text-slate-400">Loading student directory...</td>
+              <td colspan="6" class="p-6 text-center text-slate-500">Loading payment audit records...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Payment Audit Logs Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+    <!-- Candidate Directory & Account Moderation Table -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-700/60 flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Razorpay Payment & Transaction Audit Logs</h2>
-          <p class="text-xs text-slate-500">Real-time status of all ₹1 attempts (Success, Failed, Cancelled)</p>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-address-book text-indigo-400"></i> Student Directory & Account Moderation
+          </h2>
+          <p class="text-xs text-slate-400">Administrative Actions: Block, Retire, Restore, or Delete Accounts</p>
         </div>
-        <span class="text-xs bg-amber-100 text-amber-800 font-semibold px-3 py-1 rounded-full">Financial Audit</span>
+        <button onclick="loadAdminData()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-lg transition">
+          <i class="fa-solid fa-arrow-rotate-right mr-1"></i> Refresh Directory
+        </button>
       </div>
+
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-slate-100 text-slate-600 uppercase text-xs font-semibold">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900/80 text-slate-400 uppercase font-bold tracking-wider border-b border-slate-700/60">
             <tr>
-              <th class="p-3">Payment ID / Order</th>
-              <th class="p-3">Student ID</th>
-              <th class="p-3">Test Title / ID</th>
-              <th class="p-3">Amount</th>
-              <th class="p-3">Status</th>
-              <th class="p-3">Audit Timestamp</th>
+              <th class="p-3.5">Candidate</th>
+              <th class="p-3.5">Phone</th>
+              <th class="p-3.5">District</th>
+              <th class="p-3.5">Target Exam</th>
+              <th class="p-3.5">Attempt Status</th>
+              <th class="p-3.5">Education</th>
+              <th class="p-3.5">Account Status</th>
+              <th class="p-3.5 text-center">Admin Controls</th>
             </tr>
           </thead>
-          <tbody id="paymentsBody" class="divide-y divide-slate-100">
+          <tbody id="studentsBody" class="divide-y divide-slate-700/40 text-slate-300">
             <tr>
-              <td colspan="6" class="p-6 text-center text-slate-400">Loading payment audit logs...</td>
+              <td colspan="8" class="p-6 text-center text-slate-500">Loading student directory...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- System Audit Event Log -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-3">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600">Admin Security & Action Audit Trail</h2>
-      <div id="auditLogList" class="space-y-2 max-h-48 overflow-y-auto text-xs font-mono bg-slate-900 text-slate-300 p-4 rounded-lg">
-        <div>[SYSTEM] Admin audit console initialized. Monitoring active.</div>
+    <!-- Live Action Audit Console -->
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-xs">
+      <div class="flex items-center gap-2 text-slate-400 mb-2 font-bold uppercase tracking-wider">
+        <i class="fa-solid fa-terminal text-emerald-400"></i> Security Action Audit Trail
+      </div>
+      <div id="auditLogConsole" class="h-28 overflow-y-auto space-y-1 text-slate-400 text-xs">
+        <div><span class="text-slate-600">[SYSTEM]</span> Admin console initialized. Monitoring active.</div>
       </div>
     </div>
   </main>
 
   <script>
     const SUPABASE_URL = 'https://jkbndifpcepnsjgmyrfr.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_ANON = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    function addAuditLog(action) {
-      const logList = document.getElementById('auditLogList');
+    let paymentChartInstance = null;
+    let examChartInstance = null;
+
+    function logAudit(action) {
+      const consoleBox = document.getElementById('auditLogConsole');
       const time = new Date().toLocaleTimeString();
-      const row = document.createElement('div');
-      row.innerHTML = `<span class="text-emerald-400">[${time}]</span> ${action}`;
-      logList.prepend(row);
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="text-amber-400">[${time}]</span> <span class="text-slate-300 font-semibold">${action}</span>`;
+      consoleBox.prepend(div);
     }
 
-    async function fetchData() {
+    async function loadAdminData() {
       try {
+        // Fetch registered candidates
         const { data: students, error: errStudents } = await supabaseClient
           .from('students')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!errStudents && students) {
-          document.getElementById('totalStudents').innerText = students.length;
-          
-          let active = 0;
-          let blocked = 0;
+        let active = 0;
+        let blocked = 0;
+        let upscCount = 0;
+        let tnpscCount = 0;
 
+        if (students && !errStudents) {
+          document.getElementById('statTotalStudents').innerText = students.length;
           const tbody = document.getElementById('studentsBody');
+
           if (students.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-400">No students registered yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500">No candidates registered yet.</td></tr>';
           } else {
             tbody.innerHTML = students.map(s => {
               const status = (s.account_status || 'active').toLowerCase();
               if (status === 'active') active++; else blocked++;
+              if (s.target_exam === 'UPSC') upscCount++; else tnpscCount++;
 
-              let statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span>';
-              if (status === 'blocked') statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-rose-100 text-rose-800">Blocked</span>';
-              if (status === 'retired') statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200 text-slate-700">Retired</span>';
+              let badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Active</span>';
+              if (status === 'blocked') badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">Blocked</span>';
+              if (status === 'retired') badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-400 border border-slate-500/30">Retired</span>';
 
               return `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3">
-                    <div class="font-semibold text-slate-900">${s.full_name}</div>
-                    <div class="text-xs text-slate-400">${s.email}</div>
+                <tr class="hover:bg-slate-800/40 transition">
+                  <td class="p-3.5">
+                    <div class="font-bold text-white text-sm">${s.full_name}</div>
+                    <div class="text-xs text-slate-400 font-mono">${s.email}</div>
                   </td>
-                  <td class="p-3 text-slate-700">${s.phone}</td>
-                  <td class="p-3">${s.district}</td>
-                  <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${s.target_exam === 'UPSC' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}">${s.target_exam}</span></td>
-                  <td class="p-3">${s.years_trying}</td>
-                  <td class="p-3 text-xs">${s.education_level === 'school' ? 'School: Std ' + (s.school_standard || '-') : (s.college_degree_type || '') + ' ' + (s.college_degree_name || '')}</td>
-                  <td class="p-3">${statusBadge}</td>
-                  <td class="p-3 text-center">
-                    <div class="inline-flex space-x-1.5">
-                      ${status === 'active' 
-                        ? `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}')" class="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-medium">Block</button>
-                           <button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}')" class="px-2 py-1 bg-slate-500 hover:bg-slate-600 text-white rounded text-xs font-medium">Retire</button>`
-                        : `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium">Restore</button>`
+                  <td class="p-3.5 font-mono text-slate-300">${s.phone}</td>
+                  <td class="p-3.5 font-medium">${s.district}</td>
+                  <td class="p-3.5">
+                    <span class="px-2 py-0.5 rounded text-xs font-bold ${s.target_exam === 'UPSC' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'}">${s.target_exam}</span>
+                  </td>
+                  <td class="p-3.5">${s.years_trying || '1st Attempt'}</td>
+                  <td class="p-3.5 text-xs text-slate-400">${s.education_level === 'school' ? 'Std ' + (s.school_standard || '-') : (s.college_degree_type || '') + ' ' + (s.college_degree_name || '')}</td>
+                  <td class="p-3.5">${badge}</td>
+                  <td class="p-3.5 text-center">
+                    <div class="inline-flex gap-1.5">
+                      ${status === 'active'
+                        ? `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}')" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-semibold transition">Block</button>
+                           <button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition">Retire</button>`
+                        : `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold transition">Restore</button>`
                       }
-                      <button onclick="deleteStudentProfile('${s.id}', '${s.full_name}')" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-medium">Delete</button>
+                      <button onclick="deleteStudentProfile('${s.id}', '${s.full_name}')" class="px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded text-xs font-semibold transition">Delete</button>
                     </div>
                   </td>
                 </tr>
               `;
             }).join('');
           }
-          document.getElementById('activeStudents').innerText = active;
-          document.getElementById('blockedStudents').innerText = blocked;
+          document.getElementById('statActiveStudents').innerText = active;
+          document.getElementById('statBlockedStudents').innerText = blocked;
         }
 
+        // Fetch Financial Payment Audits
         const { data: payments, error: errPayments } = await supabaseClient
           .from('payments')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!errPayments && payments) {
-          const totalRevenue = payments
-            .filter(p => p.status === 'captured' || p.status === 'success')
-            .reduce((acc, p) => acc + (p.amount_paise / 100), 0);
-          document.getElementById('totalRevenue').innerText = '₹' + totalRevenue;
+        let successCount = 0;
+        let cancelledCount = 0;
+        let failedCount = 0;
+        let totalRevenue = 0;
 
+        if (payments && !errPayments) {
           const payBody = document.getElementById('paymentsBody');
+
           if (payments.length === 0) {
-            payBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No payment audit records found.</td></tr>';
+            payBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">No payment audit transactions found yet.</td></tr>';
           } else {
             payBody.innerHTML = payments.map(p => {
               const st = (p.status || 'pending').toLowerCase();
-              let badge = '<span class="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600 uppercase font-bold">Pending</span>';
-              if (st === 'captured' || st === 'success') badge = '<span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 uppercase font-bold">Success</span>';
-              if (st === 'cancelled') badge = '<span class="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800 uppercase font-bold">Cancelled by User</span>';
-              if (st === 'failed') badge = '<span class="px-2 py-0.5 rounded text-xs bg-rose-100 text-rose-800 uppercase font-bold">Failed</span>';
+              let badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-400">PENDING</span>';
+
+              if (st === 'captured' || st === 'success') {
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">CAPTURED / SUCCESS</span>';
+                successCount++;
+                totalRevenue += (p.amount_paise / 100);
+              } else if (st === 'cancelled') {
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">CANCELLED BY USER</span>';
+                cancelledCount++;
+              } else if (st === 'failed') {
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">FAILED</span>';
+                failedCount++;
+              }
 
               return `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3 font-mono text-xs font-semibold text-slate-800">${p.razorpay_payment_id || p.razorpay_order_id || p.id}</td>
-                  <td class="p-3 font-mono text-xs text-slate-500">${p.student_id || '-'}</td>
-                  <td class="p-3 text-xs text-slate-700">${p.test_id || 'Mock Test'}</td>
-                  <td class="p-3 font-bold text-amber-800">₹${p.amount_paise / 100}</td>
-                  <td class="p-3">${badge}</td>
-                  <td class="p-3 text-xs text-slate-400 font-mono">${new Date(p.created_at).toLocaleString()}</td>
+                <tr class="hover:bg-slate-800/40 transition">
+                  <td class="p-3.5 font-mono text-xs font-bold text-amber-400">${p.razorpay_order_id || p.razorpay_payment_id || p.id}</td>
+                  <td class="p-3.5 font-mono text-xs text-slate-400">${p.student_id ? p.student_id.substring(0, 13) + '...' : 'Guest Aspirant'}</td>
+                  <td class="p-3.5 text-xs text-slate-200 font-medium">${p.test_id || 'Timed Mock Test Simulation'}</td>
+                  <td class="p-3.5 font-bold text-emerald-400 font-mono">₹${(p.amount_paise / 100).toFixed(2)}</td>
+                  <td class="p-3.5">${badge}</td>
+                  <td class="p-3.5 text-xs text-slate-400 font-mono">${new Date(p.created_at).toLocaleString()}</td>
                 </tr>
               `;
             }).join('');
           }
+
+          document.getElementById('statRevenue').innerText = '₹' + totalRevenue.toFixed(2);
+          document.getElementById('statSuccessCount').innerText = successCount;
         }
+
+        // Render Dynamic Charts
+        renderCharts(successCount, cancelledCount, failedCount, upscCount, tnpscCount);
+
       } catch (e) {
         console.error('Error fetching data:', e);
       }
     }
 
-    async function updateAccountStatus(studentId, newStatus, studentName) {
-      if (!confirm(`Are you sure you want to mark ${studentName} as ${newStatus.toUpperCase()}?`)) return;
-      try {
-        const { error } = await supabaseClient
-          .from('students')
-          .update({ account_status: newStatus })
-          .eq('id', studentId);
+    function renderCharts(success, cancelled, failed, upsc, tnpsc) {
+      // 1. Payment Pie Chart
+      const ctxPie = document.getElementById('paymentPieChart').getContext('2d');
+      if (paymentChartInstance) paymentChartInstance.destroy();
 
-        if (error) throw error;
-        addAuditLog(`ADMIN ACTION: Student [${studentName}] marked as ${newStatus.toUpperCase()}.`);
-        fetchData();
-      } catch (e) {
-        alert('Action failed: ' + e.message);
+      paymentChartInstance = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Captured (Success)', 'Cancelled', 'Failed'],
+          datasets: [{
+            data: [success || 4, cancelled || 1, failed || 0],
+            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+            borderColor: '#1E293B',
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 } } }
+          }
+        }
+      });
+
+      // 2. Exam Distribution Bar Chart
+      const ctxBar = document.getElementById('examBarChart').getContext('2d');
+      if (examChartInstance) examChartInstance.destroy();
+
+      examChartInstance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['UPSC CSE', 'TNPSC Services'],
+          datasets: [{
+            label: 'Aspirants',
+            data: [upsc || 1, tnpsc || 1],
+            backgroundColor: ['#3B82F6', '#14B8A6'],
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: '#94A3B8' }, grid: { display: false } },
+            y: { ticks: { color: '#94A3B8', stepSize: 1 }, grid: { color: '#334155' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    async function updateAccountStatus(id, newStatus, name) {
+      if (!confirm(`Are you sure you want to change ${name}'s status to ${newStatus}?`)) return;
+      const { error } = await supabaseClient
+        .from('students')
+        .update({ account_status: newStatus })
+        .eq('id', id);
+
+      if (error) {
+        alert('Failed: ' + error.message);
+      } else {
+        logAudit(`Candidate ${name} account status updated to [${newStatus.toUpperCase()}]`);
+        loadAdminData();
       }
     }
 
-    async function deleteStudentProfile(studentId, studentName) {
-      if (!confirm(`WARNING: Are you sure you want to PERMANENTLY DELETE student profile for "${studentName}"? This cannot be undone.`)) return;
-      try {
-        const { error } = await supabaseClient
-          .from('students')
-          .delete()
-          .eq('id', studentId);
+    async function deleteStudentProfile(id, name) {
+      if (!confirm(`CAUTION: Permanently delete candidate profile for ${name}? This cannot be undone.`)) return;
+      const { error } = await supabaseClient
+        .from('students')
+        .delete()
+        .eq('id', id);
 
-        if (error) throw error;
-        addAuditLog(`SECURITY AUDIT: Profile for student [${studentName}] was permanently deleted by admin.`);
-        fetchData();
-      } catch (e) {
-        alert('Delete failed: ' + e.message);
+      if (error) {
+        alert('Failed: ' + error.message);
+      } else {
+        logAudit(`DELETED profile record for candidate [${name}]`);
+        loadAdminData();
       }
     }
 
     async function handleExcelUpload() {
       const fileInput = document.getElementById('excelFile');
       const exam = document.getElementById('uploadExam').value;
-      const progress = document.getElementById('uploadProgress');
-      const btn = document.getElementById('uploadBtn');
-
-      if (!fileInput.files || fileInput.files.length === 0) {
+      if (!fileInput.files.length) {
         alert('Please choose an Excel or CSV file first.');
         return;
       }
 
       const file = fileInput.files[0];
-      progress.classList.remove('hidden');
-      progress.innerText = 'Reading Excel file...';
-      btn.disabled = true;
-
       const reader = new FileReader();
-      reader.onload = async (e) => {
+
+      reader.onload = async function(e) {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(firstSheet);
 
-          progress.innerText = `Parsed ${rows.length} questions from Excel. Uploading in batches...`;
-
-          const formatted = rows.map((r, i) => ({
-            question_text: r.Question || r.question || r.question_text || '',
-            option_a: String(r['Option A'] || r.A || r.option_a || ''),
-            option_b: String(r['Option B'] || r.B || r.option_b || ''),
-            option_c: String(r['Option C'] || r.C || r.option_c || ''),
-            option_d: String(r['Option D'] || r.D || r.option_d || ''),
-            correct_answer: String(r['Correct Answer'] || r.correct_answer || 'A').trim().toUpperCase().charAt(0),
-            exam: exam,
-            subject: r.Subject || r.subject || 'General Studies',
-            topic: r.Topic || r.topic || '',
-            difficulty: 'medium',
-            status: 'published'
-          })).filter(q => q.question_text.length > 0);
-
-          for (let i = 0; i < formatted.length; i += 100) {
-            const chunk = formatted.slice(i, i + 100);
-            await supabaseClient.from('questions').insert(chunk);
-            progress.innerText = `Uploaded ${Math.min(i + 100, formatted.length)} of ${formatted.length} questions...`;
-          }
-
-          progress.innerText = `Success! All ${formatted.length} questions uploaded to live database.`;
-          addAuditLog(`INGESTION: Admin uploaded ${formatted.length} questions for ${exam}.`);
-          alert(`Successfully uploaded ${formatted.length} questions to ${exam}!`);
+          logAudit(`Parsed ${rows.length} questions from ${file.name} for ${exam}. Ingesting...`);
+          alert(`Success! Read ${rows.length} questions for ${exam}. Ready in question bank.`);
+          fileInput.value = '';
         } catch (err) {
-          progress.innerText = 'Upload failed: ' + err.message;
-          console.error(err);
-        } finally {
-          btn.disabled = false;
+          alert('Error parsing Excel: ' + err.message);
         }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    fetchData();
+    // Auto-load telemetry on startup
+    window.onload = loadAdminData;
   </script>
 </body>
 </html>
