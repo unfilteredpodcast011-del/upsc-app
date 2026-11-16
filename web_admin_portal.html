@@ -10,43 +10,43 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen antialiased">
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen antialiased">
 
   <!-- ================= AUTHENTICATION MODAL / LOGIN SCREEN ================= -->
-  <div id="authOverlay" class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl border border-gray-200 shadow-2xl max-w-md w-full p-8 relative">
+  <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-8 relative">
       
       <!-- Brand Header -->
       <div class="text-center mb-6">
-        <div class="w-12 h-12 bg-black text-white rounded-lg flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+        <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl font-extrabold shadow-md">
           11
         </div>
-        <h2 class="text-2xl font-bold text-gray-900">Test 11 Admin Access</h2>
-        <p class="text-xs text-gray-500 mt-1">Please sign in with your administrator credentials</p>
+        <h2 class="text-2xl font-bold text-slate-900">Test 11 Admin Access</h2>
+        <p class="text-xs text-slate-500 mt-1">Please sign in with your administrator credentials</p>
       </div>
 
       <!-- Login Form View -->
       <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Admin Email</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Admin Email</label>
           <input 
             type="email" 
             id="adminEmail" 
             required
             value="manojvip36@gmail.com"
             placeholder="admin@test11.com"
-            class="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
           >
         </div>
 
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="text-xs font-semibold uppercase tracking-wider text-gray-700">Password</label>
-            <button type="button" onclick="showForgotPasswordView()" class="text-xs font-medium text-gray-600 hover:text-black underline">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-700">Password</label>
+            <button type="button" onclick="showForgotPasswordView()" class="text-xs font-semibold text-slate-600 hover:text-black underline">
               Forgot password?
             </button>
           </div>
@@ -55,23 +55,23 @@
             id="adminPassword" 
             required
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
           >
         </div>
 
-        <div id="loginError" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600"></div>
+        <div id="loginError" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-medium text-red-600"></div>
 
         <button 
           type="submit" 
           id="loginBtn"
-          class="w-full py-2.5 px-4 bg-black hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition flex items-center justify-center gap-2"
+          class="w-full py-3 px-4 bg-black hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
         >
           <span>Sign In to Dashboard</span>
           <i class="fa-solid fa-arrow-right text-xs"></i>
         </button>
 
-        <div class="pt-3 border-t border-gray-100 text-center">
-          <p class="text-[11px] text-gray-400">
+        <div class="pt-3 border-t border-slate-100 text-center">
+          <p class="text-[11px] text-slate-400">
             Authorized Personnel Only • IP & Session Logged
           </p>
         </div>
@@ -80,28 +80,28 @@
       <!-- Forgot Password View -->
       <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" class="hidden space-y-4">
         <div class="text-center mb-2">
-          <h3 class="text-lg font-bold text-gray-900">Reset Admin Password</h3>
-          <p class="text-xs text-gray-500 mt-1">Enter your registered email to receive a password reset link.</p>
+          <h3 class="text-lg font-bold text-slate-900">Reset Admin Password</h3>
+          <p class="text-xs text-slate-500 mt-1">Enter your registered email to receive a password reset link.</p>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Admin Email</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Admin Email</label>
           <input 
             type="email" 
             id="resetEmail" 
             required
             value="manojvip36@gmail.com"
             placeholder="admin@test11.com"
-            class="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
           >
         </div>
 
-        <div id="resetFeedback" class="hidden p-3 rounded-lg text-xs"></div>
+        <div id="resetFeedback" class="hidden p-3 rounded-xl text-xs"></div>
 
         <button 
           type="submit" 
           id="resetBtn"
-          class="w-full py-2.5 px-4 bg-black hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition"
+          class="w-full py-2.5 px-4 bg-black hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition"
         >
           Send Reset Link
         </button>
@@ -109,7 +109,7 @@
         <button 
           type="button" 
           onclick="showLoginView()" 
-          class="w-full py-2 text-xs font-medium text-gray-600 hover:text-black transition"
+          class="w-full py-2 text-xs font-semibold text-slate-600 hover:text-black transition"
         >
           ← Back to Sign In
         </button>
@@ -119,44 +119,44 @@
   </div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-40 px-6 py-3.5">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3.5">
     <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-sm">
+        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
           11
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold text-gray-900">Test 11</h1>
-            <span class="text-[11px] font-semibold bg-gray-100 text-gray-800 px-2 py-0.5 rounded border border-gray-200">
+            <h1 class="text-base font-bold text-slate-900">Test 11</h1>
+            <span class="text-[11px] font-bold bg-slate-100 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200">
               Admin Portal
             </span>
           </div>
-          <p class="text-xs text-gray-500">Student Directory, Revenue & Question Ingestion</p>
+          <p class="text-xs text-slate-500">Student Directory, Revenue & Question Ingestion</p>
         </div>
       </div>
 
       <div class="flex items-center space-x-3">
         <button 
           onclick="loadAdminData()" 
-          class="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-md border border-gray-300 transition flex items-center gap-1.5 shadow-sm"
+          class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm"
         >
-          <i class="fa-solid fa-arrows-rotate text-gray-500 text-xs"></i>
+          <i class="fa-solid fa-arrows-rotate text-slate-500 text-xs"></i>
           <span>Refresh</span>
         </button>
 
-        <div class="flex items-center gap-2 pl-3 border-l border-gray-200">
-          <div class="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs font-bold text-gray-700">
+        <div class="flex items-center gap-2 pl-3 border-l border-slate-200">
+          <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
             M
           </div>
           <div class="hidden sm:block text-left">
-            <div id="currentUserLabel" class="text-xs font-semibold text-gray-900">Manoj (Super Admin)</div>
-            <div class="text-[10px] text-gray-500">manojvip36@gmail.com</div>
+            <div id="currentUserLabel" class="text-xs font-bold text-slate-900">Manoj (Super Admin)</div>
+            <div class="text-[11px] text-slate-500">manojvip36@gmail.com</div>
           </div>
           <button 
             onclick="logoutAdmin()" 
             title="Sign Out" 
-            class="ml-2 text-xs text-gray-400 hover:text-red-600 transition p-1"
+            class="ml-2 text-xs text-slate-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-slate-100"
           >
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
@@ -170,38 +170,38 @@
 
     <!-- KPI Metric Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Registered Students</div>
-        <div class="text-2xl font-bold text-gray-900 mt-2" id="kpiTotalStudents">--</div>
-        <div class="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
-          <i class="fa-solid fa-users text-gray-400"></i>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Registered Students</div>
+        <div class="text-2xl font-black text-slate-900 mt-2" id="kpiTotalStudents">--</div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-users text-slate-400"></i>
           <span>UPSC & TNPSC Aspirants</span>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Platform Revenue</div>
-        <div class="text-2xl font-bold text-gray-900 mt-2" id="kpiRevenue">₹--</div>
-        <div class="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Platform Revenue</div>
+        <div class="text-2xl font-black text-emerald-600 mt-2" id="kpiRevenue">₹--</div>
+        <div class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
           <i class="fa-solid fa-arrow-trend-up"></i>
           <span>All ₹1 test fee attempts</span>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Successful Payments</div>
-        <div class="text-2xl font-bold text-gray-900 mt-2" id="kpiSuccessPayments">--</div>
-        <div class="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
-          <i class="fa-solid fa-circle-check text-gray-400"></i>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Successful Payments</div>
+        <div class="text-2xl font-black text-slate-900 mt-2" id="kpiSuccessPayments">--</div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-check text-emerald-500"></i>
           <span>Captured via UPI / Netbanking</span>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Live Question Bank</div>
-        <div class="text-2xl font-bold text-gray-900 mt-2" id="kpiTotalQuestions">1,200</div>
-        <div class="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
-          <i class="fa-solid fa-file-circle-check text-gray-400"></i>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Live Question Bank</div>
+        <div class="text-2xl font-black text-slate-900 mt-2" id="kpiTotalQuestions">1,200</div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-file-circle-check text-indigo-500"></i>
           <span>English, Tamil & Hindi</span>
         </div>
       </div>
@@ -209,51 +209,91 @@
 
     <!-- Analytics Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-        <h3 class="text-sm font-bold text-gray-900 mb-1">Payment Status Breakdown</h3>
-        <p class="text-xs text-gray-500 mb-4">Ratio of Success, Cancelled, and Failed payments</p>
-        <div class="h-56 relative flex items-center justify-center">
+      
+      <!-- Chart 1: Payment Status Breakdown (Clear High-Contrast Colors) -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-bold text-slate-900">Payment Status Breakdown</h3>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Real-time</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">Green (Success), Amber (Cancelled), Red (Failed)</p>
+        </div>
+        <div class="h-56 relative flex items-center justify-center my-auto">
           <canvas id="paymentPieChart"></canvas>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 text-center text-xs">
+          <div class="p-1.5 rounded-lg bg-emerald-50 border border-emerald-100">
+            <div class="text-[10px] font-bold text-emerald-700">SUCCESS</div>
+            <div class="font-extrabold text-emerald-900" id="legendSuccess">0</div>
+          </div>
+          <div class="p-1.5 rounded-lg bg-amber-50 border border-amber-100">
+            <div class="text-[10px] font-bold text-amber-700">CANCELLED</div>
+            <div class="font-extrabold text-amber-900" id="legendCancelled">0</div>
+          </div>
+          <div class="p-1.5 rounded-lg bg-rose-50 border border-rose-100">
+            <div class="text-[10px] font-bold text-rose-700">FAILED</div>
+            <div class="font-extrabold text-rose-900" id="legendFailed">0</div>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm lg:col-span-2">
-        <h3 class="text-sm font-bold text-gray-900 mb-1">Target Exam Distribution</h3>
-        <p class="text-xs text-gray-500 mb-4">Student registrations split between TNPSC & UPSC</p>
+      <!-- Chart 2: Target Exam Distribution Bar Chart (High-Contrast Emerald vs Royal Blue) -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-bold text-slate-900">Target Exam Distribution</h3>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Students</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">Clear visual comparison: Emerald Green for TNPSC vs. Royal Blue for UPSC</p>
+        </div>
         <div class="h-56 relative">
           <canvas id="studentBarChart"></canvas>
         </div>
+        <div class="flex items-center justify-center gap-6 pt-3 border-t border-slate-100 text-xs font-semibold">
+          <div class="flex items-center gap-2">
+            <span class="w-3.5 h-3.5 rounded bg-[#059669]"></span>
+            <span class="text-slate-700">TNPSC Aspirants:</span>
+            <span class="font-bold text-slate-900" id="legendTnpsc">0</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3.5 h-3.5 rounded bg-[#2563EB]"></span>
+            <span class="text-slate-700">UPSC Aspirants:</span>
+            <span class="font-bold text-slate-900" id="legendUpsc">0</span>
+          </div>
+        </div>
       </div>
+
     </div>
 
     <!-- Question Upload & Excel Ingestion Panel -->
-    <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-      <div class="border-b border-gray-100 pb-4 mb-4 flex justify-between items-center">
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div class="border-b border-slate-100 pb-4 mb-4 flex justify-between items-center">
         <div>
-          <h2 class="text-base font-bold text-gray-900">Upload Questions (Excel / CSV)</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Ingest new test question sets into the live database</p>
+          <h2 class="text-base font-bold text-slate-900">Upload Questions (Excel / CSV)</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Ingest new test question sets into the live database</p>
         </div>
-        <span class="text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded font-medium">
+        <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold">
           Instant Sync
         </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Select Target Exam</label>
-          <select id="examTargetSelect" class="w-full text-xs font-medium border border-gray-300 rounded-lg p-2.5 focus:ring-1 focus:ring-black">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Select Target Exam</label>
+          <select id="examTargetSelect" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-black">
             <option value="TNPSC">TNPSC (Tamil Nadu Public Service Commission)</option>
             <option value="UPSC">UPSC (Civil Services Prelims)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Choose Excel / CSV File</label>
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="w-full text-xs border border-gray-300 rounded-lg p-2 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-800 hover:file:bg-gray-200">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Choose Excel / CSV File</label>
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="w-full text-xs border border-slate-300 rounded-xl p-2 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200">
         </div>
 
         <div>
-          <button onclick="handleExcelUpload()" class="w-full py-2.5 bg-black hover:bg-gray-800 text-white font-semibold text-xs rounded-lg transition flex items-center justify-center gap-2">
+          <button onclick="handleExcelUpload()" class="w-full py-2.5 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
             <i class="fa-solid fa-cloud-arrow-up"></i>
             <span>Upload to Question Bank</span>
           </button>
@@ -262,18 +302,18 @@
     </div>
 
     <!-- Student Directory & Moderation Table -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-gray-200 flex flex-wrap justify-between items-center gap-3">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="text-base font-bold text-gray-900">Registered Students Directory</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Manage aspirant accounts, verify districts, or moderate access</p>
+          <h2 class="text-base font-bold text-slate-900">Registered Students Directory</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Manage aspirant accounts, verify districts, or moderate access</p>
         </div>
-        <span class="text-xs text-gray-500 font-medium">Actions: Block, Retire, Delete</span>
+        <span class="text-xs text-slate-500 font-semibold">Actions: Block, Retire, Delete</span>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 text-gray-600 uppercase font-semibold text-[11px] border-b border-gray-200">
+          <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[11px] border-b border-slate-200">
             <tr>
               <th class="p-3.5">Candidate</th>
               <th class="p-3.5">Contact Number</th>
@@ -284,9 +324,9 @@
               <th class="p-3.5 text-right">Moderation Actions</th>
             </tr>
           </thead>
-          <tbody id="studentsBody" class="divide-y divide-gray-200 text-gray-700">
+          <tbody id="studentsBody" class="divide-y divide-slate-200 text-slate-700">
             <tr>
-              <td colspan="7" class="p-6 text-center text-gray-400">Loading student directory...</td>
+              <td colspan="7" class="p-6 text-center text-slate-400 font-medium">Loading student directory...</td>
             </tr>
           </tbody>
         </table>
@@ -294,20 +334,20 @@
     </div>
 
     <!-- Financial Payment Audit Log Table -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-gray-200 flex flex-wrap justify-between items-center gap-3">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="text-base font-bold text-gray-900">Payment & Transaction Audit Logs</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Audit trail of every ₹1 test fee with payment mode & specific test attended</p>
+          <h2 class="text-base font-bold text-slate-900">Payment & Transaction Audit Logs</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Audit trail of every ₹1 test fee with payment mode & specific test attended</p>
         </div>
-        <span class="text-xs font-semibold bg-gray-100 text-gray-800 px-2.5 py-1 rounded">
+        <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-md">
           Real-Time Audit
         </span>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 text-gray-600 uppercase font-semibold text-[11px] border-b border-gray-200">
+          <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[11px] border-b border-slate-200">
             <tr>
               <th class="p-3.5">Payment / Order ID</th>
               <th class="p-3.5">Candidate & District</th>
@@ -318,9 +358,9 @@
               <th class="p-3.5">Timestamp</th>
             </tr>
           </thead>
-          <tbody id="paymentsBody" class="divide-y divide-gray-200 text-gray-700">
+          <tbody id="paymentsBody" class="divide-y divide-slate-200 text-slate-700">
             <tr>
-              <td colspan="7" class="p-6 text-center text-gray-400">Loading transaction logs...</td>
+              <td colspan="7" class="p-6 text-center text-slate-400 font-medium">Loading transaction logs...</td>
             </tr>
           </tbody>
         </table>
@@ -328,12 +368,12 @@
     </div>
 
     <!-- Action Audit Trail Console -->
-    <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <div class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wide">
-        <i class="fa-solid fa-terminal text-gray-500"></i>
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div class="flex items-center gap-2 mb-2 text-xs font-bold text-slate-700 uppercase tracking-wide">
+        <i class="fa-solid fa-terminal text-slate-500"></i>
         <span>Security & Administrative Activity Log</span>
       </div>
-      <div id="auditLogConsole" class="h-28 overflow-y-auto space-y-1 font-mono text-xs text-gray-600 bg-gray-50 p-3 rounded border border-gray-200">
+      <div id="auditLogConsole" class="h-28 overflow-y-auto space-y-1 font-mono text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
         <div>[SYSTEM] Admin console loaded. Security monitoring initialized.</div>
       </div>
     </div>
@@ -402,8 +442,7 @@
       const email = document.getElementById('resetEmail').value.trim();
       const feedback = document.getElementById('resetFeedback');
 
-      // In client mode, set a temporary new password and confirm
-      feedback.className = 'p-3 rounded-lg text-xs bg-emerald-50 border border-emerald-200 text-emerald-800';
+      feedback.className = 'p-3 rounded-xl text-xs bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium';
       feedback.innerHTML = `Password reset instructions sent to <b>${email}</b>.<br>Temporary access password: <b>admin123</b> (saved).`;
       feedback.classList.remove('hidden');
 
@@ -444,7 +483,7 @@
           const stuBody = document.getElementById('studentsBody');
 
           if (students.length === 0) {
-            stuBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">No students found.</td></tr>';
+            stuBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No students found.</td></tr>';
           } else {
             stuBody.innerHTML = students.map(s => {
               if (s.target_exam === 'UPSC') upscCount++;
@@ -453,38 +492,38 @@
               const isBlocked = s.account_status === 'blocked';
               const isRetired = s.account_status === 'retired';
 
-              let statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>';
+              let statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>';
               if (isBlocked) {
-                statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">Blocked</span>';
+                statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Blocked</span>';
               } else if (isRetired) {
-                statusBadge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-700 border border-gray-200">Retired</span>';
+                statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Retired</span>';
               }
 
               return `
-                <tr class="hover:bg-gray-50 transition">
+                <tr class="hover:bg-slate-50 transition">
                   <td class="p-3.5">
-                    <div class="font-semibold text-gray-900">${s.full_name || 'Anonymous Student'}</div>
-                    <div class="text-[11px] text-gray-500">${s.email || 'No email'}</div>
+                    <div class="font-bold text-slate-900">${s.full_name || 'Anonymous Student'}</div>
+                    <div class="text-[11px] text-slate-500">${s.email || 'No email'}</div>
                   </td>
-                  <td class="p-3.5 font-mono text-gray-600">${s.phone || '9894601904'}</td>
-                  <td class="p-3.5 font-medium text-gray-900">${s.district || 'Ranipet'}</td>
+                  <td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '9894601904'}</td>
+                  <td class="p-3.5 font-semibold text-slate-900">${s.district || 'Ranipet'}</td>
                   <td class="p-3.5">
-                    <span class="px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-800 rounded">
+                    <span class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 text-slate-800 rounded-md">
                       ${s.target_exam || 'TNPSC'}
                     </span>
                   </td>
-                  <td class="p-3.5 text-gray-600">${s.education || 'PG Graduate'}</td>
+                  <td class="p-3.5 text-slate-600 font-medium">${s.education || 'PG Graduate'}</td>
                   <td class="p-3.5">${statusBadge}</td>
                   <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
                     ${isBlocked 
-                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-2.5 py-1 text-xs font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 text-gray-700">Unblock</button>`
-                      : `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}')" class="px-2.5 py-1 text-xs font-semibold rounded bg-red-600 hover:bg-red-700 text-white transition">Block</button>`
+                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Unblock</button>`
+                      : `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition shadow-sm">Block</button>`
                     }
                     ${isRetired
-                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-2.5 py-1 text-xs font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 text-gray-700">Restore</button>`
-                      : `<button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}')" class="px-2.5 py-1 text-xs font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 text-gray-700">Retire</button>`
+                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Restore</button>`
+                      : `<button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Retire</button>`
                     }
-                    <button onclick="deleteAccount('${s.id}', '${s.full_name}')" class="px-2 py-1 text-xs font-medium text-gray-400 hover:text-red-600 transition" title="Delete Candidate">
+                    <button onclick="deleteAccount('${s.id}', '${s.full_name}')" class="p-1.5 text-xs font-medium text-slate-400 hover:text-red-600 transition" title="Delete Candidate">
                       <i class="fa-regular fa-trash-can"></i>
                     </button>
                   </td>
@@ -509,48 +548,46 @@
           const payBody = document.getElementById('paymentsBody');
 
           if (payments.length === 0) {
-            payBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">No payment audit transactions found yet.</td></tr>';
+            payBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No payment audit transactions found yet.</td></tr>';
           } else {
             payBody.innerHTML = payments.map(p => {
               const st = (p.status || 'pending').toLowerCase();
-              let badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600">PENDING</span>';
+              let badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">PENDING</span>';
 
               if (st === 'captured' || st === 'success') {
-                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">SUCCESS</span>';
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SUCCESS</span>';
                 successCount++;
                 totalRevenue += (p.amount_paise / 100);
               } else if (st === 'cancelled') {
-                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">CANCELLED</span>';
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">CANCELLED</span>';
                 cancelledCount++;
               } else if (st === 'failed') {
-                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">FAILED</span>';
+                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">FAILED</span>';
                 failedCount++;
               }
 
               const candName = (p.students && p.students.full_name) ? p.students.full_name : 'M. Manoj';
               const candDistrict = (p.students && p.students.district) ? p.students.district : 'Ranipet';
-              
-              // Extract payment mode and specific test attended
               const testAttended = p.test_id || 'TNPSC / UPSC Timed Practice Mock';
               const paymentMode = p.payment_mode || 'UPI / Netbanking';
 
               return `
-                <tr class="hover:bg-gray-50 transition">
-                  <td class="p-3.5 font-mono text-xs font-semibold text-gray-800">${p.razorpay_order_id || p.razorpay_payment_id || p.id}</td>
+                <tr class="hover:bg-slate-50 transition">
+                  <td class="p-3.5 font-mono text-xs font-bold text-slate-900">${p.razorpay_order_id || p.razorpay_payment_id || p.id}</td>
                   <td class="p-3.5">
-                    <div class="font-semibold text-gray-900">${candName}</div>
-                    <div class="text-[11px] text-gray-500">📍 ${candDistrict}</div>
+                    <div class="font-bold text-slate-900">${candName}</div>
+                    <div class="text-[11px] font-medium text-emerald-600">📍 ${candDistrict}</div>
                   </td>
-                  <td class="p-3.5 font-medium text-gray-900">${testAttended}</td>
-                  <td class="p-3.5 font-medium text-gray-700">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-[11px]">
-                      <i class="fa-solid fa-building-columns text-[10px]"></i>
+                  <td class="p-3.5 font-semibold text-slate-900">${testAttended}</td>
+                  <td class="p-3.5 font-medium text-slate-700">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-800 rounded-md text-[11px] font-bold">
+                      <i class="fa-solid fa-building-columns text-[10px] text-slate-600"></i>
                       ${paymentMode}
                     </span>
                   </td>
-                  <td class="p-3.5 font-bold text-gray-900">₹${(p.amount_paise / 100).toFixed(2)}</td>
+                  <td class="p-3.5 font-black text-slate-900 font-mono">₹${(p.amount_paise / 100).toFixed(2)}</td>
                   <td class="p-3.5">${badge}</td>
-                  <td class="p-3.5 text-xs text-gray-500 font-mono">${new Date(p.created_at).toLocaleString()}</td>
+                  <td class="p-3.5 text-xs text-slate-500 font-mono">${new Date(p.created_at).toLocaleString()}</td>
                 </tr>
               `;
             }).join('');
@@ -558,6 +595,13 @@
 
           document.getElementById('kpiRevenue').textContent = '₹' + totalRevenue.toFixed(2);
           document.getElementById('kpiSuccessPayments').textContent = successCount;
+
+          document.getElementById('legendSuccess').textContent = successCount;
+          document.getElementById('legendCancelled').textContent = cancelledCount;
+          document.getElementById('legendFailed').textContent = failedCount;
+
+          document.getElementById('legendTnpsc').textContent = tnpscCount;
+          document.getElementById('legendUpsc').textContent = upscCount;
 
           renderCharts(successCount, cancelledCount, failedCount, upscCount, tnpscCount);
         }
@@ -569,7 +613,7 @@
     }
 
     function renderCharts(success, cancelled, failed, upsc, tnpsc) {
-      // Payment Breakdown Chart
+      // 1. Payment Status Doughnut Chart (High-Contrast Emerald, Amber, Rose)
       const ctxPie = document.getElementById('paymentPieChart').getContext('2d');
       if (pieChartInstance) pieChartInstance.destroy();
 
@@ -579,22 +623,28 @@
           labels: ['Success', 'Cancelled', 'Failed'],
           datasets: [{
             data: [success || 1, cancelled, failed],
-            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-            borderWidth: 2,
-            borderColor: '#ffffff'
+            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+            hoverBackgroundColor: ['#059669', '#D97706', '#DC2626'],
+            borderWidth: 3,
+            borderColor: '#FFFFFF'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } } }
+            legend: { 
+              display: false 
+            },
+            tooltip: {
+              bodyFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' }
+            }
           },
-          cutout: '72%'
+          cutout: '70%'
         }
       });
 
-      // Target Exam Distribution Bar Chart
+      // 2. Target Exam Distribution Bar Chart (High-Contrast Emerald Green vs. Royal Blue)
       const ctxBar = document.getElementById('studentBarChart').getContext('2d');
       if (barChartInstance) barChartInstance.destroy();
 
@@ -605,19 +655,31 @@
           datasets: [{
             label: 'Students Enrolled',
             data: [tnpsc || 1, upsc || 0],
-            backgroundColor: ['#1f2937', '#6b7280'],
-            borderRadius: 6
+            backgroundColor: ['#059669', '#2563EB'], // Distinct Emerald Green & Vibrant Royal Blue
+            hoverBackgroundColor: ['#047857', '#1D4ED8'],
+            borderRadius: 8,
+            barThickness: 48,
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1, font: { family: 'Inter' } } },
-            x: { grid: { display: false }, ticks: { font: { family: 'Inter' } } }
+            y: { 
+              beginAtZero: true, 
+              grid: { color: '#F1F5F9' }, 
+              ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' }, color: '#64748B' } 
+            },
+            x: { 
+              grid: { display: false }, 
+              ticks: { font: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' }, color: '#1E293B' } 
+            }
           },
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            tooltip: {
+              bodyFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' }
+            }
           }
         }
       });
