@@ -130,7 +130,7 @@
   <main class="max-w-7xl mx-auto p-6 space-y-6">
 
     <!-- KPI Metric Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Registered Students</div>
         <div class="text-2xl font-black text-slate-900 mt-2" id="kpiTotalStudents">--</div>
@@ -141,7 +141,7 @@
       </div>
 
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Platform Revenue</div>
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Platform Revenue</div>
         <div class="text-2xl font-black text-emerald-600 mt-2" id="kpiRevenue">₹--</div>
         <div class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
           <i class="fa-solid fa-arrow-trend-up"></i>
@@ -154,7 +154,16 @@
         <div class="text-2xl font-black text-slate-900 mt-2" id="kpiSuccessPayments">--</div>
         <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
           <i class="fa-solid fa-circle-check text-emerald-500"></i>
-          <span>Captured via UPI / Netbanking</span>
+          <span>Captured Transactions</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">User Form Inquiries</div>
+        <div class="text-2xl font-black text-blue-600 mt-2" id="kpiInquiriesCount">0</div>
+        <div class="text-xs text-blue-600 font-semibold mt-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-envelope-open-text"></i>
+          <span>Submitted Contact Forms</span>
         </div>
       </div>
 
@@ -288,6 +297,43 @@
           <tbody id="studentsBody" class="divide-y divide-slate-200 text-slate-700">
             <tr>
               <td colspan="7" class="p-6 text-center text-slate-400 font-medium">Loading student directory...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- User Form Inquiries & Support Messages Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">User Contact & Support Inquiries</h2>
+            <span id="inquiryLiveBadge" class="text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+              Live Form Feed
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Real-time submissions from contact.html (Candidate name, email, order ID & grievance)</p>
+        </div>
+        <button onclick="loadAdminData()" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">
+          Refresh Inquiries
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[11px] border-b border-slate-200">
+            <tr>
+              <th class="p-3.5">Submission Time</th>
+              <th class="p-3.5">Inquiry Details & Message</th>
+              <th class="p-3.5">Source Channel</th>
+              <th class="p-3.5 text-right">Admin Notification</th>
+            </tr>
+          </thead>
+          <tbody id="inquiriesBody" class="divide-y divide-slate-200 text-slate-700">
+            <tr>
+              <td colspan="4" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td>
             </tr>
           </tbody>
         </table>
@@ -576,13 +622,51 @@
 
           renderCharts(successCount, cancelledCount, failedCount, upscCount, tnpscCount);
 
+          // Populate user form inquiries
+          const inquiryEvents = payments.filter(p => (p.status || '').toLowerCase() === 'support_inquiry');
+          document.getElementById('kpiInquiriesCount').textContent = inquiryEvents.length;
+          const inqBody = document.getElementById('inquiriesBody');
+
+          if (inquiryEvents.length === 0) {
+            inqBody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td></tr>';
+          } else {
+            inqBody.innerHTML = inquiryEvents.map(iq => {
+              const textContent = iq.razorpay_order_id || 'Support Inquiry';
+              return `
+                <tr class="hover:bg-blue-50/40 transition">
+                  <td class="p-3.5 font-mono text-xs text-slate-500 whitespace-nowrap">${new Date(iq.created_at).toLocaleString()}</td>
+                  <td class="p-3.5">
+                    <div class="font-bold text-slate-900">${textContent}</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Reference ID: ${iq.id}</div>
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[11px] font-bold">
+                      <i class="fa-solid fa-globe text-[10px]"></i>
+                      Website Contact Form
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-right">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">
+                      <i class="fa-solid fa-bell text-amber-600 animate-bounce"></i>
+                      ACTION REQUIRED
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+
           // Populate real-time exam switch activities into Security Activity Log
           const switchEvents = payments.filter(p => (p.status || '').toLowerCase() === 'audit_event');
           switchEvents.forEach(ev => {
             const cName = (ev.students && ev.students.full_name) ? ev.students.full_name : 'Candidate';
             const dist = (ev.students && ev.students.district) ? ev.students.district : 'Ranipet';
-            const t = new Date(ev.created_at).toLocaleTimeString();
             logAudit(`EXAM SWITCH DETECTED: [${cName} (${dist})] ${ev.razorpay_order_id} at ${new Date(ev.created_at).toLocaleString()}`);
+          });
+
+          // Also alert admin in log console for inquiries
+          inquiryEvents.forEach(iq => {
+            logAudit(`NEW FORM INQUIRY RECEIVED: ${iq.razorpay_order_id} at ${new Date(iq.created_at).toLocaleTimeString()}`);
           });
         }
 
