@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/test_repository.dart';
 import '../domain/test_model.dart';
@@ -18,16 +19,27 @@ class TestListScreen extends ConsumerStatefulWidget {
 class _TestListScreenState extends ConsumerState<TestListScreen> {
   String _selectedExam = 'UPSC';
 
-  void _onTestCardTapped(TestModel test) async {
-    final user = ref.read(userProfileProvider).value;
-    if (user == null) {
-      context.push('/login');
-      return;
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredExam();
+  }
+
+  Future<void> _loadStoredExam() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('target_exam');
+    if (saved != null && (saved == 'UPSC' || saved == 'TNPSC')) {
+      setState(() => _selectedExam = saved);
     }
+  }
+
+  void _onTestCardTapped(TestModel test) async {
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getString('student_id') ?? 'local_student';
 
     final testRepo = ref.read(testRepoProvider);
     final isUnlocked = await testRepo.isTestUnlocked(
-      userId: user.uid,
+      userId: studentId,
       testId: test.id,
     );
 

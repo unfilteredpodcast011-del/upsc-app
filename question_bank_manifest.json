@@ -1,0 +1,814 @@
+{
+  "generated_at_utc": "2026-11-14T04:41:07+00:00",
+  "overall_status": "in_progress",
+  "target_total": 5000,
+  "completed_total": 200,
+  "remaining_total": 4800,
+  "next_batch_to_generate": 3,
+  "batching_note": "Batches are 100 consecutive question IDs in global ID order (50 batches). Subject files are filled in ID order, so a batch can span two subjects (e.g. Batch 3 = last 50 Ancient + first 50 Medieval).",
+  "paper_totals": {
+    "GS1": {
+      "target": 4400,
+      "completed": 200
+    },
+    "CSAT": {
+      "target": 600,
+      "completed": 0
+    }
+  },
+  "difficulty_distribution": {
+    "target": {
+      "Easy": 1500,
+      "Medium": 2250,
+      "Hard": 1250
+    },
+    "completed": {
+      "Easy": 60,
+      "Medium": 90,
+      "Hard": 50
+    }
+  },
+  "source_type_counts": {
+    "PYQ": 0,
+    "Practice": 200
+  },
+  "pyq_policy": "No question is labelled PYQ: official UPSC papers were not available to verify against. All questions are original practice items with year=null.",
+  "current_affairs_policy": "Not started. Each item must be web-verified with a source and reference date before inclusion.",
+  "review_status": "All questions are model-generated and marked verification_status=model_generated_pending_expert_review; a subject-expert review is recommended before publishing to students.",
+  "subjects": [
+    {
+      "subject": "Ancient Indian History",
+      "paper": "GS1",
+      "file": "ancient_history.json",
+      "target_count": 250,
+      "completed_count": 200,
+      "remaining": 50,
+      "id_range": "UPSC00001-UPSC00250",
+      "difficulty_target_plan": {
+        "Easy": 75,
+        "Medium": 112,
+        "Hard": 63
+      },
+      "difficulty_completed": {
+        "Easy": 60,
+        "Medium": 90,
+        "Hard": 50
+      },
+      "status": "in_progress",
+      "source_batch_files": [
+        "ancient_01a.py",
+        "ancient_01b.py",
+        "ancient_01c.py",
+        "ancient_01d.py",
+        "ancient_01e.py",
+        "ancient_02a.py",
+        "ancient_02b.py",
+        "ancient_02c.py",
+        "ancient_02d.py",
+        "ancient_02e.py"
+      ]
+    },
+    {
+      "subject": "Medieval Indian History",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 200,
+      "completed_count": 0,
+      "remaining": 200,
+      "id_range": "UPSC00251-UPSC00450",
+      "difficulty_target_plan": {
+        "Easy": 60,
+        "Medium": 90,
+        "Hard": 50
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Modern Indian History",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 400,
+      "completed_count": 0,
+      "remaining": 400,
+      "id_range": "UPSC00451-UPSC00850",
+      "difficulty_target_plan": {
+        "Easy": 120,
+        "Medium": 180,
+        "Hard": 100
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Indian Art and Culture",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 250,
+      "completed_count": 0,
+      "remaining": 250,
+      "id_range": "UPSC00851-UPSC01100",
+      "difficulty_target_plan": {
+        "Easy": 75,
+        "Medium": 112,
+        "Hard": 63
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Indian Polity and Constitution",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 600,
+      "completed_count": 0,
+      "remaining": 600,
+      "id_range": "UPSC01101-UPSC01700",
+      "difficulty_target_plan": {
+        "Easy": 180,
+        "Medium": 270,
+        "Hard": 150
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Indian Geography",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 350,
+      "completed_count": 0,
+      "remaining": 350,
+      "id_range": "UPSC01701-UPSC02050",
+      "difficulty_target_plan": {
+        "Easy": 105,
+        "Medium": 157,
+        "Hard": 88
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "World Geography",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 150,
+      "completed_count": 0,
+      "remaining": 150,
+      "id_range": "UPSC02051-UPSC02200",
+      "difficulty_target_plan": {
+        "Easy": 45,
+        "Medium": 68,
+        "Hard": 37
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Physical Geography",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 100,
+      "completed_count": 0,
+      "remaining": 100,
+      "id_range": "UPSC02201-UPSC02300",
+      "difficulty_target_plan": {
+        "Easy": 30,
+        "Medium": 45,
+        "Hard": 25
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Indian Economy",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 500,
+      "completed_count": 0,
+      "remaining": 500,
+      "id_range": "UPSC02301-UPSC02800",
+      "difficulty_target_plan": {
+        "Easy": 150,
+        "Medium": 225,
+        "Hard": 125
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Environment and Ecology",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 500,
+      "completed_count": 0,
+      "remaining": 500,
+      "id_range": "UPSC02801-UPSC03300",
+      "difficulty_target_plan": {
+        "Easy": 150,
+        "Medium": 225,
+        "Hard": 125
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Science and Technology",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 400,
+      "completed_count": 0,
+      "remaining": 400,
+      "id_range": "UPSC03301-UPSC03700",
+      "difficulty_target_plan": {
+        "Easy": 120,
+        "Medium": 180,
+        "Hard": 100
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Current Affairs",
+      "paper": "GS1",
+      "file": null,
+      "target_count": 700,
+      "completed_count": 0,
+      "remaining": 700,
+      "id_range": "UPSC03701-UPSC04400",
+      "difficulty_target_plan": {
+        "Easy": 210,
+        "Medium": 315,
+        "Hard": 175
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Reading Comprehension",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 120,
+      "completed_count": 0,
+      "remaining": 120,
+      "id_range": "UPSC04401-UPSC04520",
+      "difficulty_target_plan": {
+        "Easy": 36,
+        "Medium": 54,
+        "Hard": 30
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Logical Reasoning",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 100,
+      "completed_count": 0,
+      "remaining": 100,
+      "id_range": "UPSC04521-UPSC04620",
+      "difficulty_target_plan": {
+        "Easy": 30,
+        "Medium": 45,
+        "Hard": 25
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Analytical Ability",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 80,
+      "completed_count": 0,
+      "remaining": 80,
+      "id_range": "UPSC04621-UPSC04700",
+      "difficulty_target_plan": {
+        "Easy": 24,
+        "Medium": 36,
+        "Hard": 20
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Basic Numeracy",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 100,
+      "completed_count": 0,
+      "remaining": 100,
+      "id_range": "UPSC04701-UPSC04800",
+      "difficulty_target_plan": {
+        "Easy": 30,
+        "Medium": 45,
+        "Hard": 25
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Arithmetic",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 100,
+      "completed_count": 0,
+      "remaining": 100,
+      "id_range": "UPSC04801-UPSC04900",
+      "difficulty_target_plan": {
+        "Easy": 30,
+        "Medium": 45,
+        "Hard": 25
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Data Interpretation",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 50,
+      "completed_count": 0,
+      "remaining": 50,
+      "id_range": "UPSC04901-UPSC04950",
+      "difficulty_target_plan": {
+        "Easy": 15,
+        "Medium": 23,
+        "Hard": 12
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    },
+    {
+      "subject": "Mental Ability",
+      "paper": "CSAT",
+      "file": null,
+      "target_count": 50,
+      "completed_count": 0,
+      "remaining": 50,
+      "id_range": "UPSC04951-UPSC05000",
+      "difficulty_target_plan": {
+        "Easy": 15,
+        "Medium": 23,
+        "Hard": 12
+      },
+      "difficulty_completed": {
+        "Easy": 0,
+        "Medium": 0,
+        "Hard": 0
+      },
+      "status": "not_started",
+      "source_batch_files": []
+    }
+  ],
+  "batches": [
+    {
+      "batch": 1,
+      "id_range": "UPSC00001-UPSC00100",
+      "completed": 100,
+      "status": "complete"
+    },
+    {
+      "batch": 2,
+      "id_range": "UPSC00101-UPSC00200",
+      "completed": 100,
+      "status": "complete"
+    },
+    {
+      "batch": 3,
+      "id_range": "UPSC00201-UPSC00300",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 4,
+      "id_range": "UPSC00301-UPSC00400",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 5,
+      "id_range": "UPSC00401-UPSC00500",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 6,
+      "id_range": "UPSC00501-UPSC00600",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 7,
+      "id_range": "UPSC00601-UPSC00700",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 8,
+      "id_range": "UPSC00701-UPSC00800",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 9,
+      "id_range": "UPSC00801-UPSC00900",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 10,
+      "id_range": "UPSC00901-UPSC01000",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 11,
+      "id_range": "UPSC01001-UPSC01100",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 12,
+      "id_range": "UPSC01101-UPSC01200",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 13,
+      "id_range": "UPSC01201-UPSC01300",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 14,
+      "id_range": "UPSC01301-UPSC01400",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 15,
+      "id_range": "UPSC01401-UPSC01500",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 16,
+      "id_range": "UPSC01501-UPSC01600",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 17,
+      "id_range": "UPSC01601-UPSC01700",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 18,
+      "id_range": "UPSC01701-UPSC01800",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 19,
+      "id_range": "UPSC01801-UPSC01900",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 20,
+      "id_range": "UPSC01901-UPSC02000",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 21,
+      "id_range": "UPSC02001-UPSC02100",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 22,
+      "id_range": "UPSC02101-UPSC02200",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 23,
+      "id_range": "UPSC02201-UPSC02300",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 24,
+      "id_range": "UPSC02301-UPSC02400",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 25,
+      "id_range": "UPSC02401-UPSC02500",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 26,
+      "id_range": "UPSC02501-UPSC02600",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 27,
+      "id_range": "UPSC02601-UPSC02700",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 28,
+      "id_range": "UPSC02701-UPSC02800",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 29,
+      "id_range": "UPSC02801-UPSC02900",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 30,
+      "id_range": "UPSC02901-UPSC03000",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 31,
+      "id_range": "UPSC03001-UPSC03100",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 32,
+      "id_range": "UPSC03101-UPSC03200",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 33,
+      "id_range": "UPSC03201-UPSC03300",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 34,
+      "id_range": "UPSC03301-UPSC03400",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 35,
+      "id_range": "UPSC03401-UPSC03500",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 36,
+      "id_range": "UPSC03501-UPSC03600",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 37,
+      "id_range": "UPSC03601-UPSC03700",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 38,
+      "id_range": "UPSC03701-UPSC03800",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 39,
+      "id_range": "UPSC03801-UPSC03900",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 40,
+      "id_range": "UPSC03901-UPSC04000",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 41,
+      "id_range": "UPSC04001-UPSC04100",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 42,
+      "id_range": "UPSC04101-UPSC04200",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 43,
+      "id_range": "UPSC04201-UPSC04300",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 44,
+      "id_range": "UPSC04301-UPSC04400",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 45,
+      "id_range": "UPSC04401-UPSC04500",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 46,
+      "id_range": "UPSC04501-UPSC04600",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 47,
+      "id_range": "UPSC04601-UPSC04700",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 48,
+      "id_range": "UPSC04701-UPSC04800",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 49,
+      "id_range": "UPSC04801-UPSC04900",
+      "completed": 0,
+      "status": "pending"
+    },
+    {
+      "batch": 50,
+      "id_range": "UPSC04901-UPSC05000",
+      "completed": 0,
+      "status": "pending"
+    }
+  ],
+  "files": {
+    "master": "master_question_bank.json",
+    "manifest": "question_bank_manifest.json",
+    "review_workbook": "question_bank_review.xlsx",
+    "qa_report": "quality_assurance_report.md"
+  },
+  "validation_checks_run": {
+    "all_required_fields_present": {
+      "passed": true,
+      "detail": "0 records missing fields"
+    },
+    "unique_question_ids": {
+      "passed": true,
+      "detail": "0 duplicate ids"
+    },
+    "exactly_four_options_A_to_D": {
+      "passed": true,
+      "detail": "0 invalid"
+    },
+    "no_duplicate_options_within_question": {
+      "passed": true,
+      "detail": "0 invalid"
+    },
+    "valid_answer_keys": {
+      "passed": true,
+      "detail": "0 invalid"
+    },
+    "explanations_present_and_non_trivial": {
+      "passed": true,
+      "detail": "0 too short"
+    },
+    "explanations_do_not_reference_option_letters": {
+      "passed": true,
+      "detail": "0 flagged"
+    },
+    "subject_paper_marks_consistent": {
+      "passed": true,
+      "detail": "0 inconsistent"
+    },
+    "valid_difficulty_labels": {
+      "passed": true,
+      "detail": "0 invalid"
+    },
+    "pyq_practice_labelling_consistent": {
+      "passed": true,
+      "detail": "0 inconsistent"
+    },
+    "no_exact_duplicate_questions": {
+      "passed": true,
+      "detail": "0 exact duplicates"
+    },
+    "no_near_duplicate_questions_jaccard_0.80": {
+      "passed": true,
+      "detail": "0 pairs flagged: []"
+    }
+  },
+  "answer_key_position_counts": {
+    "A": 51,
+    "D": 51,
+    "B": 47,
+    "C": 51
+  }
+}

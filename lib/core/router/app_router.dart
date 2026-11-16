@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/auth_controller.dart';
-import '../../features/auth/presentation/login_screen.dart';
-import '../../features/auth/presentation/signup_screen.dart';
-import '../../features/auth/presentation/forgot_password_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
 import '../../features/tests/presentation/test_list_screen.dart';
 import '../../features/tests/presentation/timed_engine_screen.dart';
@@ -13,50 +11,47 @@ import '../../features/tests/presentation/writing_practice_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 
-final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
+final onboardingCheckProvider = FutureProvider<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('onboarding_completed') ?? false;
+});
 
+final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
-    redirect: (context, state) {
-      final isLoading = authState.isLoading;
-      final hasError = authState.hasError;
-      final isAuthenticated = authState.value != null;
-
-      final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup' ||
-          state.matchedLocation == '/forgot-password';
-
-      if (isLoading || hasError) return null;
-
-      // If not logged in and trying to access protected screens, redirect to /login
-      if (!isAuthenticated && !isAuthRoute) {
-        return '/login';
-      }
-
-      // If logged in and on an auth screen, redirect to home
-      if (isAuthenticated && isAuthRoute) {
-        return '/';
-      }
-
-      return null;
-    },
     routes: [
       GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/signup',
-        builder: (context, state) => const SignupScreen(),
-      ),
-      GoRoute(
-        path: '/forgot-password',
-        builder: (context, state) => const ForgotPasswordScreen(),
-      ),
-      GoRoute(
         path: '/',
-        builder: (context, state) => const TestListScreen(),
+        builder: (context, state) {
+          final check = ref.watch(onboardingCheckProvider);
+          return check.when(
+            data: (completed) {
+              if (completed) {
+                return const TestListScreen();
+              } else {
+                return OnboardingScreen(
+                  onCompleted: () {
+                    ref.invalidate(onboardingCheckProvider);
+                    context.go('/');
+                  },
+                );
+              }
+            },
+            loading: () => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+            error: (_, __) => const TestListScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => OnboardingScreen(
+          onCompleted: () {
+            ref.invalidate(onboardingCheckProvider);
+            context.go('/');
+          },
+        ),
       ),
       GoRoute(
         path: '/test-engine/:testId',
@@ -92,4 +87,3 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-

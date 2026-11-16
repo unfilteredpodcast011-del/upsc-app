@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
@@ -20,7 +19,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   TestSessionModel? _session;
   TestModel? _test;
   List<QuestionModel> _questions = [];
-  bool _isReviewMode = false;
+  bool _onlyShowMistakes = false;
 
   @override
   void initState() {
@@ -55,6 +54,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         setState(() => _isLoading = false);
       }
     } catch (e) {
+      debugPrint('Error loading results: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -70,252 +70,265 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     if (_session == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Result')),
-        body: const Center(child: Text('Test result session not found.')),
+        body: const Center(child: Text('Session data not found.')),
       );
     }
 
     final s = _session!;
+    final totalMarks = (_test?.questionCount ?? _questions.length) * (_test?.marksPerQuestion ?? 2.0);
+
+    // Filter questions if "Show Only Wrong Questions" is active
+    final displayQuestions = _onlyShowMistakes
+        ? _questions.where((q) {
+            final entry = s.answers[q.id];
+            return entry != null && entry.selectedOption != q.correctAnswer;
+          }).toList()
+        : _questions;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isReviewMode ? 'Detailed Question Review' : 'Test Analysis'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.go('/'),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: () {
-            setState(() => _isReviewMode = !_isReviewMode);
-          },
-          child: Text(
-            _isReviewMode ? 'Back to Summary' : 'Review Questions & Explanations',
+        title: const Text('Exam Result & Review'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-        ),
+        ],
       ),
-      body: _isReviewMode ? _buildReviewList() : _buildSummaryView(s),
-    );
-  }
-
-  Widget _buildSummaryView(TestSessionModel s) {
-    final minutes = s.timeTakenSeconds ~/ 60;
-    final seconds = s.timeTakenSeconds % 60;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Score Card
-          Card(
-            color: Theme.of(context).colorScheme.primary,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Score Banner
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 children: [
                   const Text(
-                    'Your Total Score',
+                    'Your Exam Score',
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${s.score}',
+                    '${s.score.toStringAsFixed(2)} / ${totalMarks.toStringAsFixed(0)}',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 44,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _metricBadge('Accuracy', '${s.accuracy}%'),
-                      _metricBadge('Speed', '${s.speedPracticePercent}% Mode'),
-                      _metricBadge('Time Taken', '${minutes}m ${seconds}s'),
+                      _metricBadge('Accuracy', '${s.accuracy.toStringAsFixed(1)}%'),
+                      _metricBadge('Time Taken', '${(s.timeTakenSeconds / 60).toStringAsFixed(1)}m'),
                     ],
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Breakdown Row
-          Row(
-            children: [
-              _statTile('Correct', '${s.totalCorrect}', Colors.green),
-              const SizedBox(width: 8),
-              _statTile('Incorrect', '${s.totalWrong}', Colors.red),
-              const SizedBox(width: 8),
-              _statTile('Unanswered', '${s.totalUnanswered}', Colors.grey),
-            ],
-          ),
-          const SizedBox(height: 20),
+            // Performance Breakdown Row
+            Row(
+              children: [
+                _statTile('Correct', '${s.totalCorrect}', Colors.green),
+                const SizedBox(width: 8),
+                _statTile('Wrong', '${s.totalWrong}', Colors.red),
+                const SizedBox(width: 8),
+                _statTile('Skipped', '${s.totalUnanswered}', Colors.grey),
+              ],
+            ),
+            const SizedBox(height: 24),
 
-          // Weak Topics & Subject Analysis
-          const Text(
-            'Subject-wise Analysis & Weak Topics',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-
-          if (s.subjectBreakdown != null && s.subjectBreakdown!.isNotEmpty)
-            ...s.subjectBreakdown!.entries.map((entry) {
-              final subjName = entry.key;
-              final data = entry.value as Map<String, dynamic>;
-              final correct = (data['correct'] as num?)?.toInt() ?? 0;
-              final total = (data['total'] as num?)?.toInt() ?? 1;
-              final percentage = ((correct / total) * 100).toStringAsFixed(0);
-              final isWeak = (correct / total) < 0.5;
-
-              return Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor:
-                        isWeak ? Colors.red.shade100 : Colors.green.shade100,
-                    child: Icon(
-                      isWeak ? Icons.warning_amber_rounded : Icons.check,
-                      color: isWeak ? Colors.red : Colors.green,
-                    ),
+            // Filter Switch: All Questions vs Only Wrong Answers
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Show Only Wrong Questions',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  title: Text(subjName),
-                  subtitle: Text(
-                    isWeak
-                        ? 'Needs Revision • $correct of $total correct ($percentage%)'
-                        : 'Strong performance • $correct of $total correct ($percentage%)',
-                    style: TextStyle(
-                      color: isWeak ? Colors.red.shade700 : Colors.green.shade700,
-                      fontSize: 12,
-                    ),
+                  Switch(
+                    value: _onlyShowMistakes,
+                    activeColor: Colors.red,
+                    onChanged: (val) {
+                      setState(() => _onlyShowMistakes = val);
+                    },
                   ),
-                  trailing: isWeak
-                      ? Chip(
-                          label: const Text('Weak Area', style: TextStyle(fontSize: 11)),
-                          backgroundColor: Colors.red.shade50,
-                        )
-                      : null,
-                ),
-              );
-            })
-          else
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('Complete more tests to generate detailed topic weak-spot alerts.'),
+                ],
               ),
             ),
-        ],
+            const SizedBox(height: 16),
+
+            // Question & Answer List (No explanations shown)
+            Text(
+              _onlyShowMistakes
+                  ? 'Your Mistakes (${displayQuestions.length} Questions):'
+                  : 'All Questions & Answers:',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            if (displayQuestions.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text(
+                    _onlyShowMistakes
+                        ? 'Awesome! You made 0 mistakes in this exam.'
+                        : 'No questions to display.',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: displayQuestions.length,
+                itemBuilder: (ctx, index) {
+                  final q = displayQuestions[index];
+                  final entry = s.answers[q.id];
+                  final userChoice = entry?.selectedOption;
+                  final isCorrect = userChoice == q.correctAnswer;
+                  final isSkipped = userChoice == null;
+                  final options = q.getLocalizedOptions('en');
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: isCorrect
+                            ? Colors.green.shade300
+                            : (isSkipped ? Colors.grey.shade300 : Colors.red.shade300),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 12,
+                                backgroundColor: isCorrect
+                                    ? Colors.green
+                                    : (isSkipped ? Colors.grey : Colors.red),
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                isCorrect
+                                    ? 'Correct (+2)'
+                                    : (isSkipped ? 'Skipped (0)' : 'Wrong (-0.66)'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCorrect
+                                      ? Colors.green
+                                      : (isSkipped ? Colors.grey : Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            q.getLocalizedQuestion('en'),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Display options
+                          _optionBox('A', options['A'] ?? '', q.correctAnswer, userChoice),
+                          _optionBox('B', options['B'] ?? '', q.correctAnswer, userChoice),
+                          _optionBox('C', options['C'] ?? '', q.correctAnswer, userChoice),
+                          _optionBox('D', options['D'] ?? '', q.correctAnswer, userChoice),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildReviewList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _questions.length,
-      itemBuilder: (ctx, idx) {
-        final q = _questions[idx];
-        final ans = _session!.answers[q.id];
-        final selected = ans?.selectedOption?.toUpperCase();
-        final correct = q.correctAnswer.toUpperCase();
-        final isCorrect = selected == correct;
-        final isUnanswered = selected == null;
+  Widget _optionBox(String optionLetter, String text, String correctLetter, String? userAns) {
+    final isCorrectOption = optionLetter == correctLetter;
+    final isUserChoice = optionLetter == userAns;
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Q${idx + 1} (${q.subject})',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Chip(
-                      label: Text(
-                        isUnanswered
-                            ? 'Unanswered'
-                            : (isCorrect ? 'Correct (+2.0)' : 'Incorrect (-0.66)'),
-                        style: const TextStyle(fontSize: 11, color: Colors.white),
-                      ),
-                      backgroundColor: isUnanswered
-                          ? Colors.grey
-                          : (isCorrect ? Colors.green : Colors.red),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  q.getLocalizedQuestion('en'),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 12),
-                ...['a', 'b', 'c', 'd'].map((key) {
-                  final text = q.getLocalizedOptions('en')[key] ?? '';
-                  final isThisOptionCorrect = key.toUpperCase() == correct;
-                  final isThisOptionSelected = key.toUpperCase() == selected;
+    Color bg = Colors.white;
+    Color border = Colors.grey.shade300;
+    Color textColor = Colors.black87;
 
-                  Color? tileColor;
-                  if (isThisOptionCorrect) {
-                    tileColor = Colors.green.shade50;
-                  } else if (isThisOptionSelected && !isCorrect) {
-                    tileColor = Colors.red.shade50;
-                  }
+    if (isCorrectOption) {
+      bg = Colors.green.shade50;
+      border = Colors.green;
+      textColor = Colors.green.shade900;
+    } else if (isUserChoice) {
+      bg = Colors.red.shade50;
+      border = Colors.red;
+      textColor = Colors.red.shade900;
+    }
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: tileColor ?? Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isThisOptionCorrect
-                            ? Colors.green
-                            : (isThisOptionSelected ? Colors.red : Colors.grey.shade200),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${key.toUpperCase()}. ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isThisOptionCorrect ? Colors.green : Colors.black87,
-                          ),
-                        ),
-                        Expanded(child: Text(text)),
-                        if (isThisOptionCorrect)
-                          const Icon(Icons.check, color: Colors.green, size: 18),
-                        if (isThisOptionSelected && !isCorrect)
-                          const Icon(Icons.close, color: Colors.red, size: 18),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Explanation: ${q.getLocalizedExplanation('en')}',
-                    style: TextStyle(fontSize: 13, color: Colors.blue.shade900),
-                  ),
-                ),
-              ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        children: [
+          Text(
+            '$optionLetter. ',
+            style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: textColor, fontSize: 13),
             ),
           ),
-        );
-      },
+          if (isCorrectOption)
+            const Icon(Icons.check_circle, color: Colors.green, size: 16),
+          if (isUserChoice && !isCorrectOption)
+            const Icon(Icons.cancel, color: Colors.red, size: 16),
+        ],
+      ),
     );
   }
 
@@ -343,9 +356,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ExamPrep Admin Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+  <nav class="bg-indigo-900 text-white p-4 shadow-md flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-bold">ExamPrep Admin Dashboard</h1>
+      <p class="text-xs text-indigo-200">UPSC & TNPSC Student Registrations, Payments & Tests</p>
+    </div>
+    <div id="statusIndicator" class="text-xs px-3 py-1 rounded-full bg-yellow-500 text-black font-semibold">
+      Connecting to Supabase...
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-8">
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase">Total Students</h3>
+        <p id="totalStudents" class="text-3xl font-extrabold text-indigo-950 mt-2">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase">UPSC Aspirants</h3>
+        <p id="upscAspirants" class="text-3xl font-extrabold text-blue-600 mt-2">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase">TNPSC Aspirants</h3>
+        <p id="tnpscAspirants" class="text-3xl font-extrabold text-emerald-600 mt-2">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase">Total Revenue (₹1 / test)</h3>
+        <p id="totalRevenue" class="text-3xl font-extrabold text-amber-600 mt-2">₹0</p>
+      </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <h2 class="text-lg font-bold text-slate-800">Registered Students Detailed Info</h2>
+        <button onclick="fetchData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition">Refresh Data</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100 text-slate-600 uppercase text-xs font-semibold">
+            <tr>
+              <th class="p-3">Name</th>
+              <th class="p-3">Phone</th>
+              <th class="p-3">Email</th>
+              <th class="p-3">District</th>
+              <th class="p-3">Target Exam</th>
+              <th class="p-3">Years Trying</th>
+              <th class="p-3">Education Status</th>
+              <th class="p-3">Level / Degree</th>
+              <th class="p-3">Registered At</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="9" class="p-6 text-center text-slate-400">Loading student data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 bg-slate-50/50">
+        <h2 class="text-lg font-bold text-slate-800">Recent ₹1 Payments</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100 text-slate-600 uppercase text-xs font-semibold">
+            <tr>
+              <th class="p-3">Payment ID</th>
+              <th class="p-3">Student ID</th>
+              <th class="p-3">Test ID</th>
+              <th class="p-3">Amount</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Date</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="6" class="p-6 text-center text-slate-400">Loading payments...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://jkbndifpcepnsjgmyrfr.supabase.co';
+    // User can set their anon key here or via localStorage
+    let supabaseKey = localStorage.getItem('supabase_anon_key') || '';
+    if (!supabaseKey) {
+      supabaseKey = prompt('Please enter your Supabase anon/public key:');
+      if (supabaseKey) localStorage.setItem('supabase_anon_key', supabaseKey);
+    }
+
+    let supabaseClient = null;
+    if (supabaseKey) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, supabaseKey);
+      document.getElementById('statusIndicator').innerText = 'Connected';
+      document.getElementById('statusIndicator').className = 'text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-semibold';
+      fetchData();
+    } else {
+      document.getElementById('statusIndicator').innerText = 'No API Key';
+    }
+
+    async function fetchData() {
+      if (!supabaseClient) return;
+      try {
+        const { data: students, error: errStudents } = await supabaseClient
+          .from('students')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!errStudents && students) {
+          document.getElementById('totalStudents').innerText = students.length;
+          const upsc = students.filter(s => s.target_exam === 'UPSC').length;
+          const tnpsc = students.filter(s => s.target_exam === 'TNPSC').length;
+          document.getElementById('upscAspirants').innerText = upsc;
+          document.getElementById('tnpscAspirants').innerText = tnpsc;
+
+          const tbody = document.getElementById('studentsBody');
+          if (students.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-400">No students registered yet.</td></tr>';
+          } else {
+            tbody.innerHTML = students.map(s => `
+              <tr class="hover:bg-slate-50">
+                <td class="p-3 font-semibold text-slate-800">${s.full_name}</td>
+                <td class="p-3">${s.phone}</td>
+                <td class="p-3 text-slate-500">${s.email}</td>
+                <td class="p-3">${s.district}</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${s.target_exam === 'UPSC' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}">${s.target_exam}</span></td>
+                <td class="p-3">${s.years_trying}</td>
+                <td class="p-3 capitalize">${s.education_status}</td>
+                <td class="p-3">${s.education_level === 'school' ? 'School: Std ' + (s.school_standard || '-') : (s.college_degree_type || '') + ' ' + (s.college_degree_name || '')}</td>
+                <td class="p-3 text-xs text-slate-400">${new Date(s.created_at).toLocaleString()}</td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        const { data: payments, error: errPayments } = await supabaseClient
+          .from('payments')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!errPayments && payments) {
+          const totalRevenue = payments.reduce((acc, p) => acc + (p.amount_paise / 100), 0);
+          document.getElementById('totalRevenue').innerText = '₹' + totalRevenue;
+
+          const payBody = document.getElementById('paymentsBody');
+          if (payments.length === 0) {
+            payBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No payments recorded yet.</td></tr>';
+          } else {
+            payBody.innerHTML = payments.map(p => `
+              <tr class="hover:bg-slate-50">
+                <td class="p-3 font-mono text-xs">${p.razorpay_payment_id || p.id}</td>
+                <td class="p-3 font-mono text-xs text-slate-500">${p.student_id || '-'}</td>
+                <td class="p-3 font-mono text-xs text-slate-500">${p.test_id || '-'}</td>
+                <td class="p-3 font-bold text-amber-700">₹${p.amount_paise / 100}</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700 uppercase font-bold">${p.status}</span></td>
+                <td class="p-3 text-xs text-slate-400">${new Date(p.created_at).toLocaleString()}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching data:', e);
+      }
+    }
+  </script>
+</body>
+</html>
