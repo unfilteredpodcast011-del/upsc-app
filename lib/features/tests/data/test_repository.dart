@@ -348,7 +348,13 @@ class TestRepository {
       try {
         final session = TestSessionModel.fromMap(jsonDecode(cached), sessionId);
         if (session.status == 'in_progress') {
-          return session;
+          final elapsed = DateTime.now().difference(session.startedAt).inSeconds;
+          if (elapsed < session.allowedDurationSeconds && elapsed >= 0) {
+            return session;
+          } else {
+            // Test time already expired, discard stale session
+            await prefs.remove('local_session_$sessionId');
+          }
         }
       } catch (_) {}
     }
@@ -446,6 +452,7 @@ class TestRepository {
 
     // Save evaluated session to local storage for result display
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('local_session_$sessionId');
     await prefs.setString('result_session_$sessionId', jsonEncode(session.toMap()));
     final appLang = prefs.getString('app_language') ?? 'en';
     await prefs.setString(

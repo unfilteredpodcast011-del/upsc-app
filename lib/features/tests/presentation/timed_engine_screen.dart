@@ -243,10 +243,12 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
 
   void _autoSubmit() {
     if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Time is up! Evaluating your test...'),
           backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
         ),
       );
     }
@@ -257,7 +259,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     _countdownTimer?.cancel();
     setState(() => _isLoading = true);
 
-    final timeTaken = _totalDurationSeconds - _secondsRemaining;
+    final rawTimeTaken = _totalDurationSeconds - _secondsRemaining;
+    final timeTaken = rawTimeTaken.clamp(1, _totalDurationSeconds);
 
     final completedSession =
         await ref.read(testRepoProvider).evaluateAndSubmitSession(
@@ -266,11 +269,12 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
               exam: _test?.exam ?? 'UPSC',
               questions: _questions,
               answers: _answers,
-              timeTakenSeconds: timeTaken > 0 ? timeTaken : 1,
+              timeTakenSeconds: timeTaken,
               userId: _studentId,
             );
 
     if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       context.go('/test-result/${completedSession.id}');
     }
   }
