@@ -57,21 +57,40 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     final studentId = prefs.getString('student_id') ?? 'student_guest';
     final studentName = prefs.getString('student_name') ?? 'Aspirant';
 
-    // 1. Gather all student history attempts
-    final list = <LeaderboardEntry>[];
+    // 1. Gather all student history attempts and aggregate per user (1 single combined entry per student)
     final history = prefs.getStringList('test_attempts_history_$studentId') ?? [];
+    
+    // Aggregate this user's attempts specifically for the selected exam
+    double userExamScoreSum = 0;
+    int userExamAttemptCount = 0;
+    double userAccuracySum = 0;
+    int userTotalTime = 0;
+
     for (final str in history) {
       try {
         final map = jsonDecode(str) as Map<String, dynamic>;
-        list.add(LeaderboardEntry(
-          name: studentName,
-          exam: map['exam'] ?? 'UPSC',
-          score: (map['score'] as num?)?.toDouble() ?? 0.0,
-          accuracy: (map['accuracy'] as num?)?.toDouble() ?? 0.0,
-          timeTakenSeconds: (map['timeTakenSeconds'] as num?)?.toInt() ?? 0,
-          rank: 1,
-        ));
+        final examType = (map['exam'] ?? 'UPSC').toString().toUpperCase();
+        if (examType == _selectedExam.toUpperCase()) {
+          userExamScoreSum += (map['score'] as num?)?.toDouble() ?? 0.0;
+          userAccuracySum += (map['accuracy'] as num?)?.toDouble() ?? 0.0;
+          userTotalTime += (map['timeTakenSeconds'] as num?)?.toInt() ?? 0;
+          userExamAttemptCount++;
+        }
       } catch (_) {}
+    }
+
+    final list = <LeaderboardEntry>[];
+
+    // If user has attempted tests in this exam, add their single consolidated total score
+    if (userExamAttemptCount > 0) {
+      list.add(LeaderboardEntry(
+        name: '$studentName (You)',
+        exam: _selectedExam,
+        score: double.parse(userExamScoreSum.toStringAsFixed(1)),
+        accuracy: double.parse((userAccuracySum / userExamAttemptCount).toStringAsFixed(1)),
+        timeTakenSeconds: userTotalTime,
+        rank: 1,
+      ));
     }
 
     // 2. Fetch live global attempts from Supabase if connected
@@ -79,36 +98,47 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       final res = await Supabase.instance.client
           .from('test_attempts')
           .select('*, students(full_name, target_exam)')
+          .eq('exam', _selectedExam)
           .order('score', ascending: false)
           .limit(30);
 
       if (res.isNotEmpty) {
-        int r = 1;
+        // Group by student to avoid duplicate entries of the same student
+        final Map<String, LeaderboardEntry> uniqueGlobal = {};
         for (final row in res) {
-          final sName = row['students']?['full_name'] ?? 'Aspirant';
-          list.add(LeaderboardEntry(
-            name: sName,
-            exam: _selectedExam,
-            score: (row['score'] as num?)?.toDouble() ?? 0.0,
-            accuracy: (row['accuracy'] as num?)?.toDouble() ?? 0.0,
-            timeTakenSeconds: (row['time_taken_seconds'] as num?)?.toInt() ?? 0,
-            rank: r++,
-          ));
+          final sName = row['students']?['full_name'] ?? 'Candidate';
+          final sc = (row['score'] as num?)?.toDouble() ?? 0.0;
+          final acc = (row['accuracy'] as num?)?.toDouble() ?? 0.0;
+          final tm = (row['time_taken_seconds'] as num?)?.toInt() ?? 0;
+          
+          if (!uniqueGlobal.containsKey(sName)) {
+            uniqueGlobal[sName] = LeaderboardEntry(
+              name: sName,
+              exam: _selectedExam,
+              score: sc,
+              accuracy: acc,
+              timeTakenSeconds: tm,
+              rank: 1,
+            );
+          } else {
+            // Add up points for the student in this exam
+            final prev = uniqueGlobal[sName]!;
+            uniqueGlobal[sName] = LeaderboardEntry(
+              name: sName,
+              exam: _selectedExam,
+              score: prev.score + sc,
+              accuracy: (prev.accuracy + acc) / 2,
+              timeTakenSeconds: prev.timeTakenSeconds + tm,
+              rank: 1,
+            );
+          }
         }
+        list.addAll(uniqueGlobal.values);
       }
     } catch (_) {}
 
-    // Add realistic peer aspirants for realistic exam ranking simulation
-    if (list.length < 5) {
-      final mockPeers = [
-        LeaderboardEntry(name: 'Kavitha R.', exam: _selectedExam, score: 48.0, accuracy: 96.0, timeTakenSeconds: 1140, rank: 1),
-        LeaderboardEntry(name: 'Anand S.', exam: _selectedExam, score: 44.0, accuracy: 88.0, timeTakenSeconds: 1220, rank: 2),
-        LeaderboardEntry(name: 'Deepak V.', exam: _selectedExam, score: 40.0, accuracy: 80.0, timeTakenSeconds: 1300, rank: 3),
-        LeaderboardEntry(name: 'Priya K.', exam: _selectedExam, score: 36.0, accuracy: 72.0, timeTakenSeconds: 1400, rank: 4),
-        LeaderboardEntry(name: 'Suresh Kumar', exam: _selectedExam, score: 32.0, accuracy: 64.0, timeTakenSeconds: 1450, rank: 5),
-      ];
-      list.addAll(mockPeers);
-    }
+    // No fake sample names! Only actual test takers are ranked.
+    // If no attempts in this exam yet, list remains empty or shows only active users.
 
     // Sort by score desc, time asc
     list.sort((a, b) {

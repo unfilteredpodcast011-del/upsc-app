@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 import 'timed_engine_screen.dart';
+import 'pdf_report_generator.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -22,6 +23,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   TestModel? _test;
   List<QuestionModel> _questions = [];
   bool _onlyShowMistakes = false;
+  bool _isGeneratingPdf = false;
+  String _studentName = 'Aspirant';
+  String _appLanguage = 'en';
 
   @override
   void initState() {
@@ -32,6 +36,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   Future<void> _loadResults() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      _studentName = prefs.getString('student_name') ?? 'Aspirant';
+      _appLanguage = prefs.getString('app_language') ?? 'en';
       final cachedSession = prefs.getString('result_session_${widget.sessionId}');
       final cachedQuestions = prefs.getString('result_questions_${widget.sessionId}');
 
@@ -127,6 +133,17 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             onPressed: () => context.go('/'),
           ),
           actions: [
+            IconButton(
+              icon: _isGeneratingPdf
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.picture_as_pdf),
+              tooltip: 'Download PDF Report',
+              onPressed: _isGeneratingPdf ? null : _downloadPdfReport,
+            ),
             IconButton(
               icon: const Icon(Icons.home),
               tooltip: 'Home Dashboard',
@@ -319,6 +336,24 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
+              icon: _isGeneratingPdf
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.download_for_offline),
+              label: const Text('Download Detailed PDF Report'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: _isGeneratingPdf ? null : _downloadPdfReport,
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
               icon: const Icon(Icons.home),
               label: const Text('Back to Home Dashboard'),
               style: ElevatedButton.styleFrom(
@@ -380,6 +415,42 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _downloadPdfReport() async {
+    if (_session == null) return;
+    setState(() => _isGeneratingPdf = true);
+    try {
+      final path = await PdfReportGenerator.generateAndOpenTestReport(
+        studentName: _studentName,
+        testTitle: _test?.title ?? 'Test 11 Mock Exam',
+        exam: _test?.exam ?? 'Exam',
+        session: _session!,
+        questions: _questions,
+        language: _appLanguage,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF Report generated: $path'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to generate PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGeneratingPdf = false);
+    }
   }
 
   Widget _metricBadge(String label, String value) {

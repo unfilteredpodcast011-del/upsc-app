@@ -17,7 +17,7 @@ class ExamPrepApp extends ConsumerWidget {
     final currentLocale = ref.watch(localeProvider);
 
     return MaterialApp.router(
-      title: 'ExamPrep',
+      title: 'Test 11',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.getLightTheme(themeState.preset),
       darkTheme: AppTheme.getDarkTheme(themeState.preset),

@@ -1,7 +1,7 @@
 class AppStrings {
   static const Map<String, Map<String, String>> _localizedValues = {
     'en': {
-      'app_title': 'ExamPrep',
+      'app_title': 'Test 11',
       'available_tests': 'Available Tests',
       'per_test': '₹1 per test',
       'start': 'Start',
@@ -40,7 +40,7 @@ class AppStrings {
       'target': 'Target',
     },
     'ta': {
-      'app_title': 'ExamPrep',
+      'app_title': 'Test 11',
       'available_tests': 'கிடைக்கக்கூடிய தேர்வுகள்',
       'per_test': 'ஒரு தேர்வுக்கு ₹1',
       'start': 'தொடங்கு',
@@ -79,7 +79,7 @@ class AppStrings {
       'target': 'இலக்கு',
     },
     'hi': {
-      'app_title': 'ExamPrep',
+      'app_title': 'Test 11',
       'available_tests': 'उपलब्ध मॉक टेस्ट',
       'per_test': '₹1 प्रति टेस्ट',
       'start': 'शुरू करें',

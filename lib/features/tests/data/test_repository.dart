@@ -21,6 +21,34 @@ class TestRepository {
               (k, v) => MapEntry(k, v.toString()),
             ) ??
             {};
+
+        final rawTranslations = m['translations'] as Map<String, dynamic>?;
+        final Map<String, QuestionTranslation> translationsMap = {};
+
+        if (rawTranslations != null) {
+          rawTranslations.forEach((lang, trans) {
+            if (trans is Map<String, dynamic>) {
+              final tOpts = (trans['options'] as Map<String, dynamic>?)?.map(
+                    (k, v) => MapEntry(k, v.toString()),
+                  ) ??
+                  opts;
+              translationsMap[lang] = QuestionTranslation(
+                question: trans['question'] ?? m['question'] ?? '',
+                options: tOpts,
+                explanation: trans['explanation'] ?? 'Correct Answer: ${m['correct_answer']}',
+              );
+            }
+          });
+        }
+
+        if (!translationsMap.containsKey('en')) {
+          translationsMap['en'] = QuestionTranslation(
+            question: m['question'] ?? '',
+            options: opts,
+            explanation: 'Correct Answer: ${m['correct_answer']}',
+          );
+        }
+
         return QuestionModel(
           id: m['id'] ?? '',
           exam: 'TNPSC',
@@ -31,13 +59,7 @@ class TestRepository {
           publishDate: '2026-11-16',
           correctAnswer: m['correct_answer'] ?? 'A',
           normalizedText: m['question'] ?? '',
-          translations: {
-            'en': QuestionTranslation(
-              question: m['question'] ?? '',
-              options: opts,
-              explanation: 'Correct Answer: ${m['correct_answer']}',
-            ),
-          },
+          translations: translationsMap,
         );
       }).toList();
       return _cachedTnpscQuestions!;
@@ -51,6 +73,34 @@ class TestRepository {
               (k, v) => MapEntry(k, v.toString()),
             ) ??
             {};
+
+        final rawTranslations = m['translations'] as Map<String, dynamic>?;
+        final Map<String, QuestionTranslation> translationsMap = {};
+
+        if (rawTranslations != null) {
+          rawTranslations.forEach((lang, trans) {
+            if (trans is Map<String, dynamic>) {
+              final tOpts = (trans['options'] as Map<String, dynamic>?)?.map(
+                    (k, v) => MapEntry(k, v.toString()),
+                  ) ??
+                  opts;
+              translationsMap[lang] = QuestionTranslation(
+                question: trans['question'] ?? m['question'] ?? '',
+                options: tOpts,
+                explanation: trans['explanation'] ?? m['explanation'] ?? 'Correct Answer: ${m['correct_answer']}',
+              );
+            }
+          });
+        }
+
+        if (!translationsMap.containsKey('en')) {
+          translationsMap['en'] = QuestionTranslation(
+            question: m['question'] ?? '',
+            options: opts,
+            explanation: m['explanation'] ?? 'Correct Answer: ${m['correct_answer']}',
+          );
+        }
+
         return QuestionModel(
           id: m['id'] ?? '',
           exam: 'UPSC',
@@ -61,13 +111,7 @@ class TestRepository {
           publishDate: '2026-11-16',
           correctAnswer: m['correct_answer'] ?? 'A',
           normalizedText: m['question'] ?? '',
-          translations: {
-            'en': QuestionTranslation(
-              question: m['question'] ?? '',
-              options: opts,
-              explanation: m['explanation'] ?? 'Correct Answer: ${m['correct_answer']}',
-            ),
-          },
+          translations: translationsMap,
         );
       }).toList();
       return _cachedUpscQuestions!;
@@ -403,6 +447,7 @@ class TestRepository {
     // Save evaluated session to local storage for result display
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('result_session_$sessionId', jsonEncode(session.toMap()));
+    final appLang = prefs.getString('app_language') ?? 'en';
     await prefs.setString(
       'result_questions_$sessionId',
       jsonEncode(questions.map((q) => {
@@ -410,10 +455,10 @@ class TestRepository {
         'exam': q.exam,
         'subject': q.subject,
         'topic': q.topic,
-        'question': q.normalizedText,
-        'options': q.getLocalizedOptions('en'),
+        'question': q.getLocalizedQuestion(appLang),
+        'options': q.getLocalizedOptions(appLang),
         'correct_answer': q.correctAnswer,
-        'explanation': q.getLocalizedExplanation('en'),
+        'explanation': q.getLocalizedExplanation(appLang),
       }).toList()),
     );
 

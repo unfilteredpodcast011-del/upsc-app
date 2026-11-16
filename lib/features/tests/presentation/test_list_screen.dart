@@ -37,20 +37,8 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   }
 
   void _onTestCardTapped(TestModel test) async {
-    final prefs = await SharedPreferences.getInstance();
-    final studentId = prefs.getString('student_id') ?? 'local_student';
-
-    final testRepo = ref.read(testRepoProvider);
-    final isUnlocked = await testRepo.isTestUnlocked(
-      userId: studentId,
-      testId: test.id,
-    );
-
-    if (isUnlocked) {
-      _showSpeedOptionDialog(test);
-    } else {
-      _showPaymentPrompt(test);
-    }
+    // Each and every test requires Rs.1 entry fee
+    _showPaymentPrompt(test);
   }
 
   void _showPaymentPrompt(TestModel test) {
@@ -310,24 +298,32 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ExamPrep'),
+        title: Text(AppStrings.get('app_title', currentLang)),
         actions: [
-            DropdownButton<String>(
-              dropdownColor: Theme.of(context).colorScheme.primary,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              underline: const SizedBox.shrink(),
-              value: _selectedExam,
-              items: const [
-                DropdownMenuItem(value: 'UPSC', child: Text('UPSC')),
-                DropdownMenuItem(value: 'TNPSC', child: Text('TNPSC')),
-              ],
-              onChanged: (val) async {
-                if (val != null) {
-                  setState(() => _selectedExam = val);
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setString('target_exam', val);
-                }
-              },
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              child: DropdownButton<String>(
+                dropdownColor: Theme.of(context).colorScheme.primary,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                iconEnabledColor: Colors.white,
+                underline: const SizedBox.shrink(),
+                value: _selectedExam,
+                items: const [
+                  DropdownMenuItem(value: 'UPSC', child: Text('UPSC CSE')),
+                  DropdownMenuItem(value: 'TNPSC', child: Text('TNPSC')),
+                ],
+                onChanged: (val) async {
+                  if (val != null) {
+                    setState(() => _selectedExam = val);
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setString('target_exam', val);
+                  }
+                },
+              ),
             ),
           IconButton(
             icon: Icon(
