@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
 import '../../features/tests/presentation/test_list_screen.dart';
@@ -22,34 +23,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) {
-          final check = ref.watch(onboardingCheckProvider);
-          return check.when(
-            data: (completed) {
-              if (completed) {
-                return const TestListScreen();
-              } else {
-                return OnboardingScreen(
-                  onCompleted: () {
-                    ref.invalidate(onboardingCheckProvider);
-                    context.go('/');
-                  },
-                );
-              }
-            },
-            loading: () => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-            error: (_, __) => const TestListScreen(),
-          );
-        },
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => const TestListScreen(),
       ),
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => OnboardingScreen(
           onCompleted: () {
             ref.invalidate(onboardingCheckProvider);
-            context.go('/');
+            context.go('/home');
           },
         ),
       ),

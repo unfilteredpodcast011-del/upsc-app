@@ -121,7 +121,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          context.go('/');
+          context.go('/home');
         }
       },
       child: Scaffold(
@@ -130,7 +130,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
+            onPressed: () => context.go('/home'),
           ),
           actions: [
             IconButton(
@@ -147,7 +147,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             IconButton(
               icon: const Icon(Icons.home),
               tooltip: 'Home Dashboard',
-              onPressed: () => context.go('/'),
+              onPressed: () => context.go('/home'),
             ),
           ],
         ),
@@ -360,7 +360,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onPressed: () => context.go('/'),
+              onPressed: () => context.go('/home'),
             ),
             const SizedBox(height: 24),
           ],
