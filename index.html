@@ -37,18 +37,15 @@
             type="email" 
             id="adminEmail" 
             required
-            value="manojvip36@gmail.com"
+            value="plantgreeninertiamanagement@gmail.com"
             placeholder="admin@test11.com"
             class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
           >
         </div>
 
         <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-700">Password</label>
-            <button type="button" onclick="showForgotPasswordView()" class="text-xs font-semibold text-slate-600 hover:text-black underline">
-              Forgot password?
-            </button>
+          <div class="mb-1">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Password</label>
           </div>
           <input 
             type="password" 
@@ -77,43 +74,7 @@
         </div>
       </form>
 
-      <!-- Forgot Password View -->
-      <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" class="hidden space-y-4">
-        <div class="text-center mb-2">
-          <h3 class="text-lg font-bold text-slate-900">Reset Admin Password</h3>
-          <p class="text-xs text-slate-500 mt-1">Enter your registered email to receive a password reset link.</p>
-        </div>
 
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Admin Email</label>
-          <input 
-            type="email" 
-            id="resetEmail" 
-            required
-            value="manojvip36@gmail.com"
-            placeholder="admin@test11.com"
-            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
-          >
-        </div>
-
-        <div id="resetFeedback" class="hidden p-3 rounded-xl text-xs"></div>
-
-        <button 
-          type="submit" 
-          id="resetBtn"
-          class="w-full py-2.5 px-4 bg-black hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition"
-        >
-          Send Reset Link
-        </button>
-
-        <button 
-          type="button" 
-          onclick="showLoginView()" 
-          class="w-full py-2 text-xs font-semibold text-slate-600 hover:text-black transition"
-        >
-          ← Back to Sign In
-        </button>
-      </form>
 
     </div>
   </div>
@@ -151,7 +112,7 @@
           </div>
           <div class="hidden sm:block text-left">
             <div id="currentUserLabel" class="text-xs font-bold text-slate-900">Manoj (Super Admin)</div>
-            <div class="text-[11px] text-slate-500">manojvip36@gmail.com</div>
+            <div class="text-[11px] text-slate-500">plantgreeninertiamanagement@gmail.com</div>
           </div>
           <button 
             onclick="logoutAdmin()" 
@@ -391,8 +352,8 @@
 
     // Admin Credentials
     const ADMIN_CREDENTIALS = {
-      email: 'manojvip36@gmail.com',
-      password: 'admin' // Default password, can be reset
+      email: 'plantgreeninertiamanagement@gmail.com',
+      password: 'Admin@0711'
     };
 
     // Check existing session
@@ -422,18 +383,15 @@
 
       errorBox.classList.add('hidden');
 
-      // Check against stored or default password
-      const storedPass = localStorage.getItem('test11_admin_pwd') || ADMIN_CREDENTIALS.password;
-
-      if ((email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase()) && (pass === storedPass)) {
+      if ((email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase()) && (pass === ADMIN_CREDENTIALS.password)) {
         sessionStorage.setItem('test11_admin_authenticated', 'true');
         document.getElementById('authOverlay').classList.add('hidden');
-        logAudit(`Admin Manoj [${email}] successfully signed in.`);
+        logAudit(`Administrator [${email}] authenticated successfully.`);
         loadAdminData();
       } else {
-        errorBox.textContent = 'Invalid administrator credentials. Access restricted.';
+        errorBox.textContent = 'Invalid administrator credentials. Access denied.';
         errorBox.classList.remove('hidden');
-        logAudit(`Failed login attempt for [${email}].`);
+        logAudit(`Unauthorized login attempt for [${email}].`);
       }
     }
 
