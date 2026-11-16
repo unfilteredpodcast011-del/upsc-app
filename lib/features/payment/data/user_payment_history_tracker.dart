@@ -92,3 +92,4 @@ class UserPaymentHistoryTracker {
     return list;
   }
 }
+

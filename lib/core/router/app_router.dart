@@ -7,7 +7,6 @@ import '../../features/admin/presentation/admin_dashboard_screen.dart';
 import '../../features/tests/presentation/test_list_screen.dart';
 import '../../features/tests/presentation/timed_engine_screen.dart';
 import '../../features/tests/presentation/result_screen.dart';
-import '../../features/tests/presentation/writing_practice_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/payment/presentation/payment_history_screen.dart';
@@ -68,10 +67,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           final sessionId = state.pathParameters['sessionId']!;
           return ResultScreen(sessionId: sessionId);
         },
-      ),
-      GoRoute(
-        path: '/writing-practice',
-        builder: (context, state) => const WritingPracticeScreen(),
       ),
       GoRoute(
         path: '/leaderboard',

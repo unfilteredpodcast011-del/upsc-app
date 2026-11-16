@@ -345,11 +345,6 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
               onPressed: () => context.push('/admin'),
             ),
           IconButton(
-            icon: const Icon(Icons.border_color_outlined),
-            tooltip: 'Writing Practice',
-            onPressed: () => context.push('/writing-practice'),
-          ),
-          IconButton(
             icon: const Icon(Icons.leaderboard),
             tooltip: 'Leaderboard',
             onPressed: () => context.push('/leaderboard'),
