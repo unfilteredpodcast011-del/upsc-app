@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/localization/locale_controller.dart';
 import 'core/router/app_router.dart';
 
 class ExamPrepApp extends ConsumerWidget {
@@ -13,6 +14,7 @@ class ExamPrepApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeState = ref.watch(themeProvider);
+    final currentLocale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'ExamPrep',
@@ -20,7 +22,7 @@ class ExamPrepApp extends ConsumerWidget {
       theme: AppTheme.getLightTheme(themeState.preset),
       darkTheme: AppTheme.getDarkTheme(themeState.preset),
       themeMode: themeState.themeMode,
-      locale: const Locale('en'),
+      locale: currentLocale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

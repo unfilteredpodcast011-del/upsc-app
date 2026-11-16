@@ -1,41 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../auth/presentation/auth_controller.dart';
-import '../../auth/domain/user_model.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
-  void _switchLanguage(BuildContext context, WidgetRef ref, String langCode) async {
-    final user = ref.read(userProfileProvider).value;
-    if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .update({'preferredLanguage': langCode});
-    }
-    if (context.mounted) {
+  @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String _displayName = 'Aspirant';
+  String _email = '';
+  String _targetExam = 'UPSC';
+  String _district = '';
+  String _yearsTrying = '';
+  int _streakCount = 1;
+  int _totalPoints = 50;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _displayName = prefs.getString('student_name') ?? 'Aspirant';
+      _email = prefs.getString('student_email') ?? '';
+      _targetExam = prefs.getString('target_exam') ?? 'UPSC';
+      _district = prefs.getString('student_district') ?? '';
+      _yearsTrying = prefs.getString('years_trying') ?? '1st Attempt';
+      _streakCount = prefs.getInt('streak_count') ?? 1;
+      _totalPoints = prefs.getInt('total_points') ?? 50;
+    });
+  }
+
+  void _switchLanguage(String langCode) async {
+    await ref.read(localeProvider.notifier).setLocale(langCode);
+    if (mounted) {
+      final name = langCode == 'ta' ? 'தமிழ்' : (langCode == 'hi' ? 'हिन्दी' : 'English');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Language updated to $langCode')),
+        SnackBar(
+          content: Text('App language changed to $name!'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
       );
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProfileProvider).value;
+  Widget build(BuildContext context) {
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -52,9 +76,7 @@ class ProfileScreen extends ConsumerWidget {
                       radius: 30,
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       child: Text(
-                        (user?.displayName.isNotEmpty == true)
-                            ? user!.displayName[0].toUpperCase()
-                            : 'A',
+                        _displayName.isNotEmpty ? _displayName[0].toUpperCase() : 'A',
                         style: const TextStyle(
                           fontSize: 24,
                           color: Colors.white,
@@ -68,23 +90,37 @@ class ProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user?.displayName ?? 'Aspirant',
+                            _displayName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
-                            user?.email ?? '',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                          ),
-                          const SizedBox(height: 4),
-                          Chip(
-                            label: Text(
-                              'Target: ${user?.targetExam ?? 'UPSC'}',
-                              style: const TextStyle(fontSize: 11),
+                          if (_email.isNotEmpty)
+                            Text(
+                              _email,
+                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
                             ),
-                            visualDensity: VisualDensity.compact,
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 6,
+                            children: [
+                              Chip(
+                                label: Text(
+                                  'Target: $_targetExam',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              if (_district.isNotEmpty)
+                                Chip(
+                                  label: Text(
+                                    _district,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -98,11 +134,11 @@ class ProfileScreen extends ConsumerWidget {
             // Streaks & Achievements
             Row(
               children: [
-                _badgeCard('Streak', '${user?.streakCount ?? 1} Days', Icons.local_fire_department, Colors.orange),
+                _badgeCard('Streak', '$_streakCount Days', Icons.local_fire_department, Colors.orange),
                 const SizedBox(width: 8),
-                _badgeCard('Points', '${user?.totalPoints ?? 50} pts', Icons.stars, Colors.amber.shade800),
+                _badgeCard('Points', '$_totalPoints pts', Icons.stars, Colors.amber.shade800),
                 const SizedBox(width: 8),
-                _badgeCard('Role', user?.role.toUpperCase() ?? 'STUDENT', Icons.verified_user, Colors.indigo),
+                _badgeCard('Role', 'STUDENT', Icons.verified_user, Colors.indigo),
               ],
             ),
             const SizedBox(height: 20),
@@ -119,27 +155,27 @@ class ProfileScreen extends ConsumerWidget {
                   RadioListTile<String>(
                     title: const Text('English (Default)'),
                     value: 'en',
-                    groupValue: user?.preferredLanguage ?? 'en',
+                    groupValue: currentLocale.languageCode,
                     onChanged: (val) {
-                      if (val != null) _switchLanguage(context, ref, val);
+                      if (val != null) _switchLanguage(val);
                     },
                   ),
                   const Divider(height: 1),
                   RadioListTile<String>(
                     title: const Text('தமிழ் (Tamil - TNPSC Specialized)'),
                     value: 'ta',
-                    groupValue: user?.preferredLanguage ?? 'en',
+                    groupValue: currentLocale.languageCode,
                     onChanged: (val) {
-                      if (val != null) _switchLanguage(context, ref, val);
+                      if (val != null) _switchLanguage(val);
                     },
                   ),
                   const Divider(height: 1),
                   RadioListTile<String>(
                     title: const Text('हिन्दी (Hindi)'),
                     value: 'hi',
-                    groupValue: user?.preferredLanguage ?? 'en',
+                    groupValue: currentLocale.languageCode,
                     onChanged: (val) {
-                      if (val != null) _switchLanguage(context, ref, val);
+                      if (val != null) _switchLanguage(val);
                     },
                   ),
                 ],
@@ -147,69 +183,27 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
 
-            // Past Test Attempts History
+            // Recent Test Attempts History
             const Text(
               'Recent Test Attempts',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('test_sessions')
-                  .where('userId', isEqualTo: user?.uid ?? '')
-                  .where('status', isEqualTo: 'completed')
-                  .orderBy('submittedAt', descending: true)
-                  .limit(10)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final docs = snapshot.data?.docs ?? [];
-                if (docs.isEmpty) {
-                  return const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        'No tests completed yet. Start your first timed test to view history!',
-                        textAlign: TextAlign.center,
-                      ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    const Icon(Icons.assignment_outlined, size: 40, color: Colors.grey),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No tests completed yet. Start your first timed test to view history!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: docs.length,
-                  itemBuilder: (ctx, idx) {
-                    final data = docs[idx].data() as Map<String, dynamic>;
-                    final score = (data['score'] as num?)?.toDouble() ?? 0.0;
-                    final acc = (data['accuracy'] as num?)?.toDouble() ?? 0.0;
-                    final testId = data['testId'] ?? '';
-
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue.shade50,
-                          child: const Icon(Icons.history, color: Colors.blue),
-                        ),
-                        title: Text('Test: $testId'),
-                        subtitle: Text('Accuracy: ${acc.toStringAsFixed(0)}%'),
-                        trailing: Text(
-                          '${score.toStringAsFixed(1)} marks',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -217,28 +211,36 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _badgeCard(String title, String value, IconData icon, Color color) {
+  Widget _badgeCard(String label, String value, IconData icon, Color color) {
     return Expanded(
       child: Card(
-        color: color.withOpacity(0.08),
+        color: color.withOpacity(0.12),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color.withOpacity(0.3)),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
           child: Column(
             children: [
               Icon(icon, color: color, size: 24),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  fontSize: 14,
                   color: color,
                 ),
               ),
-              const SizedBox(height: 2),
               Text(
-                title,
-                style: const TextStyle(fontSize: 11, color: Colors.black87),
+                label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),

@@ -78,3 +78,4 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
   return ThemeNotifier();
 });
+
