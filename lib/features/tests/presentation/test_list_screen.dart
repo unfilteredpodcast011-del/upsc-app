@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/theme/theme_controller.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/test_repository.dart';
 import '../domain/test_model.dart';
@@ -167,6 +168,138 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
     );
   }
 
+  void _showThemeCustomizer(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final currentTheme = ref.watch(themeProvider);
+        final isDark = currentTheme.themeMode == ThemeMode.dark;
+
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'App Appearance & Theme',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Dark Mode Toggle Switch
+              SwitchListTile(
+                title: const Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(isDark ? 'Dark theme active' : 'Light theme active'),
+                secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: Colors.amber),
+                value: isDark,
+                onChanged: (val) {
+                  ref.read(themeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                },
+              ),
+              const Divider(height: 24),
+              const Text(
+                'Color Palette Presets',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              // Color Presets Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.royalBlue,
+                    color: const Color(0xFF1E3A8A),
+                    name: 'Royal Blue',
+                    isSelected: currentTheme.preset == AppThemePreset.royalBlue,
+                  ),
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.forestGreen,
+                    color: const Color(0xFF0F766E),
+                    name: 'Teal Forest',
+                    isSelected: currentTheme.preset == AppThemePreset.forestGreen,
+                  ),
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.imperialPurple,
+                    color: const Color(0xFF581C87),
+                    name: 'Imperial',
+                    isSelected: currentTheme.preset == AppThemePreset.imperialPurple,
+                  ),
+                  _themeColorCircle(
+                    ctx,
+                    preset: AppThemePreset.crimsonRed,
+                    color: const Color(0xFF991B1B),
+                    name: 'Crimson',
+                    isSelected: currentTheme.preset == AppThemePreset.crimsonRed,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _themeColorCircle(
+    BuildContext context, {
+    required AppThemePreset preset,
+    required Color color,
+    required String name,
+    required bool isSelected,
+  }) {
+    return InkWell(
+      onTap: () {
+        ref.read(themeProvider.notifier).setPreset(preset);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: isSelected ? Border.all(color: Colors.amberAccent, width: 3.5) : null,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.4),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProfileProvider).value;
@@ -193,6 +326,15 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                 }
               },
             ),
+          IconButton(
+            icon: Icon(
+              ref.watch(themeProvider).themeMode == ThemeMode.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode_outlined,
+            ),
+            tooltip: 'Toggle Dark / Light Theme',
+            onPressed: () => _showThemeCustomizer(context),
+          ),
           if (user?.isAdmin == true)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),

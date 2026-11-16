@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 import 'core/router/app_router.dart';
 
 class ExamPrepApp extends ConsumerWidget {
@@ -11,13 +12,14 @@ class ExamPrepApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeState = ref.watch(themeProvider);
 
     return MaterialApp.router(
       title: 'ExamPrep',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.getLightTheme(themeState.preset),
+      darkTheme: AppTheme.getDarkTheme(themeState.preset),
+      themeMode: themeState.themeMode,
       locale: const Locale('en'),
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -26,9 +28,9 @@ class ExamPrepApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en'), // English
-        Locale('ta'), // Tamil
-        Locale('hi'), // Hindi
+        Locale('en'),
+        Locale('ta'),
+        Locale('hi'),
       ],
       routerConfig: router,
     );
