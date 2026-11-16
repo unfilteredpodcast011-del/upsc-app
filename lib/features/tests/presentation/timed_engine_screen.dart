@@ -1,3 +1,4 @@
+import '../../../core/localization/locale_controller.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,11 +94,16 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
       final now = DateTime.now();
       final elapsed = now.difference(session.startedAt).inSeconds;
       _totalDurationSeconds = session.allowedDurationSeconds;
-      _secondsRemaining = _totalDurationSeconds - (elapsed > 0 ? elapsed : 0);
+
+      // Ensure that if previous test attempt was finished or stale, we reset the timer fresh for this new unlock
+      if (elapsed >= _totalDurationSeconds || elapsed < 0) {
+        _secondsRemaining = _totalDurationSeconds;
+      } else {
+        _secondsRemaining = _totalDurationSeconds - elapsed;
+      }
 
       if (_secondsRemaining <= 0) {
-        _autoSubmit();
-        return;
+        _secondsRemaining = _totalDurationSeconds;
       }
 
       _startTimer();
@@ -277,6 +283,10 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Keep language in sync with app-wide selected locale
+    final activeLocale = ref.watch(localeProvider).languageCode;
+    _currentLanguage = activeLocale;
+
     if (_isLoading) {
       return const Scaffold(
         body: Center(

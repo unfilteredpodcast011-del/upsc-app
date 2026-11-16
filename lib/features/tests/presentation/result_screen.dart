@@ -55,6 +55,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   (k, v) => MapEntry(k, v.toString()),
                 ) ??
                 {};
+            final qText = m['question'] ?? '';
+            final exp = m['explanation'] ?? '';
             return QuestionModel(
               id: m['id'] ?? '',
               exam: m['exam'] ?? 'UPSC',
@@ -64,13 +66,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               difficulty: 'medium',
               publishDate: '2026-11-16',
               correctAnswer: m['correct_answer'] ?? 'A',
-              normalizedText: m['question'] ?? '',
+              normalizedText: qText,
               translations: {
-                'en': QuestionTranslation(
-                  question: m['question'] ?? '',
-                  options: opts,
-                  explanation: m['explanation'] ?? '',
-                ),
+                'en': QuestionTranslation(question: qText, options: opts, explanation: exp),
+                'ta': QuestionTranslation(question: qText, options: opts, explanation: exp),
+                'hi': QuestionTranslation(question: qText, options: opts, explanation: exp),
               },
             );
           }).toList();
@@ -265,7 +265,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   final userChoice = entry?.selectedOption;
                   final isCorrect = userChoice == q.correctAnswer;
                   final isSkipped = userChoice == null;
-                  final options = q.getLocalizedOptions('en');
+                  final options = q.getLocalizedOptions(_appLanguage);
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -316,7 +316,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            q.getLocalizedQuestion('en'),
+                            q.getLocalizedQuestion(_appLanguage),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
