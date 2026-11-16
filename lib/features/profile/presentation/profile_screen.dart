@@ -169,6 +169,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+
+            // Payment History Navigation Button
+            Card(
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFFFEF3C7),
+                  child: Icon(Icons.receipt_long, color: Color(0xFFD97706)),
+                ),
+                title: const Text('My Payment History', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('View transactions, ₹1 test orders & status', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/payment-history'),
+              ),
+            ),
             const SizedBox(height: 20),
 
             // Language Selector

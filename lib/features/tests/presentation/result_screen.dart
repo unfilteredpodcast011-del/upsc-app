@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
@@ -110,17 +111,29 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           }).toList()
         : _questions;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Exam Result & Review'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Exam Result & Review'),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/'),
           ),
-        ],
-      ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.home),
+              tooltip: 'Home Dashboard',
+              onPressed: () => context.go('/'),
+            ),
+          ],
+        ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -304,9 +317,21 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   );
                 },
               ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.home),
+              label: const Text('Back to Home Dashboard'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => context.go('/'),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
+    ),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/payment_repository.dart';
+import '../data/user_payment_history_tracker.dart';
 import '../../tests/domain/test_model.dart';
 
 final paymentRepoProvider = Provider<PaymentRepository>((ref) => PaymentRepository());
@@ -69,6 +70,14 @@ class PaymentCheckoutHelper {
     final prefs = await SharedPreferences.getInstance();
     final studentId = prefs.getString('student_id') ?? 'student_guest';
 
+    await UserPaymentHistoryTracker.logPayment(
+      testTitle: test.title,
+      testId: test.id,
+      orderId: response.orderId ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
+      paymentId: response.paymentId ?? 'pay_success',
+      status: 'SUCCESS',
+    );
+
     final isVerified = await ref.read(paymentRepoProvider).verifyAndUnlockTest(
           orderId: response.orderId ?? 'direct_order',
           paymentId: response.paymentId ?? 'pay_dummy',
@@ -90,7 +99,16 @@ class PaymentCheckoutHelper {
     }
   }
 
-  void _handlePaymentError(PaymentFailureResponse response) {
+  void _handlePaymentError(PaymentFailureResponse response) async {
+    final status = (response.code == Razorpay.PAYMENT_CANCELLED) ? 'CANCELLED' : 'FAILED';
+    await UserPaymentHistoryTracker.logPayment(
+      testTitle: test.title,
+      testId: test.id,
+      orderId: 'order_${DateTime.now().millisecondsSinceEpoch}',
+      paymentId: 'fail_code_${response.code}',
+      status: status,
+    );
+
     if (context.mounted) {
       showDialog(
         context: context,

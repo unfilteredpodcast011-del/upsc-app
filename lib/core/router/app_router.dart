@@ -10,6 +10,7 @@ import '../../features/tests/presentation/result_screen.dart';
 import '../../features/tests/presentation/writing_practice_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/payment/presentation/payment_history_screen.dart';
 
 final onboardingCheckProvider = FutureProvider<bool>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -79,6 +80,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/payment-history',
+        builder: (context, state) => const PaymentHistoryScreen(),
       ),
       GoRoute(
         path: '/admin',
