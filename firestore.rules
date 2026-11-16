@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if current user matches document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Helper function to verify admin status (via custom claims or role in user doc)
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.admin == true || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Questions Collection
+    // Students can read published questions; Only Admins can create/edit/delete
+    match /questions/{questionId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.status == 'published' || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Tests Collection
+    match /tests/{testId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Test Sessions Collection (Timed Engine)
+    // Students can read & update only their own sessions
+    match /test_sessions/{sessionId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // User Unlocked Tests (Entitlement)
+    match /user_unlocked_tests/{unlockId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAuthenticated(); // Captured payments unlock records
+    }
+
+    // Payments Collection
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    // Writing Practice Submissions
+    match /writing_practice_submissions/{submissionId} {
+      allow read, write: if isAuthenticated() && 
+        (request.resource.data.userId == request.auth.uid || resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}
+

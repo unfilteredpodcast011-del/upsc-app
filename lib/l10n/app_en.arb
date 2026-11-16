@@ -1,0 +1,25 @@
+{
+  "@@locale": "en",
+  "appTitle": "ExamPrep",
+  "login": "Login",
+  "signup": "Sign Up",
+  "email": "Email",
+  "password": "Password",
+  "forgotPassword": "Forgot Password?",
+  "sendResetLink": "Send Reset Link",
+  "googleSignIn": "Continue with Google",
+  "dontHaveAccount": "Don't have an account? Sign Up",
+  "alreadyHaveAccount": "Already have an account? Login",
+  "targetExam": "Target Exam",
+  "upsc": "UPSC Civil Services",
+  "tnpsc": "TNPSC Group Exams",
+  "dailyTest": "Daily Practice Test",
+  "subjectTests": "Subject Tests",
+  "fullMock": "Full Mock Test",
+  "writingPractice": "Mains Writing Practice",
+  "leaderboard": "Leaderboard",
+  "profile": "Profile",
+  "adminPanel": "Admin Question Bank",
+  "logout": "Logout"
+}
+

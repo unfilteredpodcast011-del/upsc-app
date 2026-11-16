@@ -1,0 +1,25 @@
+{
+  "@@locale": "hi",
+  "appTitle": "ExamPrep",
+  "login": "लॉग इन करें",
+  "signup": "साइन अप करें",
+  "email": "ईमेल",
+  "password": "पासवर्ड",
+  "forgotPassword": "पासवर्ड भूल गए?",
+  "sendResetLink": "रीसेट लिंक भेजें",
+  "googleSignIn": "Google से जारी रखें",
+  "dontHaveAccount": "खाता नहीं है? साइन अप करें",
+  "alreadyHaveAccount": "पहले से खाता है? लॉग इन करें",
+  "targetExam": "लक्षित परीक्षा",
+  "upsc": "यूपीएससी (UPSC)",
+  "tnpsc": "टीएनपीएससी (TNPSC)",
+  "dailyTest": "दैनिक अभ्यास परीक्षा",
+  "subjectTests": "विषय-वार टेस्ट",
+  "fullMock": "फुल मॉक टेस्ट",
+  "writingPractice": "मुख्य परीक्षा उत्तर लेखन",
+  "leaderboard": "लीडरबोर्ड",
+  "profile": "प्रोफ़ाइल",
+  "adminPanel": "एडमिन प्रश्न बैंक",
+  "logout": "लॉग आउट"
+}
+

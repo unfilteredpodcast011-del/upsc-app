@@ -1,0 +1,597 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../auth/presentation/auth_controller.dart';
+import '../data/test_repository.dart';
+import '../domain/test_model.dart';
+import '../domain/question_model.dart';
+
+final testRepoProvider = Provider<TestRepository>((ref) => TestRepository());
+
+class TimedEngineScreen extends ConsumerStatefulWidget {
+  final String testId;
+  final int speedOption;
+
+  const TimedEngineScreen({
+    super.key,
+    required this.testId,
+    this.speedOption = 100,
+  });
+
+  @override
+  ConsumerState<TimedEngineScreen> createState() => _TimedEngineScreenState();
+}
+
+class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
+  bool _isLoading = true;
+  String? _error;
+  TestModel? _test;
+  List<QuestionModel> _questions = [];
+  TestSessionModel? _session;
+
+  int _currentIndex = 0;
+  String _currentLanguage = 'en'; // 'en', 'ta', 'hi'
+  final Map<String, AnswerEntry> _answers = {};
+
+  Timer? _countdownTimer;
+  int _secondsRemaining = 0;
+  int _totalDurationSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeTest();
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initializeTest() async {
+    try {
+      final user = ref.read(userProfileProvider).value;
+      if (user == null) throw 'User not authenticated.';
+
+      _currentLanguage = user.preferredLanguage;
+
+      final testRepo = ref.read(testRepoProvider);
+      final test = await testRepo.getTestById(widget.testId);
+      if (test == null) throw 'Test not found.';
+
+      final questions = await testRepo.getQuestionsForTest(test.questionIds);
+      if (questions.isEmpty) throw 'No questions loaded for this test.';
+
+      final session = await testRepo.startOrResumeSession(
+        userId: user.uid,
+        testId: test.id,
+        exam: test.exam,
+        defaultDurationSeconds: test.defaultDurationSeconds,
+        speedOption: widget.speedOption,
+      );
+
+      _test = test;
+      _questions = questions;
+      _session = session;
+      _answers.addAll(session.answers);
+
+      // Calculate elapsed time from server timestamp to prevent clock cheating
+      final now = DateTime.now();
+      final elapsed = now.difference(session.startedAt).inSeconds;
+      _totalDurationSeconds = session.allowedDurationSeconds;
+      _secondsRemaining = _totalDurationSeconds - (elapsed > 0 ? elapsed : 0);
+
+      if (_secondsRemaining <= 0) {
+        // Auto-submit expired session
+        _autoSubmit();
+        return;
+      }
+
+      _startTimer();
+
+      setState(() => _isLoading = false);
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _startTimer() {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining <= 1) {
+        timer.cancel();
+        _autoSubmit();
+      } else {
+        setState(() {
+          _secondsRemaining--;
+        });
+      }
+    });
+  }
+
+  void _selectOption(String option) {
+    final currentQ = _questions[_currentIndex];
+    final existing = _answers[currentQ.id] ?? AnswerEntry();
+    final updated = existing.copyWith(selectedOption: option);
+
+    setState(() {
+      _answers[currentQ.id] = updated;
+    });
+
+    if (_session != null) {
+      ref.read(testRepoProvider).saveAnswerProgress(
+            sessionId: _session!.id,
+            questionId: currentQ.id,
+            answer: updated,
+          );
+    }
+  }
+
+  void _toggleMarkForReview() {
+    final currentQ = _questions[_currentIndex];
+    final existing = _answers[currentQ.id] ?? AnswerEntry();
+    final updated = existing.copyWith(markedForReview: !existing.markedForReview);
+
+    setState(() {
+      _answers[currentQ.id] = updated;
+    });
+
+    if (_session != null) {
+      ref.read(testRepoProvider).saveAnswerProgress(
+            sessionId: _session!.id,
+            questionId: currentQ.id,
+            answer: updated,
+          );
+    }
+  }
+
+  void _clearResponse() {
+    final currentQ = _questions[_currentIndex];
+    final existing = _answers[currentQ.id] ?? AnswerEntry();
+    final updated = existing.copyWith(clearOption: true);
+
+    setState(() {
+      _answers[currentQ.id] = updated;
+    });
+
+    if (_session != null) {
+      ref.read(testRepoProvider).saveAnswerProgress(
+            sessionId: _session!.id,
+            questionId: currentQ.id,
+            answer: updated,
+          );
+    }
+  }
+
+  Future<void> _submitTest() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Submit Practice Test?'),
+        content: Text(
+          'You have answered ${_answers.values.where((a) => a.selectedOption != null).length} of ${_questions.length} questions.\n'
+          'Are you sure you want to finish?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _executeSubmission();
+    }
+  }
+
+  void _autoSubmit() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Time is up! Automatically evaluating your test...'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+    _executeSubmission();
+  }
+
+  Future<void> _executeSubmission() async {
+    _countdownTimer?.cancel();
+    setState(() => _isLoading = true);
+
+    final timeTaken = _totalDurationSeconds - _secondsRemaining;
+
+    final completedSession =
+        await ref.read(testRepoProvider).evaluateAndSubmitSession(
+              sessionId: _session!.id,
+              testId: _test!.id,
+              questions: _questions,
+              answers: _answers,
+              timeTakenSeconds: timeTaken > 0 ? timeTaken : 1,
+            );
+
+    if (mounted) {
+      context.go('/test-result/${completedSession.id}');
+    }
+  }
+
+  String _formatTimer(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Securing timed practice session...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 12),
+                Text(_error!, textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Return to Tests'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final currentQ = _questions[_currentIndex];
+    final currentAns = _answers[currentQ.id];
+    final options = currentQ.getLocalizedOptions(_currentLanguage);
+    final questionText = currentQ.getLocalizedQuestion(_currentLanguage);
+
+    final progressRatio = _totalDurationSeconds > 0
+        ? _secondsRemaining / _totalDurationSeconds
+        : 0.0;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.grid_view_rounded),
+          tooltip: 'Question Palette',
+          onPressed: _showQuestionPalette,
+        ),
+        title: Column(
+          children: [
+            Text(
+              _formatTimer(_secondsRemaining),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: _secondsRemaining < 120 ? Colors.redAccent : Colors.white,
+              ),
+            ),
+            Text(
+              'Question ${_currentIndex + 1} of ${_questions.length}',
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+          ],
+        ),
+        actions: [
+          // Language Switcher in-test without losing progress
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.translate),
+            tooltip: 'Switch Language',
+            onSelected: (lang) => setState(() => _currentLanguage = lang),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'en', child: Text('English')),
+              PopupMenuItem(value: 'ta', child: Text('தமிழ் (Tamil)')),
+              PopupMenuItem(value: 'hi', child: Text('हिन्दी (Hindi)')),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.check_circle_outline),
+            tooltip: 'Submit Test',
+            onPressed: _submitTest,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Progress Bar
+          LinearProgressIndicator(
+            value: progressRatio,
+            backgroundColor: Colors.grey.shade300,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              _secondsRemaining < 120 ? Colors.red : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+
+          // Question Card
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Tags Row
+                  Row(
+                    children: [
+                      Chip(
+                        label: Text(
+                          currentQ.subject,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        backgroundColor: Colors.blue.shade50,
+                      ),
+                      const SizedBox(width: 6),
+                      if (currentQ.topic.isNotEmpty)
+                        Chip(
+                          label: Text(
+                            currentQ.topic,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          backgroundColor: Colors.amber.shade50,
+                        ),
+                      const Spacer(),
+                      // Mark for Review
+                      IconButton(
+                        icon: Icon(
+                          currentAns?.markedForReview == true
+                              ? Icons.bookmark
+                              : Icons.bookmark_border,
+                          color: currentAns?.markedForReview == true
+                              ? Colors.purple
+                              : Colors.grey,
+                        ),
+                        tooltip: 'Mark for Review',
+                        onPressed: _toggleMarkForReview,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Question Text
+                  Text(
+                    'Q${_currentIndex + 1}. $questionText',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Options List
+                  ...['a', 'b', 'c', 'd'].map((optKey) {
+                    final optText = options[optKey] ?? '';
+                    if (optText.isEmpty) return const SizedBox.shrink();
+
+                    final isSelected = currentAns?.selectedOption?.toLowerCase() == optKey;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: InkWell(
+                        onTap: () => _selectOption(optKey.toUpperCase()),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(14.0),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary.withOpacity(0.12)
+                                : Colors.white,
+                            border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade300,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.grey.shade200,
+                                child: Text(
+                                  optKey.toUpperCase(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: isSelected ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  optText,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight:
+                                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom Navigation Controls
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                OutlinedButton(
+                  onPressed: _currentIndex > 0
+                      ? () => setState(() => _currentIndex--)
+                      : null,
+                  child: const Text('Previous'),
+                ),
+                TextButton(
+                  onPressed: currentAns?.selectedOption != null ? _clearResponse : null,
+                  child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                ),
+                ElevatedButton(
+                  onPressed: _currentIndex < _questions.length - 1
+                      ? () => setState(() => _currentIndex++)
+                      : _submitTest,
+                  child: Text(
+                    _currentIndex < _questions.length - 1 ? 'Next' : 'Submit',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuestionPalette() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.65,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Question Palette',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              // Legend
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: [
+                  _legendItem(Colors.green, 'Answered'),
+                  _legendItem(Colors.grey.shade400, 'Unanswered'),
+                  _legendItem(Colors.purple, 'Review'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: _questions.length,
+                  itemBuilder: (ctx, idx) {
+                    final q = _questions[idx];
+                    final ans = _answers[q.id];
+                    final isAnswered = ans?.selectedOption != null;
+                    final isReview = ans?.markedForReview == true;
+                    final isCurrent = idx == _currentIndex;
+
+                    Color bg = Colors.grey.shade200;
+                    if (isReview) {
+                      bg = Colors.purple.shade300;
+                    } else if (isAnswered) {
+                      bg = Colors.green.shade500;
+                    }
+
+                    return InkWell(
+                      onTap: () {
+                        setState(() => _currentIndex = idx);
+                        Navigator.pop(ctx);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: bg,
+                          border: isCurrent
+                              ? Border.all(color: Colors.blue, width: 2.5)
+                              : null,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${idx + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isAnswered || isReview ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _legendItem(Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(text, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}

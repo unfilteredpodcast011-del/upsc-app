@@ -1,0 +1,25 @@
+{
+  "@@locale": "ta",
+  "appTitle": "ExamPrep",
+  "login": "உள்நுழைக",
+  "signup": "பதிவு செய்க",
+  "email": "மின்னஞ்சல்",
+  "password": "கடவுச்சொல்",
+  "forgotPassword": "கடவுச்சொல்லை மறந்துவிட்டீர்களா?",
+  "sendResetLink": "மீட்டமைப்பு இணைப்பை அனுப்புக",
+  "googleSignIn": "Google மூலம் தொடரவும்",
+  "dontHaveAccount": "கணக்கு இல்லையா? பதிவு செய்க",
+  "alreadyHaveAccount": "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழைக",
+  "targetExam": "இலக்கு தேர்வு",
+  "upsc": "யு.பி.எஸ்.சி (UPSC)",
+  "tnpsc": "டி.என்.பி.எஸ்.சி (TNPSC)",
+  "dailyTest": "தினசரி பயிற்சித் தேர்வு",
+  "subjectTests": "பாடவாரி தேர்வுகள்",
+  "fullMock": "முழு மாதிரித் தேர்வு",
+  "writingPractice": "மெயின்ஸ் விடை எழுதும் பயிற்சி",
+  "leaderboard": "மதிப்பெண் பட்டியல்",
+  "profile": "சுயவிவரம்",
+  "adminPanel": "நிர்வாகக் குழு வினா வங்கி",
+  "logout": "வெளியேறு"
+}
+
