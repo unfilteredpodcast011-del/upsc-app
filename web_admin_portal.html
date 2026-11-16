@@ -13,8 +13,8 @@
       <h1 class="text-xl font-bold">ExamPrep Admin Dashboard</h1>
       <p class="text-xs text-indigo-200">UPSC & TNPSC Student Registrations, Payments & Tests</p>
     </div>
-    <div id="statusIndicator" class="text-xs px-3 py-1 rounded-full bg-yellow-500 text-black font-semibold">
-      Connecting to Supabase...
+    <div id="statusIndicator" class="text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-semibold">
+      Connected to Supabase
     </div>
   </nav>
 
@@ -98,25 +98,12 @@
 
   <script>
     const SUPABASE_URL = 'https://jkbndifpcepnsjgmyrfr.supabase.co';
-    // User can set their anon key here or via localStorage
-    let supabaseKey = localStorage.getItem('supabase_anon_key') || '';
-    if (!supabaseKey) {
-      supabaseKey = prompt('Please enter your Supabase anon/public key:');
-      if (supabaseKey) localStorage.setItem('supabase_anon_key', supabaseKey);
-    }
+    const SUPABASE_KEY = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
 
-    let supabaseClient = null;
-    if (supabaseKey) {
-      supabaseClient = supabase.createClient(SUPABASE_URL, supabaseKey);
-      document.getElementById('statusIndicator').innerText = 'Connected';
-      document.getElementById('statusIndicator').className = 'text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-semibold';
-      fetchData();
-    } else {
-      document.getElementById('statusIndicator').innerText = 'No API Key';
-    }
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    fetchData();
 
     async function fetchData() {
-      if (!supabaseClient) return;
       try {
         const { data: students, error: errStudents } = await supabaseClient
           .from('students')

@@ -99,3 +99,4 @@ CREATE POLICY "Public tests read" ON public.tests FOR SELECT USING (true);
 CREATE POLICY "Public test_questions read" ON public.test_questions FOR SELECT USING (true);
 CREATE POLICY "Public payments insert/read" ON public.payments FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public attempts insert/read" ON public.test_attempts FOR ALL USING (true) WITH CHECK (true);
+
