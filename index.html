@@ -838,8 +838,10 @@
               if (s.target_exam === 'UPSC') upscCount++;
               if (s.target_exam === 'TNPSC') tnpscCount++;
 
-              const isBlocked = s.account_status === 'blocked';
-              const isRetired = s.account_status === 'retired';
+              // Support status check from account_status column or encoded in years_trying
+              const yt = (s.years_trying || '').toString();
+              const isBlocked = s.account_status === 'blocked' || yt.includes('STATUS:BLOCKED');
+              const isRetired = s.account_status === 'retired' || yt.includes('STATUS:RETIRED');
 
               let statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>';
               if (isBlocked) {
@@ -865,12 +867,12 @@
                   <td class="p-3.5">${statusBadge}</td>
                   <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
                     ${isBlocked 
-                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Unblock</button>`
-                      : `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition shadow-sm">Block</button>`
+                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 shadow-sm transition">Unblock</button>`
+                      : `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition shadow-sm">Block</button>`
                     }
                     ${isRetired
-                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Restore</button>`
-                      : `<button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm">Retire</button>`
+                      ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-sm transition">Un-retire</button>`
+                      : `<button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm transition">Retire</button>`
                     }
                     <button onclick="deleteAccount('${s.id}', '${s.full_name}')" class="p-1.5 text-xs font-medium text-slate-400 hover:text-red-600 transition" title="Delete Candidate">
                       <i class="fa-regular fa-trash-can"></i>
@@ -1151,15 +1153,33 @@
       }
     }
 
-    async function updateAccountStatus(studentId, newStatus, name) {
+    async function updateAccountStatus(studentId, newStatus, name, rawYearsTryingEncoded) {
       try {
+        let rawYearsTrying = '';
+        if (rawYearsTryingEncoded) {
+          rawYearsTrying = decodeURIComponent(rawYearsTryingEncoded);
+        }
+        // Strip any previous STATUS: tags
+        let cleanYearsTrying = rawYearsTrying.replace(/STATUS:[A-Z]+\|?/g, '');
+        let newYearsTrying = cleanYearsTrying;
+
+        if (newStatus === 'blocked') {
+          newYearsTrying = 'STATUS:BLOCKED|' + cleanYearsTrying;
+        } else if (newStatus === 'retired') {
+          newYearsTrying = 'STATUS:RETIRED|' + cleanYearsTrying;
+        }
+
+        const updatePayload = { years_trying: newYearsTrying };
+
+        // Attempt update with account_status fallback to years_trying
         const { error } = await supabaseClient
           .from('students')
-          .update({ account_status: newStatus })
+          .update(updatePayload)
           .eq('id', studentId);
 
         if (error) throw error;
-        logAudit(`Candidate [${name}] account status updated to [${newStatus.toUpperCase()}].`);
+        const actionLabel = newStatus === 'active' ? 'UNBLOCKED / RESTORED' : newStatus.toUpperCase();
+        logAudit(`Candidate [${name}] account status updated to [${actionLabel}].`);
         loadAdminData();
       } catch (err) {
         alert('Status update failed: ' + err.message);
