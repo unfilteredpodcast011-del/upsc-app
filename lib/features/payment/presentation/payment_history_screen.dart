@@ -98,6 +98,9 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
 
   Widget _buildFilterChip(String label, String filterKey, {IconData? icon}) {
     final isSelected = _selectedFilter == filterKey;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return GestureDetector(
       onTap: () {
         if (filterKey == 'CUSTOM') {
@@ -112,15 +115,15 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
+          color: isSelected ? primaryColor : (isDark ? const Color(0xFF1E293B) : Colors.white),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFFCBD5E1),
+            color: isSelected ? primaryColor : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF1E3A8A).withOpacity(0.2),
+                    color: primaryColor.withOpacity(0.25),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -134,7 +137,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
               Icon(
                 icon,
                 size: 14,
-                color: isSelected ? Colors.white : const Color(0xFF475569),
+                color: isSelected ? Colors.white : (isDark ? const Color(0xFFE2E8F0) : const Color(0xFF475569)),
               ),
               const SizedBox(width: 5),
             ],
@@ -143,7 +146,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? Colors.white : const Color(0xFF475569),
+                color: isSelected ? Colors.white : (isDark ? const Color(0xFFF1F5F9) : const Color(0xFF475569)),
               ),
             ),
           ],
@@ -157,23 +160,31 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
     final displayedList = _filteredPayments;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Payment History',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
+          ),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
         elevation: 1,
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_month_outlined, color: Color(0xFF1E3A8A)),
+            icon: Icon(
+              Icons.calendar_month_outlined,
+              color: Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
+            ),
             tooltip: 'Pick date from Calendar',
             onPressed: _pickCustomDate,
           ),
           IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFF475569)),
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
+            ),
             tooltip: 'Refresh',
             onPressed: _loadHistory,
           ),
@@ -184,7 +195,9 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
           // Filter Bar with Today, Yesterday, and Calendar Picker
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.white,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF0F172A)
+                : Colors.white,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -206,7 +219,12 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
               ),
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+          Divider(
+            height: 1,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF334155)
+                : const Color(0xFFE2E8F0),
+          ),
 
           // Transactions List
           Expanded(
@@ -282,14 +300,18 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                             icon = Icons.cancel_outlined;
                           }
 
+                          final isDark = Theme.of(context).brightness == Brightness.dark;
+
                           return Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: isDark ? const Color(0xFF1E293B) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
+                                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -315,19 +337,19 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                         children: [
                                           Text(
                                             item.testTitle,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w700,
                                               fontSize: 14,
-                                              color: Color(0xFF0F172A),
+                                              color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             'Order: ${item.orderId}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               fontFamily: 'monospace',
-                                              color: Color(0xFF64748B),
+                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                                             ),
                                           ),
                                         ],
@@ -338,10 +360,10 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                       children: [
                                         Text(
                                           '₹${(item.amountPaise / 100).toStringAsFixed(2)}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
-                                            color: Color(0xFF0F172A),
+                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -364,20 +386,27 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                     ),
                                   ],
                                 ),
-                                const Divider(height: 18, color: Color(0xFFF1F5F9)),
+                                Divider(
+                                  height: 18,
+                                  color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                                ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.account_balance_wallet_outlined, size: 14, color: Color(0xFF475569)),
+                                        Icon(
+                                          Icons.account_balance_wallet_outlined,
+                                          size: 14,
+                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                                        ),
                                         const SizedBox(width: 5),
                                         Text(
                                           'Mode: ${item.paymentMode}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 11.5,
                                             fontWeight: FontWeight.w600,
-                                            color: Color(0xFF475569),
+                                            color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
                                           ),
                                         ),
                                       ],
@@ -385,13 +414,17 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                     if (item.date.isNotEmpty)
                                       Row(
                                         children: [
-                                          const Icon(Icons.access_time, size: 13, color: Color(0xFF94A3B8)),
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 13,
+                                            color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             item.date.replaceFirst('T', ' ').substring(0, 16),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF64748B),
+                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                                             ),
                                           ),
                                         ],

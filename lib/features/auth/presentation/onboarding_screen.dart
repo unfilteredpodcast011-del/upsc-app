@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -247,14 +248,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final primaryColor = theme.colorScheme.primary;
+    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A);
+    final subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Student Profile Registration'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: const Color(0xFF1E3A8A),
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -269,14 +275,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   'Welcome to ExamPrep!',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F172A),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'Please fill in your details to customize your prelims mock tests.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF64748B),
+                    color: subTextColor,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -284,25 +290,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Name
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
                     labelText: 'Full Name *',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your name' : null,
                 ),
                 const SizedBox(height: 16),
 
-                // Phone
+                // Phone (Exact 10 digits validation and length restriction)
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone Number *',
-                    prefixIcon: Icon(Icons.phone_outlined),
-                    border: OutlineInputBorder(),
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number (10 digits) *',
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.phone_outlined),
+                    prefixText: '+91 ',
+                    prefixStyle: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                    border: const OutlineInputBorder(),
                   ),
-                  validator: (v) => (v == null || v.trim().length < 10) ? 'Enter valid 10-digit phone number' : null,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Please enter your 10-digit phone number';
+                    if (v.trim().length != 10) return 'Phone number must be exactly 10 digits';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -310,10 +330,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
                     labelText: 'Email Address *',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email address' : null,
                 ),
@@ -322,19 +344,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // District
                 TextFormField(
                   controller: _districtController,
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
                     labelText: 'District / City *',
-                    prefixIcon: Icon(Icons.location_on_outlined),
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.location_on_outlined),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your district' : null,
                 ),
                 const SizedBox(height: 24),
 
                 // Target Exam selection
-                const Text(
+                Text(
                   'Which Exam are you preparing for? *',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -343,9 +367,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: ChoiceChip(
                         label: const Center(child: Text('UPSC Civil Services')),
                         selected: _targetExam == 'UPSC',
-                        selectedColor: const Color(0xFF1E3A8A),
+                        selectedColor: primaryColor,
                         labelStyle: TextStyle(
-                          color: _targetExam == 'UPSC' ? Colors.white : Colors.black87,
+                          color: _targetExam == 'UPSC' ? Colors.white : textColor,
                           fontWeight: FontWeight.bold,
                         ),
                         onSelected: (val) {
@@ -358,9 +382,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: ChoiceChip(
                         label: const Center(child: Text('TNPSC Group Services')),
                         selected: _targetExam == 'TNPSC',
-                        selectedColor: const Color(0xFF047857),
+                        selectedColor: primaryColor,
                         labelStyle: TextStyle(
-                          color: _targetExam == 'TNPSC' ? Colors.white : Colors.black87,
+                          color: _targetExam == 'TNPSC' ? Colors.white : textColor,
                           fontWeight: FontWeight.bold,
                         ),
                         onSelected: (val) {
@@ -373,19 +397,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 20),
 
                 // Years trying
-                const Text(
+                Text(
                   'How many years have you been preparing? *',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _yearsTrying,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.timeline_outlined),
+                  dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.timeline_outlined),
+                    labelStyle: TextStyle(color: subTextColor),
                   ),
                   items: _yearsOptions.map((opt) {
-                    return DropdownMenuItem(value: opt, child: Text(opt));
+                    return DropdownMenuItem(
+                      value: opt,
+                      child: Text(opt, style: TextStyle(color: textColor)),
+                    );
                   }).toList(),
                   onChanged: (val) {
                     if (val != null) setState(() => _yearsTrying = val);
@@ -394,28 +424,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 20),
 
                 // Studying or Graduated
-                const Text(
+                Text(
                   'Are you currently Studying or Graduated? *',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
                       child: RadioListTile<String>(
-                        title: const Text('Studying'),
+                        title: Text('Studying', style: TextStyle(color: textColor, fontSize: 13)),
                         value: 'studying',
                         groupValue: _educationStatus,
                         contentPadding: EdgeInsets.zero,
+                        activeColor: primaryColor,
                         onChanged: (val) => setState(() => _educationStatus = val!),
                       ),
                     ),
                     Expanded(
                       child: RadioListTile<String>(
-                        title: const Text('Graduated'),
+                        title: Text('Graduated', style: TextStyle(color: textColor, fontSize: 13)),
                         value: 'graduated',
                         groupValue: _educationStatus,
                         contentPadding: EdgeInsets.zero,
+                        activeColor: primaryColor,
                         onChanged: (val) => setState(() => _educationStatus = val!),
                       ),
                     ),
@@ -425,28 +457,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                 // If studying: School or College?
                 if (_educationStatus == 'studying') ...[
-                  const Text(
+                  Text(
                     'Studying in School or College? *',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
                         child: RadioListTile<String>(
-                          title: const Text('School'),
+                          title: Text('School', style: TextStyle(color: textColor, fontSize: 13)),
                           value: 'school',
                           groupValue: _educationLevel,
                           contentPadding: EdgeInsets.zero,
+                          activeColor: primaryColor,
                           onChanged: (val) => setState(() => _educationLevel = val!),
                         ),
                       ),
                       Expanded(
                         child: RadioListTile<String>(
-                          title: const Text('College'),
+                          title: Text('College', style: TextStyle(color: textColor, fontSize: 13)),
                           value: 'college',
                           groupValue: _educationLevel,
                           contentPadding: EdgeInsets.zero,
+                          activeColor: primaryColor,
                           onChanged: (val) => setState(() => _educationLevel = val!),
                         ),
                       ),
@@ -457,10 +491,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   if (_educationLevel == 'school') ...[
                     TextFormField(
                       controller: _schoolStandardController,
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                      decoration: InputDecoration(
                         labelText: 'Standard / Class (e.g. 10th, 11th, 12th) *',
-                        prefixIcon: Icon(Icons.school_outlined),
-                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(color: subTextColor),
+                        prefixIcon: const Icon(Icons.school_outlined),
+                        border: const OutlineInputBorder(),
                       ),
                       validator: (v) => (_educationStatus == 'studying' && _educationLevel == 'school' && (v == null || v.trim().isEmpty))
                           ? 'Please specify your standard'
@@ -472,28 +508,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                 // If college or graduated: UG/PG and Degree Name
                 if (_educationStatus == 'graduated' || (_educationStatus == 'studying' && _educationLevel == 'college')) ...[
-                  const Text(
+                  Text(
                     'Degree Category *',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
                         child: RadioListTile<String>(
-                          title: const Text('UG (Undergraduate)'),
+                          title: Text('UG (Undergraduate)', style: TextStyle(color: textColor, fontSize: 13)),
                           value: 'UG',
                           groupValue: _collegeDegreeType,
                           contentPadding: EdgeInsets.zero,
+                          activeColor: primaryColor,
                           onChanged: (val) => setState(() => _collegeDegreeType = val!),
                         ),
                       ),
                       Expanded(
                         child: RadioListTile<String>(
-                          title: const Text('PG (Postgraduate)'),
+                          title: Text('PG (Postgraduate)', style: TextStyle(color: textColor, fontSize: 13)),
                           value: 'PG',
                           groupValue: _collegeDegreeType,
                           contentPadding: EdgeInsets.zero,
+                          activeColor: primaryColor,
                           onChanged: (val) => setState(() => _collegeDegreeType = val!),
                         ),
                       ),
@@ -502,10 +540,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _degreeNameController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                    decoration: InputDecoration(
                       labelText: 'Degree & Major (e.g. B.E Mechanical, B.Sc Maths, B.A History) *',
-                      prefixIcon: Icon(Icons.school_outlined),
-                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(color: subTextColor),
+                      prefixIcon: const Icon(Icons.school_outlined),
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your degree name' : null,
                   ),

@@ -73,6 +73,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Color(0xFF475569), fontWeight: FontWeight.w500),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
@@ -153,6 +155,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1E293B),
+        labelStyle: const TextStyle(color: Color(0xFFCBD5E1), fontWeight: FontWeight.w500),
+        hintStyle: const TextStyle(color: Color(0xFF64748B)),
+        prefixIconColor: const Color(0xFF94A3B8),
+        suffixIconColor: const Color(0xFF94A3B8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF334155)),
@@ -162,6 +168,11 @@ class AppTheme {
           borderSide: const BorderSide(color: Color(0xFF334155)),
         ),
         focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: accentPrimary, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: accentPrimary, width: 2),
         ),
