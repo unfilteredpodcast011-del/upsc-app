@@ -1130,6 +1130,8 @@
       logAudit(`INQUIRY [Ref: ${inquiryId.substring(0,8)}] status marked as [${newStatus.toUpperCase()}].`);
       if (window.allInquiriesCache) renderInquiriesTable(window.allInquiriesCache);
     }
+
+    async function updateAccountStatus(studentId, newStatus, name) {
       try {
         const { error } = await supabaseClient
           .from('students')
