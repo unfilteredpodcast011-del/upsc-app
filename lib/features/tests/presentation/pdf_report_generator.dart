@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -33,10 +34,32 @@ class PdfReportGenerator {
       logoImage = null;
     }
 
+    // Load Unicode font for Tamil / Hindi scripts to prevent squares / unrendered glyphs
+    pw.Font? scriptFont;
+    try {
+      if (language == 'ta') {
+        final fontData = await rootBundle.load('assets/fonts/tamil.ttf');
+        scriptFont = pw.Font.ttf(fontData);
+      } else if (language == 'hi') {
+        final fontData = await rootBundle.load('assets/fonts/hindi.ttf');
+        scriptFont = pw.Font.ttf(fontData);
+      }
+    } catch (e) {
+      debugPrint('Font load note: $e');
+    }
+
+    final themeData = pw.ThemeData.withFont(
+      base: scriptFont,
+      bold: scriptFont,
+      italic: scriptFont,
+      boldItalic: scriptFont,
+    );
+
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
+        theme: scriptFont != null ? themeData : null,
         build: (pw.Context context) {
           return [
             // Header Banner with App Logo
