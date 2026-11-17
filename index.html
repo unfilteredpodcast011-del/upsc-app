@@ -1369,12 +1369,9 @@
           }
 
           // Ensure we have a valid student_id that exists in the database
-          let validStudentId = null;
-          if (window.allStudentsList && window.allStudentsList.length > 0) {
-            validStudentId = window.allStudentsList[0].id;
-          } else {
-            const { data: stList } = await supabaseClient.from('students').select('id').limit(1);
-            if (stList && stList.length > 0) validStudentId = stList[0].id;
+          let validStudentId = await getValidStudentId();
+          if (!validStudentId) {
+            validStudentId = 'fa8bdd0f-8cde-4fbb-b76a-22a609789b22';
           }
 
           // Format each row into PYQ Question Model
@@ -1639,8 +1636,11 @@
         return window.allStudentsList[0].id;
       }
       try {
-        const { data: stList } = await supabaseClient.from('students').select('id').limit(1);
-        if (stList && stList.length > 0) return stList[0].id;
+        const { data: stList } = await supabaseClient.from('students').select('id').limit(5);
+        if (stList && stList.length > 0) {
+          window.allStudentsList = stList;
+          return stList[0].id;
+        }
       } catch (err) {
         console.error('Failed to get student ID:', err);
       }
@@ -1651,7 +1651,10 @@
       if (!confirm(`Are you sure you want to delete test set "${title}"? It will immediately disappear from candidate mobile apps.`)) return;
       try {
         if (isDefault) {
-          const validStudentId = await getValidStudentId();
+          let validStudentId = await getValidStudentId();
+        if (!validStudentId) {
+          validStudentId = 'fa8bdd0f-8cde-4fbb-b76a-22a609789b22';
+        }
           // Record as disabled_test so Flutter app and admin skip it
           const { error } = await supabaseClient.from('payments').insert({
             student_id: validStudentId,
@@ -1690,7 +1693,10 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Publishing...';
 
       try {
-        const validStudentId = await getValidStudentId();
+        let validStudentId = await getValidStudentId();
+        if (!validStudentId) {
+          validStudentId = 'fa8bdd0f-8cde-4fbb-b76a-22a609789b22';
+        }
 
         // If file is provided, ingest questions simultaneously
         if (fileInput.files.length > 0) {
