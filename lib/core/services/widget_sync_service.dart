@@ -18,7 +18,7 @@ class WidgetSyncService {
         'id': t.id,
         'title': t.title,
         'questions': t.questionCount,
-        'duration': t.durationMinutes,
+        'duration': (t.defaultDurationSeconds / 60).round(),
         'exam': t.exam,
       }).toList();
 
