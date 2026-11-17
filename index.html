@@ -895,7 +895,9 @@
           maintainAspectRatio: false,
           scales: {
             y: { 
-              beginAtZero: true, 
+              beginAtZero: true,
+              min: 0,
+              suggestedMax: Math.max(1, upsc, tnpsc) + 1,
               grid: { color: '#F1F5F9' }, 
               ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' }, color: '#64748B' } 
             },
