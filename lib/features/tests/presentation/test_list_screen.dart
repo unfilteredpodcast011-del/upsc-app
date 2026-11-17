@@ -22,9 +22,22 @@ class TestListScreen extends ConsumerStatefulWidget {
 }
 
 class _TestListScreenState extends ConsumerState<TestListScreen> {
+  String _candidateName = '';
+
   @override
   void initState() {
     super.initState();
+    _loadCandidateName();
+  }
+
+  Future<void> _loadCandidateName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('student_name') ?? prefs.getString('user_name') ?? '';
+    if (mounted && name.isNotEmpty) {
+      setState(() {
+        _candidateName = name;
+      });
+    }
   }
 
   void _onTestCardTapped(TestModel test) async {
@@ -589,7 +602,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${AppStrings.get('hello', currentLang)}, ${user?.displayName ?? 'Aspirant'}!',
+                            '${AppStrings.get('hello', currentLang)}, ${(_candidateName.isNotEmpty ? _candidateName : (user?.displayName != null && user!.displayName!.isNotEmpty ? user.displayName! : 'M. Manoj'))}!',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
