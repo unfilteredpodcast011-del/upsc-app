@@ -576,12 +576,13 @@
               <th class="p-3.5">Submission Time</th>
               <th class="p-3.5">Inquiry Details & Message</th>
               <th class="p-3.5">Source Channel</th>
-              <th class="p-3.5 text-right">Admin Notification</th>
+              <th class="p-3.5">Status</th>
+              <th class="p-3.5 text-right">Update Action</th>
             </tr>
           </thead>
           <tbody id="inquiriesBody" class="divide-y divide-slate-200 text-slate-700">
             <tr>
-              <td colspan="4" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td>
+              <td colspan="5" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td>
             </tr>
           </tbody>
         </table>
@@ -598,9 +599,15 @@
           <h2 class="text-base font-bold text-slate-900">Payment & Transaction Audit Logs</h2>
           <p class="text-xs text-slate-500 mt-0.5">Audit trail of every ₹1 test fee with payment mode & specific test attended</p>
         </div>
-        <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-md">
-          Real-Time Audit
-        </span>
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="paymentSearchInput" oninput="filterPaymentsTable()" placeholder="Search Order / Payment ID..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg w-56 font-mono focus:ring-2 focus:ring-black">
+          </div>
+          <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg">
+            Real-Time Audit
+          </span>
+        </div>
       </div>
 
       <div class="overflow-x-auto">
@@ -874,157 +881,57 @@
           }
         }
 
-        // 2. Fetch Payments
-        const { data: payments, error: errPayments } = await supabaseClient
+        // 2. Fetch Payments (Only fetch actual captured, cancelled, failed fee payments)
+        const { data: rawPayments, error: errPayments } = await supabaseClient
           .from('payments')
           .select('*, students(full_name, district, phone)')
+          .in('status', ['captured', 'success', 'cancelled', 'failed'])
           .order('created_at', { ascending: false });
 
-        // If candidate switched stream recently, synchronize target_exam in counts
-        if (payments && payments.length > 0 && students && students.length > 0) {
-          const latestSwitch = payments.find(p => (p.status || '').toLowerCase() === 'audit_event' && p.razorpay_payment_id && p.razorpay_payment_id.startsWith('exam_switch_'));
-          if (latestSwitch) {
-            const currentStream = latestSwitch.razorpay_payment_id.replace('exam_switch_', '');
-            if (currentStream === 'TNPSC') {
-              tnpscCount = students.length;
-              upscCount = 0;
-            } else if (currentStream === 'UPSC') {
-              upscCount = students.length;
-              tnpscCount = 0;
-            }
-          }
-        }
+        const payments = rawPayments || [];
+        window.allPaymentsCache = payments;
 
         let successCount = 0;
         let cancelledCount = 0;
         let failedCount = 0;
         let totalRevenue = 0;
 
-        if (payments && !errPayments) {
-          const payBody = document.getElementById('paymentsBody');
-
-          if (payments.length === 0) {
-            payBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No payment audit transactions found yet.</td></tr>';
-          } else {
-            payBody.innerHTML = payments.map(p => {
-              const st = (p.status || 'pending').toLowerCase();
-              const isAuditEvent = st === 'audit_event';
-
-              let badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">PENDING</span>';
-
-              if (isAuditEvent) {
-                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">EXAM SWITCHED</span>';
-              } else if (st === 'captured' || st === 'success') {
-                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SUCCESS</span>';
-                successCount++;
-                totalRevenue += (p.amount_paise / 100);
-              } else if (st === 'cancelled') {
-                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">CANCELLED</span>';
-                cancelledCount++;
-              } else if (st === 'failed') {
-                badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">FAILED</span>';
-                failedCount++;
-              }
-
-              const candName = (p.students && p.students.full_name) ? p.students.full_name : 'M. Manoj';
-              const candDistrict = (p.students && p.students.district) ? p.students.district : 'Ranipet';
-              
-              let testAttended = p.test_id || 'TNPSC / UPSC Timed Practice Mock';
-              let paymentMode = p.payment_mode || 'UPI / Netbanking';
-              let orderText = p.razorpay_order_id || p.razorpay_payment_id || p.id;
-
-              if (isAuditEvent) {
-                testAttended = 'Stream Switch: UPSC ⇄ TNPSC';
-                paymentMode = 'System Activity';
-              }
-
-              const rowBg = isAuditEvent ? 'bg-purple-50/40 hover:bg-purple-50/70' : 'hover:bg-slate-50';
-
-              return `
-                <tr class="${rowBg} transition">
-                  <td class="p-3.5 font-mono text-xs font-bold ${isAuditEvent ? 'text-purple-900' : 'text-slate-900'}">${orderText}</td>
-                  <td class="p-3.5">
-                    <div class="font-bold text-slate-900">${candName}</div>
-                    <div class="text-[11px] font-medium text-emerald-600">📍 ${candDistrict}</div>
-                  </td>
-                  <td class="p-3.5 font-semibold text-slate-900">${testAttended}</td>
-                  <td class="p-3.5 font-medium text-slate-700">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 ${isAuditEvent ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'} rounded-md text-[11px] font-bold">
-                      <i class="${isAuditEvent ? 'fa-solid fa-arrows-split-up-and-left' : 'fa-solid fa-building-columns'} text-[10px]"></i>
-                      ${paymentMode}
-                    </span>
-                  </td>
-                  <td class="p-3.5 font-black text-slate-900 font-mono">${isAuditEvent ? '—' : '₹' + (p.amount_paise / 100).toFixed(2)}</td>
-                  <td class="p-3.5">${badge}</td>
-                  <td class="p-3.5 text-xs text-slate-500 font-mono">${new Date(p.created_at).toLocaleString()}</td>
-                </tr>
-              `;
-            }).join('');
+        payments.forEach(p => {
+          const st = (p.status || '').toLowerCase();
+          if (st === 'captured' || st === 'success') {
+            successCount++;
+            totalRevenue += (p.amount_paise / 100);
+          } else if (st === 'cancelled') {
+            cancelledCount++;
+          } else if (st === 'failed') {
+            failedCount++;
           }
+        });
 
-          document.getElementById('kpiRevenue').textContent = '₹' + totalRevenue.toFixed(2);
-          document.getElementById('kpiSuccessPayments').textContent = successCount;
+        document.getElementById('kpiRevenue').textContent = '₹' + totalRevenue.toFixed(2);
+        document.getElementById('kpiSuccessPayments').textContent = successCount;
+        document.getElementById('legendSuccess').textContent = successCount;
+        document.getElementById('legendCancelled').textContent = cancelledCount;
+        document.getElementById('legendFailed').textContent = failedCount;
+        document.getElementById('legendTnpsc').textContent = tnpscCount;
+        document.getElementById('legendUpsc').textContent = upscCount;
 
-          document.getElementById('legendSuccess').textContent = successCount;
-          document.getElementById('legendCancelled').textContent = cancelledCount;
-          document.getElementById('legendFailed').textContent = failedCount;
+        renderCharts(successCount, cancelledCount, failedCount, upscCount, tnpscCount);
+        renderPaymentsTable(payments);
 
-          document.getElementById('legendTnpsc').textContent = tnpscCount;
-          document.getElementById('legendUpsc').textContent = upscCount;
+        // 3. Fetch Support / Feedback Inquiries Separately
+        const { data: rawInquiries } = await supabaseClient
+          .from('payments')
+          .select('id, razorpay_order_id, razorpay_payment_id, created_at, status')
+          .eq('status', 'support_inquiry')
+          .order('created_at', { ascending: false });
 
-          renderCharts(successCount, cancelledCount, failedCount, upscCount, tnpscCount);
-
-          // Populate user form inquiries
-          const inquiryEvents = payments.filter(p => (p.status || '').toLowerCase() === 'support_inquiry');
-          document.getElementById('kpiInquiriesCount').textContent = inquiryEvents.length;
-          const sideInq = document.getElementById('sidebarInquiryBadge');
-          if (sideInq) sideInq.textContent = inquiryEvents.length;
-          const inqBody = document.getElementById('inquiriesBody');
-
-          if (inquiryEvents.length === 0) {
-            inqBody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td></tr>';
-          } else {
-            inqBody.innerHTML = inquiryEvents.map(iq => {
-              const textContent = iq.razorpay_order_id || 'Support Inquiry';
-              const sourceChannel = (iq.razorpay_payment_id === 'app_feedback_inquiry')
-                ? '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-mobile-screen text-[10px]"></i> Android Mobile App</span>'
-                : '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-globe text-[10px]"></i> Website Contact Form</span>';
-
-              return `
-                <tr class="hover:bg-blue-50/40 transition">
-                  <td class="p-3.5 font-mono text-xs text-slate-500 whitespace-nowrap">${new Date(iq.created_at).toLocaleString()}</td>
-                  <td class="p-3.5">
-                    <div class="font-bold text-slate-900">${textContent}</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Reference ID: ${iq.id}</div>
-                  </td>
-                  <td class="p-3.5">
-                    ${sourceChannel}
-                  </td>
-                  <td class="p-3.5 text-right">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">
-                      <i class="fa-solid fa-bell text-amber-600 animate-bounce"></i>
-                      ACTION REQUIRED
-                    </span>
-                  </td>
-                </tr>
-              `;
-            }).join('');
-          }
-
-          // Populate real-time exam switch activities into Security Activity Log
-          const switchEvents = payments.filter(p => (p.status || '').toLowerCase() === 'audit_event');
-          switchEvents.forEach(ev => {
-            const cName = (ev.students && ev.students.full_name) ? ev.students.full_name : 'M. Manoj';
-            const dist = (ev.students && ev.students.district) ? ev.students.district : 'Ranipet';
-            logAudit(`EXAM SWITCH DETECTED: [${cName} (${dist})] ${ev.razorpay_order_id} at ${new Date(ev.created_at).toLocaleString()}`);
-          });
-
-          // Also alert admin in log console for inquiries
-          inquiryEvents.forEach(iq => {
-            logAudit(`NEW FORM INQUIRY RECEIVED: ${iq.razorpay_order_id} at ${new Date(iq.created_at).toLocaleTimeString()}`);
-          });
-        }
-
+        const inquiries = rawInquiries || [];
+        window.allInquiriesCache = inquiries;
+        document.getElementById('kpiInquiriesCount').textContent = inquiries.length;
+        const sideInq = document.getElementById('sidebarInquiryBadge');
+        if (sideInq) sideInq.textContent = inquiries.length;
+        renderInquiriesTable(inquiries);
       } catch (err) {
         console.error('Data sync error:', err);
         logAudit('Telemetry fetch error: ' + err.message);
@@ -1106,7 +1013,123 @@
       });
     }
 
-    async function updateAccountStatus(studentId, newStatus, name) {
+    function renderPaymentsTable(list) {
+      const payBody = document.getElementById('paymentsBody');
+      if (!list || list.length === 0) {
+        payBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No matching payment transactions found.</td></tr>';
+        return;
+      }
+
+      payBody.innerHTML = list.map(p => {
+        const st = (p.status || 'pending').toLowerCase();
+        let badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">PENDING</span>';
+
+        if (st === 'captured' || st === 'success') {
+          badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SUCCESS</span>';
+        } else if (st === 'cancelled') {
+          badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">CANCELLED</span>';
+        } else if (st === 'failed') {
+          badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">FAILED</span>';
+        }
+
+        const candName = (p.students && p.students.full_name) ? p.students.full_name : 'M. Manoj';
+        const candDistrict = (p.students && p.students.district) ? p.students.district : 'Ranipet';
+        const testAttended = p.test_id || 'UPSC / TNPSC Timed Practice Mock';
+        const paymentMode = p.payment_mode || 'UPI / Netbanking';
+        const orderText = p.razorpay_order_id || p.razorpay_payment_id || p.id;
+        const feeAmount = (p.amount_paise / 100).toFixed(2);
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3.5 font-mono text-xs font-bold text-slate-900">${orderText}</td>
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900">${candName}</div>
+              <div class="text-[11px] font-medium text-emerald-600">📍 ${candDistrict}</div>
+            </td>
+            <td class="p-3.5 font-semibold text-slate-900 text-xs">${testAttended}</td>
+            <td class="p-3.5 font-medium text-slate-700">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-800 rounded-md text-[11px] font-bold">
+                <i class="fa-solid fa-building-columns text-[10px]"></i>
+                ${paymentMode}
+              </span>
+            </td>
+            <td class="p-3.5 font-black text-slate-900 font-mono">₹${feeAmount}</td>
+            <td class="p-3.5">${badge}</td>
+            <td class="p-3.5 text-xs text-slate-500 font-mono whitespace-nowrap">${new Date(p.created_at).toLocaleString()}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterPaymentsTable() {
+      const query = (document.getElementById('paymentSearchInput').value || '').trim().toLowerCase();
+      if (!window.allPaymentsCache) return;
+      if (!query) {
+        renderPaymentsTable(window.allPaymentsCache);
+        return;
+      }
+      const filtered = window.allPaymentsCache.filter(p => {
+        const order = (p.razorpay_order_id || '').toLowerCase();
+        const payId = (p.razorpay_payment_id || '').toLowerCase();
+        const id = (p.id || '').toLowerCase();
+        const name = ((p.students && p.students.full_name) || '').toLowerCase();
+        return order.includes(query) || payId.includes(query) || id.includes(query) || name.includes(query);
+      });
+      renderPaymentsTable(filtered);
+    }
+
+    function renderInquiriesTable(list) {
+      const inqBody = document.getElementById('inquiriesBody');
+      if (!list || list.length === 0) {
+        inqBody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium">No user form inquiries submitted yet.</td></tr>';
+        return;
+      }
+
+      inqBody.innerHTML = list.map(iq => {
+        const textContent = iq.razorpay_order_id || 'Support Inquiry';
+        const sourceChannel = (iq.razorpay_payment_id === 'app_feedback_inquiry')
+          ? '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-mobile-screen text-[10px]"></i> Mobile App</span>'
+          : '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[11px] font-bold"><i class="fa-solid fa-globe text-[10px]"></i> Web Form</span>';
+
+        // Check local or remote action status
+        const actionStatus = localStorage.getItem('inquiry_status_' + iq.id) || 'Pending';
+        let actionBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+        if (actionStatus === 'Started') actionBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
+        if (actionStatus === 'Solved') actionBadgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+        if (actionStatus === 'Completed') actionBadgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
+
+        return `
+          <tr class="hover:bg-blue-50/40 transition">
+            <td class="p-3.5 font-mono text-xs text-slate-500 whitespace-nowrap">${new Date(iq.created_at).toLocaleString()}</td>
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900 text-xs">${textContent}</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">Ref: ${iq.id}</div>
+            </td>
+            <td class="p-3.5 whitespace-nowrap">${sourceChannel}</td>
+            <td class="p-3.5 whitespace-nowrap">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${actionBadgeClass}">
+                <span class="w-1.5 h-1.5 rounded-full ${actionStatus === 'Pending' ? 'bg-amber-500 animate-ping' : 'bg-emerald-600'}"></span>
+                ${actionStatus.toUpperCase()}
+              </span>
+            </td>
+            <td class="p-3.5 text-right whitespace-nowrap">
+              <select onchange="updateInquiryStatus('${iq.id}', this.value)" class="text-xs font-bold border border-slate-300 rounded-lg p-1.5 bg-white text-slate-700 focus:ring-2 focus:ring-black">
+                <option value="Pending" ${actionStatus === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                <option value="Started" ${actionStatus === 'Started' ? 'selected' : ''}>🚀 Started</option>
+                <option value="Solved" ${actionStatus === 'Solved' ? 'selected' : ''}>✅ Solved</option>
+                <option value="Completed" ${actionStatus === 'Completed' ? 'selected' : ''}>🎉 Completed</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateInquiryStatus(inquiryId, newStatus) {
+      localStorage.setItem('inquiry_status_' + inquiryId, newStatus);
+      logAudit(`INQUIRY [Ref: ${inquiryId.substring(0,8)}] status marked as [${newStatus.toUpperCase()}].`);
+      if (window.allInquiriesCache) renderInquiriesTable(window.allInquiriesCache);
+    }
       try {
         const { error } = await supabaseClient
           .from('students')
