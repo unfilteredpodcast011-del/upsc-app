@@ -173,11 +173,6 @@ class AppTheme {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: accentPrimary, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
     );
   }
 

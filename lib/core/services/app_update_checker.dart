@@ -19,7 +19,7 @@ class AppUpdateChecker {
           .from('payments')
           .select('amount_paise, razorpay_order_id')
           .eq('status', 'app_version_control')
-          .order('created_at', {ascending: false})
+          .order('created_at', ascending: false)
           .limit(1)
           .maybeSingle();
 
@@ -139,3 +139,4 @@ class AppUpdateChecker {
     );
   }
 }
+

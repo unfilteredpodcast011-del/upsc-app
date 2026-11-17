@@ -1,5 +1,6 @@
 import '../../../core/services/quote_service.dart';
 import '../../../core/services/app_update_checker.dart';
+import '../../../core/services/widget_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -818,6 +819,15 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                 }
 
                 final tests = snapshot.data ?? [];
+                if (tests.isNotEmpty) {
+                  // Keep Android Home Screen widget continuously in sync with the top 3 live tests
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    WidgetSyncService.syncTopTestsToWidget(
+                      selectedExam: selectedExam,
+                      tests: tests,
+                    );
+                  });
+                }
                 if (tests.isEmpty) {
                   return Card(
                     child: Padding(

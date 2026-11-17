@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="14dp">
+
+    <!-- Header: App Icon, Title, Exam Target, Real-time Clock -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/widget_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/app_name" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Test 11 • Daily Mocks"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_target_exam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Target: UPSC Civil Services"
+                android:textColor="#38BDF8"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Realtime System Clock -->
+        <TextClock
+            android:id="@+id/widget_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="hh:mm a"
+            android:format24Hour="HH:mm"
+            android:textColor="#F59E0B"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#334155" />
+
+    <!-- 3 Test Rows (Dynamic Top 3 Latest Sets) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <!-- Test 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="2dp">
+
+            <TextView
+                android:id="@+id/widget_test1_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_tag_bg"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="1dp"
+                android:text="NEW"
+                android:textColor="#FFFFFF"
+                android:textSize="8.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_test1_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="UPSC CSE Prelims CGS practice 2026 (25 Qs)"
+                android:textColor="#F1F5F9"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_test1_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹1 Mock"
+                android:textColor="#34D399"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Test 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="3dp">
+
+            <TextView
+                android:id="@+id/widget_test2_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_tag_bg"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="1dp"
+                android:text="DAILY"
+                android:textColor="#FFFFFF"
+                android:textSize="8.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_test2_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="UPSC CSE Prelims Daily Mock (Random 25)"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/widget_test2_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 mins"
+                android:textColor="#94A3B8"
+                android:textSize="9.5sp" />
+        </LinearLayout>
+
+        <!-- Test 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="2dp">
+
+            <TextView
+                android:id="@+id/widget_test3_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_tag_bg"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="1dp"
+                android:text="FULL"
+                android:textColor="#FFFFFF"
+                android:textSize="8.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_test3_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="UPSC CSE Full Prelims Simulation (100 Qs)"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/widget_test3_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="120 mins"
+                android:textColor="#94A3B8"
+                android:textSize="9.5sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Footer: Tap to open app -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="⚡ Tap widget to start test in Test 11"
+        android:textColor="#64748B"
+        android:textSize="9.5sp" />
+</LinearLayout>
