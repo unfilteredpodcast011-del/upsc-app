@@ -1614,13 +1614,27 @@
       }
     }
 
+    async function getValidStudentId() {
+      if (window.allStudentsList && window.allStudentsList.length > 0) {
+        return window.allStudentsList[0].id;
+      }
+      try {
+        const { data: stList } = await supabaseClient.from('students').select('id').limit(1);
+        if (stList && stList.length > 0) return stList[0].id;
+      } catch (err) {
+        console.error('Failed to get student ID:', err);
+      }
+      return null;
+    }
+
     async function deleteAnyTest(testId, title, isDefault) {
       if (!confirm(`Are you sure you want to delete test set "${title}"? It will immediately disappear from candidate mobile apps.`)) return;
       try {
         if (isDefault) {
+          const validStudentId = await getValidStudentId();
           // Record as disabled_test so Flutter app and admin skip it
           const { error } = await supabaseClient.from('payments').insert({
-            student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+            student_id: validStudentId,
             test_id: null,
             amount_paise: 0,
             status: 'disabled_test',
@@ -1656,6 +1670,8 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Publishing...';
 
       try {
+        const validStudentId = await getValidStudentId();
+
         // If file is provided, ingest questions simultaneously
         if (fileInput.files.length > 0) {
           const file = fileInput.files[0];
@@ -1664,14 +1680,6 @@
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
           if (rows.length > 0) {
-            let validStudentId = null;
-            if (window.allStudentsList && window.allStudentsList.length > 0) {
-              validStudentId = window.allStudentsList[0].id;
-            } else {
-              const { data: stList } = await supabaseClient.from('students').select('id').limit(1);
-              if (stList && stList.length > 0) validStudentId = stList[0].id;
-            }
-
             const inserts = rows.map(r => {
               const qText = r['Question Text'] || r['question'] || r['Question'] || r['QUESTION'] || r['q'] || '';
               const optA = (r['Option A'] ?? r['A'] ?? r['a'] ?? '').toString();
@@ -1715,7 +1723,7 @@
         };
 
         const { error } = await supabaseClient.from('payments').insert({
-          student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+          student_id: validStudentId,
           test_id: null,
           amount_paise: qCount,
           status: 'test_package',
