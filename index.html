@@ -928,9 +928,16 @@
 
         const inquiries = rawInquiries || [];
         window.allInquiriesCache = inquiries;
-        document.getElementById('kpiInquiriesCount').textContent = inquiries.length;
+        
+        // Count active/unresolved inquiries (Pending or Started)
+        const unresolvedCount = inquiries.filter(iq => {
+          const st = localStorage.getItem('inquiry_status_' + iq.id) || 'Pending';
+          return st !== 'Solved' && st !== 'Completed';
+        }).length;
+
+        document.getElementById('kpiInquiriesCount').textContent = unresolvedCount;
         const sideInq = document.getElementById('sidebarInquiryBadge');
-        if (sideInq) sideInq.textContent = inquiries.length;
+        if (sideInq) sideInq.textContent = unresolvedCount;
         renderInquiriesTable(inquiries);
       } catch (err) {
         console.error('Data sync error:', err);
@@ -1128,7 +1135,19 @@
     function updateInquiryStatus(inquiryId, newStatus) {
       localStorage.setItem('inquiry_status_' + inquiryId, newStatus);
       logAudit(`INQUIRY [Ref: ${inquiryId.substring(0,8)}] status marked as [${newStatus.toUpperCase()}].`);
-      if (window.allInquiriesCache) renderInquiriesTable(window.allInquiriesCache);
+      
+      // Update badge counts immediately
+      if (window.allInquiriesCache) {
+        const unresolved = window.allInquiriesCache.filter(iq => {
+          const st = localStorage.getItem('inquiry_status_' + iq.id) || 'Pending';
+          return st !== 'Solved' && st !== 'Completed';
+        }).length;
+        const sideInq = document.getElementById('sidebarInquiryBadge');
+        if (sideInq) sideInq.textContent = unresolved;
+        const kpiInq = document.getElementById('kpiInquiriesCount');
+        if (kpiInq) kpiInq.textContent = unresolved;
+        renderInquiriesTable(window.allInquiriesCache);
+      }
     }
 
     async function updateAccountStatus(studentId, newStatus, name) {
