@@ -34,32 +34,45 @@ class PdfReportGenerator {
       logoImage = null;
     }
 
-    // Load Unicode font for Tamil / Hindi scripts to prevent squares / unrendered glyphs
-    pw.Font? scriptFont;
+    // Load Fonts: NotoSans for Latin/English and Tamil/Hindi as script fallback
+    pw.Font? baseRegular;
+    pw.Font? baseBold;
+    final List<pw.Font> fallbacks = [];
+
+    try {
+      final regData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+      baseRegular = pw.Font.ttf(regData);
+      final boldData = await rootBundle.load('assets/fonts/NotoSans-Bold.ttf');
+      baseBold = pw.Font.ttf(boldData);
+    } catch (e) {
+      debugPrint('Base font load note: $e');
+    }
+
     try {
       if (language == 'ta') {
         final fontData = await rootBundle.load('assets/fonts/tamil.ttf');
-        scriptFont = pw.Font.ttf(fontData);
+        fallbacks.add(pw.Font.ttf(fontData));
       } else if (language == 'hi') {
         final fontData = await rootBundle.load('assets/fonts/hindi.ttf');
-        scriptFont = pw.Font.ttf(fontData);
+        fallbacks.add(pw.Font.ttf(fontData));
       }
     } catch (e) {
-      debugPrint('Font load note: $e');
+      debugPrint('Script font load note: $e');
     }
 
     final themeData = pw.ThemeData.withFont(
-      base: scriptFont,
-      bold: scriptFont,
-      italic: scriptFont,
-      boldItalic: scriptFont,
+      base: baseRegular,
+      bold: baseBold,
+      italic: baseRegular,
+      boldItalic: baseBold,
+      fontFallback: fallbacks,
     );
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
-        theme: scriptFont != null ? themeData : null,
+        theme: themeData,
         build: (pw.Context context) {
           return [
             // Header Banner with App Logo
