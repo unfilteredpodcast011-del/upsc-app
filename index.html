@@ -1166,15 +1166,23 @@
     }
 
     async function deleteAccount(studentId, name) {
-      if (!confirm(`Are you sure you want to permanently delete profile record for ${name}?`)) return;
+      if (!confirm(`Are you sure you want to permanently delete profile record for ${name}? This will also delete their related payment logs.`)) return;
       try {
+        // Step 1: Delete any child payment records referencing this student_id to prevent foreign key violation
+        const { error: payErr } = await supabaseClient
+          .from('payments')
+          .delete()
+          .eq('student_id', studentId);
+        if (payErr) console.warn('Payment delete warning:', payErr.message);
+
+        // Step 2: Delete student row
         const { error } = await supabaseClient
           .from('students')
           .delete()
           .eq('id', studentId);
 
         if (error) throw error;
-        logAudit(`DELETED profile record for candidate [${name}].`);
+        logAudit(`DELETED profile record and payment logs for candidate [${name}].`);
         loadAdminData();
       } catch (err) {
         alert('Delete failed: ' + err.message);
