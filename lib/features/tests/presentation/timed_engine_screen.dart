@@ -340,8 +340,38 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
         ? _secondsRemaining / _totalDurationSeconds
         : 0.0;
 
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Exam in Progress'),
+            content: const Text(
+              'You cannot go back during an active exam.\n\n'
+              'Please complete your test and tap "Submit Test" when finished. '
+              'Exiting will invalidate your attempt.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Continue Test'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _submitTest();
+                },
+                child: const Text('Submit & Finish Now', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Scaffold(
+        appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.grid_view_rounded),
           tooltip: 'Question Palette',
@@ -609,6 +639,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

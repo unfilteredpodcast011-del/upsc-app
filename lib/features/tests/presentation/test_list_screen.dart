@@ -80,6 +80,34 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+              // Prominent Mandatory Caution Banner
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFCA5A5)),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 22),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'CAUTION: Do NOT press the back button or close the app during or right after payment. If you navigate back or exit before the exam launches, the test cannot be restored and we are NOT responsible for your fee.',
+                        style: TextStyle(
+                          color: Color(0xFF991B1B),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 icon: const Icon(Icons.payment),
@@ -107,43 +135,177 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   void _showSpeedOptionDialog(TestModel test) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Choose Speed Practice Mode'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.timer_outlined, color: Colors.blue),
-              title: const Text('Standard Speed (100% Time)'),
-              subtitle: Text('${test.defaultDurationSeconds ~/ 60} minutes'),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/test-engine/${test.id}?speed=100');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.speed, color: Colors.orange),
-              title: const Text('Rapid Practice (75% Time)'),
-              subtitle: Text(
-                '${(test.defaultDurationSeconds * 0.75) ~/ 60} minutes',
+      barrierDismissible: false, // Prevents accidental closing by touching outside
+      builder: (ctx) => PopScope(
+        canPop: false, // Prevents Android back button from cancelling unlocked test
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.speed_rounded, color: Color(0xFF1E3A8A)),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Choose Speed Practice Mode',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                  ),
+                ],
               ),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/test-engine/${test.id}?speed=75');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.flash_on, color: Colors.red),
-              title: const Text('Sprint Mode (50% Time)'),
-              subtitle: Text(
-                '${(test.defaultDurationSeconds * 0.5) ~/ 60} minutes',
+              const SizedBox(height: 6),
+              const Text(
+                'Tap one of the button options below to launch your exam immediately:',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/test-engine/${test.id}?speed=50');
-              },
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Button 1: Standard Speed
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/test-engine/${test.id}?speed=100');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF93C5FD), width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.timer_outlined, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Standard Speed (100% Time)',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                              ),
+                              Text(
+                                '${test.defaultDurationSeconds ~/ 60} minutes • Official exam pace',
+                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.play_circle_fill, color: Color(0xFF2563EB), size: 28),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Button 2: Rapid Practice
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/test-engine/${test.id}?speed=75');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBEB),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFCD34D), width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Color(0xFFD97706),
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.speed, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Rapid Practice (75% Time)',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF92400E)),
+                              ),
+                              Text(
+                                '${(test.defaultDurationSeconds * 0.75) ~/ 60} minutes • Fast accuracy drill',
+                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.play_circle_fill, color: Color(0xFFD97706), size: 28),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Button 3: Sprint Mode
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/test-engine/${test.id}?speed=50');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFCA5A5), width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Color(0xFFDC2626),
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.flash_on, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Sprint Mode (50% Time)',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF991B1B)),
+                              ),
+                              Text(
+                                '${(test.defaultDurationSeconds * 0.5) ~/ 60} minutes • High adrenaline challenge',
+                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.play_circle_fill, color: Color(0xFFDC2626), size: 28),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

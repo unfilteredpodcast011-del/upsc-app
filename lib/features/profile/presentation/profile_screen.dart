@@ -481,6 +481,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _showSupportDialog(BuildContext context) {
     final nameCtrl = TextEditingController(text: _displayName != 'Aspirant' ? _displayName : '');
     final emailCtrl = TextEditingController(text: _email);
+    final phoneCtrl = TextEditingController();
     final orderCtrl = TextEditingController();
     final messageCtrl = TextEditingController();
     bool isSubmitting = false;
@@ -510,7 +511,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 TextField(
                   controller: nameCtrl,
                   decoration: InputDecoration(
-                    labelText: 'Your Name',
+                    labelText: 'Your Name *',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number *',
+                    hintText: 'e.g. 9876543210',
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -540,7 +552,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   controller: messageCtrl,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    labelText: 'Describe Your Issue / Feedback',
+                    labelText: 'Feedback / Issue Message *',
                     hintText: 'Explain the error or suggestion in detail...',
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -585,6 +597,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ? null
                   : () async {
                       final name = nameCtrl.text.trim();
+                      final phone = phoneCtrl.text.trim();
                       final email = emailCtrl.text.trim();
                       final message = messageCtrl.text.trim();
                       final orderId = orderCtrl.text.trim();
@@ -599,7 +612,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       setDialogState(() => isSubmitting = true);
 
                       try {
-                        final summary = 'INQUIRY: ${name.isEmpty ? _displayName : name} (${email.isEmpty ? _email : email}) ${orderId.isNotEmpty ? '[Order: ' + orderId + ']' : ''} - $message';
+                        final phoneTag = phone.isNotEmpty ? ' [Phone: ' + phone + ']' : '';
+                        final orderTag = orderId.isNotEmpty ? ' [Order: ' + orderId + ']' : '';
+                        final summary = 'INQUIRY: ${name.isEmpty ? _displayName : name}${phoneTag} (${email.isEmpty ? _email : email})${orderTag} - $message';
 
                         final prefs = await SharedPreferences.getInstance();
                         final studentId = prefs.getString('student_id') ?? '8294c73f-be46-4f65-939c-9eaebe11273f';
