@@ -356,15 +356,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">PYQ Paper Year</label>
-          <select id="pyqYearSelect" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black font-mono">
-            <option value="2024">2024 Question Paper</option>
-            <option value="2023">2023 Question Paper</option>
-            <option value="2022">2022 Question Paper</option>
-            <option value="2021">2021 Question Paper</option>
-            <option value="2020">2020 Question Paper</option>
-            <option value="2019">2019 Question Paper</option>
-            <option value="2018">2018 Question Paper</option>
-          </select>
+          <input type="text" id="pyqYearInput" value="2026" placeholder="e.g. 2026, 2027, 2028..." class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black font-mono">
         </div>
 
         <div>
@@ -384,7 +376,12 @@
       <div class="border border-slate-200 rounded-xl overflow-hidden">
         <div class="p-3 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
           <span class="font-bold text-slate-800">Uploaded Previous Year Question Papers in System</span>
-          <span class="text-slate-500 font-mono" id="pyqCountBadge">0 questions loaded</span>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500 font-mono" id="pyqCountBadge">0 questions loaded</span>
+            <button onclick="deleteAllCorruptOrAllPyqs()" class="px-2 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition">
+              <i class="fa-solid fa-broom"></i> Clean Empty / Purge
+            </button>
+          </div>
         </div>
         <div class="overflow-x-auto max-h-64">
           <table class="w-full text-left text-xs">
@@ -1113,10 +1110,53 @@
       }
     }
 
+    async function deleteAllCorruptOrAllPyqs() {
+      const choice = prompt('Type "empty" to clean only empty/corrupt questions, or type "all" to wipe all uploaded PYQs to start fresh:');
+      if (!choice) return;
+      try {
+        if (choice.trim().toLowerCase() === 'empty') {
+          const { data } = await supabaseClient
+            .from('payments')
+            .select('id, razorpay_order_id')
+            .eq('status', 'pyq_question');
+          
+          let count = 0;
+          if (data) {
+            for (const d of data) {
+              try {
+                const p = JSON.parse(d.razorpay_order_id || '{}');
+                if (!p.question || !p.question.trim()) {
+                  await supabaseClient.from('payments').delete().eq('id', d.id);
+                  count++;
+                }
+              } catch (_) {
+                await supabaseClient.from('payments').delete().eq('id', d.id);
+                count++;
+              }
+            }
+          }
+          alert(`Cleaned ${count} corrupt/empty question records!`);
+          loadPyqQuestions();
+        } else if (choice.trim().toLowerCase() === 'all') {
+          if (!confirm('Are you sure you want to wipe ALL uploaded PYQ questions?')) return;
+          const { error } = await supabaseClient
+            .from('payments')
+            .delete()
+            .eq('status', 'pyq_question');
+          if (error) throw error;
+          alert('All uploaded PYQ questions deleted successfully.');
+          loadPyqQuestions();
+        }
+      } catch (e) {
+        alert('Operation failed: ' + e.message);
+      }
+    }
+
     async function handlePyqUpload() {
       const fileInput = document.getElementById('pyqFileInput');
       const exam = document.getElementById('pyqExamSelect').value;
-      const year = document.getElementById('pyqYearSelect').value;
+      const yearInput = document.getElementById('pyqYearInput');
+      const year = (yearInput ? yearInput.value.trim() : '') || '2026';
       const btn = document.getElementById('btnUploadPyq');
 
       if (!fileInput.files.length) {
