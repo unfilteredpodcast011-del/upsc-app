@@ -290,8 +290,28 @@ class TestRepository {
       ];
     }
 
-    // Now dynamically load any custom test packages published by admin
+    // Now dynamically load any custom test packages published by admin AND filter out any disabled tests
     try {
+      // 1. Fetch disabled tests
+      final disabledRes = await Supabase.instance.client
+          .from('payments')
+          .select('razorpay_order_id')
+          .eq('status', 'disabled_test');
+      
+      final Set<String> disabledIds = {};
+      if (disabledRes.isNotEmpty) {
+        for (final row in disabledRes) {
+          final testId = row['razorpay_order_id']?.toString();
+          if (testId != null && testId.isNotEmpty) disabledIds.add(testId);
+        }
+      }
+
+      // Filter base tests by disabledIds
+      if (disabledIds.isNotEmpty) {
+        baseTests = baseTests.where((t) => !disabledIds.contains(t.id)).toList();
+      }
+
+      // 2. Fetch custom test packages
       final res = await Supabase.instance.client
           .from('payments')
           .select('id, razorpay_order_id, amount_paise, created_at')
@@ -302,6 +322,7 @@ class TestRepository {
         final List<TestModel> customPackages = [];
         for (final row in res) {
           try {
+            if (disabledIds.contains(row['id'])) continue;
             final raw = row['razorpay_order_id'];
             if (raw == null) continue;
             final Map<String, dynamic> data = jsonDecode(raw);

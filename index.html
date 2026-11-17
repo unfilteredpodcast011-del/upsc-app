@@ -489,8 +489,8 @@
       <!-- Active Packages Table -->
       <div class="border border-slate-200 rounded-xl overflow-hidden">
         <div class="p-3 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
-          <span class="font-bold text-slate-800">Published Custom Test Packages in Candidate Apps</span>
-          <span class="text-slate-500 font-mono" id="pkgCountBadge">0 custom tests</span>
+          <span class="font-bold text-slate-800">Active Test Sets in Candidate Mobile App (Default + Custom)</span>
+          <span class="text-slate-500 font-mono" id="pkgCountBadge">0 tests active</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
@@ -499,14 +499,14 @@
                 <th class="p-3">Target Exam</th>
                 <th class="p-3">Test Title (Shown in App)</th>
                 <th class="p-3">Subject / Focus</th>
-                <th class="p-3">Questions & Duration</th>
-                <th class="p-3">Created On</th>
-                <th class="p-3 text-right">Actions</th>
+                <th class="p-3">Type & Set Size</th>
+                <th class="p-3">Duration</th>
+                <th class="p-3 text-right">Delete / Action</th>
               </tr>
             </thead>
             <tbody id="packagesTableBody" class="divide-y divide-slate-200 text-slate-700 bg-white">
               <tr>
-                <td colspan="6" class="p-5 text-center text-slate-400">Loading custom test packages...</td>
+                <td colspan="6" class="p-5 text-center text-slate-400">Loading test packages...</td>
               </tr>
             </tbody>
           </table>
@@ -1423,10 +1423,88 @@
       XLSX.writeFile(wb, "test11_pyq_upload_template.xlsx");
     }
 
-    // ================= CUSTOM TEST PACKAGES MANAGEMENT =================
+    // ================= CUSTOM & DEFAULT TEST PACKAGES MANAGEMENT =================
+    const DEFAULT_SYSTEM_TESTS = [
+      {
+        id: 'upsc_mock_prelims_1',
+        title: 'UPSC CSE Prelims Daily Mock (Random 25)',
+        exam: 'UPSC',
+        subject: 'General Studies Paper 1',
+        questionCount: 25,
+        durationMinutes: 30,
+        isDefault: true
+      },
+      {
+        id: 'upsc_ancient_history_full',
+        title: 'UPSC Ancient Indian History Deep Mock (50 Qs)',
+        exam: 'UPSC',
+        subject: 'Ancient Indian History',
+        questionCount: 50,
+        durationMinutes: 50,
+        isDefault: true
+      },
+      {
+        id: 'upsc_comprehensive_mock',
+        title: 'UPSC CSE Full Prelims Simulation (100 Qs)',
+        exam: 'UPSC',
+        subject: 'General Studies Comprehensive (Full Prelims Paper 1)',
+        questionCount: 100,
+        durationMinutes: 120,
+        isDefault: true
+      },
+      {
+        id: 'tnpsc_mock_daily_1',
+        title: 'TNPSC Group 1/2 Daily Prelims Mock (Random 25)',
+        exam: 'TNPSC',
+        subject: 'General Studies & Mental Ability',
+        questionCount: 25,
+        durationMinutes: 25,
+        isDefault: true
+      },
+      {
+        id: 'tnpsc_mock_full_1',
+        title: 'TNPSC Full Model Mock Test (100 Questions)',
+        exam: 'TNPSC',
+        subject: 'Complete TNPSC Syllabus (From 1000 Question Bank)',
+        questionCount: 100,
+        durationMinutes: 120,
+        isDefault: true
+      },
+      {
+        id: 'tnpsc_mock_mega_200',
+        title: 'TNPSC Group 1 Grand Full Length Mock (200 Questions)',
+        exam: 'TNPSC',
+        subject: 'General Studies + Aptitude (Full 3-Hour Exam)',
+        questionCount: 200,
+        durationMinutes: 180,
+        isDefault: true
+      },
+      {
+        id: 'tnpsc_aptitude_special',
+        title: 'TNPSC Aptitude & Mental Ability Special (50 Qs)',
+        exam: 'TNPSC',
+        subject: 'General Aptitude & Reasoning',
+        questionCount: 50,
+        durationMinutes: 50,
+        isDefault: true
+      }
+    ];
+
     async function loadTestPackages() {
       try {
-        const { data, error } = await supabaseClient
+        // Fetch disabled tests
+        const { data: disabledRows } = await supabaseClient
+          .from('payments')
+          .select('id, razorpay_order_id')
+          .eq('status', 'disabled_test');
+
+        const disabledMap = {};
+        if (disabledRows) {
+          disabledRows.forEach(r => disabledMap[r.razorpay_order_id] = r.id);
+        }
+
+        // Fetch custom test packages
+        const { data: customRows } = await supabaseClient
           .from('payments')
           .select('id, razorpay_order_id, amount_paise, created_at')
           .eq('status', 'test_package')
@@ -1436,55 +1514,78 @@
         const countBadge = document.getElementById('pkgCountBadge');
         const sideBadge = document.getElementById('sidebarPackagesBadge');
 
-        if (error || !data || data.length === 0) {
-          pkgBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No custom test packages created yet. Default tests are active in Candidate App.</td></tr>';
-          countBadge.textContent = '0 custom tests';
-          if (sideBadge) sideBadge.textContent = '0';
+        const allTests = [];
+
+        // 1. Process custom packages
+        if (customRows) {
+          customRows.forEach(p => {
+            if (disabledMap[p.id]) return; // hidden
+            let item = {};
+            try { item = JSON.parse(p.razorpay_order_id); } catch (_) {
+              item = { title: p.razorpay_order_id, exam: 'UPSC', questionCount: p.amount_paise };
+            }
+            allTests.push({
+              id: p.id,
+              title: item.title || 'Custom Test Set',
+              exam: item.exam || 'UPSC',
+              subject: item.subject || 'General Studies',
+              questionCount: item.questionCount || 25,
+              durationMinutes: item.durationMinutes || 30,
+              isDefault: false,
+              rawEncoded: encodeURIComponent(JSON.stringify(item))
+            });
+          });
+        }
+
+        // 2. Process system defaults
+        DEFAULT_SYSTEM_TESTS.forEach(dt => {
+          if (!disabledMap[dt.id]) {
+            allTests.push(dt);
+          }
+        });
+
+        countBadge.textContent = `${allTests.length} tests active in app`;
+        if (sideBadge) sideBadge.textContent = allTests.length;
+
+        if (allTests.length === 0) {
+          pkgBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">All tests are currently hidden or deleted.</td></tr>';
           return;
         }
 
-        countBadge.textContent = `${data.length} custom tests live`;
-        if (sideBadge) sideBadge.textContent = data.length;
-
-        pkgBody.innerHTML = data.map(p => {
-          let item = {};
-          try {
-            item = JSON.parse(p.razorpay_order_id);
-          } catch (_) {
-            item = { title: p.razorpay_order_id, exam: 'UPSC', questionCount: p.amount_paise };
-          }
-
-          const exam = item.exam || 'UPSC';
-          const title = item.title || 'Custom Practice Set';
-          const subject = item.subject || 'General Studies';
-          const qCount = item.questionCount || 25;
-          const durationMins = item.durationMinutes || 30;
-
-          const examBadge = exam === 'TNPSC'
+        pkgBody.innerHTML = allTests.map(t => {
+          const examBadge = t.exam === 'TNPSC'
             ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">TNPSC</span>'
             : '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">UPSC</span>';
 
+          const tagBadge = t.isDefault
+            ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Built-in Set</span>'
+            : '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Custom Admin Set</span>';
+
           return `
-            <tr class="hover:bg-indigo-50/30 transition">
-              <td class="p-3.5 whitespace-nowrap">${examBadge}</td>
-              <td class="p-3.5">
-                <div class="font-bold text-slate-900 text-xs">${title}</div>
-                <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${p.id}</div>
-              </td>
-              <td class="p-3.5 text-slate-700 font-medium">${subject}</td>
+            <tr class="hover:bg-slate-50 transition">
               <td class="p-3.5 whitespace-nowrap">
-                <span class="inline-flex items-center gap-1 font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
-                  <i class="fa-solid fa-list-check text-[10px] text-indigo-600"></i> ${qCount} Qs
-                </span>
-                <span class="text-slate-400 text-xs ml-1.5">• ${durationMins} mins</span>
+                ${examBadge}
+                <div class="mt-1">${tagBadge}</div>
               </td>
-              <td class="p-3.5 text-[11px] font-mono text-slate-500 whitespace-nowrap">${new Date(p.created_at).toLocaleDateString()}</td>
-              <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
-                <button onclick="editTestPackage('${p.id}', '${encodeURIComponent(JSON.stringify(item))}')" class="px-2.5 py-1 text-xs font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition">
-                  <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
-                </button>
-                <button onclick="deleteTestPackage('${p.id}', '${title.replace(/'/g, "\\'")}')" class="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition">
-                  <i class="fa-solid fa-trash-can text-[10px]"></i> Delete
+              <td class="p-3.5">
+                <div class="font-bold text-slate-900 text-xs">${t.title}</div>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${t.id}</div>
+              </td>
+              <td class="p-3.5 text-slate-700 font-medium text-xs">${t.subject}</td>
+              <td class="p-3.5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1 font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-xs">
+                  <i class="fa-solid fa-list-check text-[10px] text-indigo-600"></i> ${t.questionCount} Questions
+                </span>
+              </td>
+              <td class="p-3.5 text-xs text-slate-600 font-mono whitespace-nowrap">${t.durationMinutes} mins</td>
+              <td class="p-3.5 text-right whitespace-nowrap space-x-1.5">
+                ${!t.isDefault ? `
+                  <button onclick="editTestPackage('${t.id}', '${t.rawEncoded}')" class="px-2.5 py-1 text-xs font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition">
+                    <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
+                  </button>
+                ` : ''}
+                <button onclick="deleteAnyTest('${t.id}', '${t.title.replace(/'/g, "\\'")}', ${t.isDefault})" class="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i> Delete from App
                 </button>
               </td>
             </tr>
@@ -1492,6 +1593,34 @@
         }).join('');
       } catch (err) {
         console.error('Error loading packages:', err);
+      }
+    }
+
+    async function deleteAnyTest(testId, title, isDefault) {
+      if (!confirm(`Are you sure you want to delete test set "${title}"? It will immediately disappear from candidate mobile apps.`)) return;
+      try {
+        if (isDefault) {
+          // Record as disabled_test so Flutter app and admin skip it
+          const { error } = await supabaseClient.from('payments').insert({
+            student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+            test_id: null,
+            amount_paise: 0,
+            status: 'disabled_test',
+            razorpay_payment_id: 'admin_test_disable',
+            razorpay_order_id: testId
+          });
+          if (error) throw error;
+        } else {
+          // Delete custom test row
+          const { error } = await supabaseClient.from('payments').delete().eq('id', testId);
+          if (error) throw error;
+        }
+
+        logAudit(`DELETED test set [${title}] from Candidate App.`);
+        alert(`Test "${title}" deleted successfully! Candidate apps will no longer show this test.`);
+        loadTestPackages();
+      } catch (e) {
+        alert('Delete failed: ' + e.message);
       }
     }
 
