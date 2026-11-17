@@ -188,10 +188,11 @@ class TestRepository {
     yield await getLiveTests(exam);
   }
 
-  /// Get defined tests for an exam
+  /// Get defined tests for an exam (Built-in + Admin Uploaded Custom Packages)
   Future<List<TestModel>> getLiveTests(String exam) async {
+    List<TestModel> baseTests = [];
     if (exam == 'TNPSC') {
-      return [
+      baseTests = [
         TestModel(
           id: 'tnpsc_mock_daily_1',
           title: 'TNPSC Group 1/2 Daily Prelims Mock (Random 25)',
@@ -246,7 +247,7 @@ class TestRepository {
         ),
       ];
     } else {
-      return [
+      baseTests = [
         TestModel(
           id: 'upsc_mock_prelims_1',
           title: 'UPSC CSE Prelims Daily Mock (Random 25)',
@@ -288,6 +289,52 @@ class TestRepository {
         ),
       ];
     }
+
+    // Now dynamically load any custom test packages published by admin
+    try {
+      final res = await Supabase.instance.client
+          .from('payments')
+          .select('id, razorpay_order_id, amount_paise, created_at')
+          .eq('status', 'test_package')
+          .order('created_at', ascending: false);
+
+      if (res.isNotEmpty) {
+        final List<TestModel> customPackages = [];
+        for (final row in res) {
+          try {
+            final raw = row['razorpay_order_id'];
+            if (raw == null) continue;
+            final Map<String, dynamic> data = jsonDecode(raw);
+            final rowExam = (data['exam'] ?? 'UPSC').toString().toUpperCase();
+            if (rowExam != exam) continue;
+
+            final int qCount = (data['questionCount'] as num?)?.toInt() ?? 25;
+            final int durationMins = (data['durationMinutes'] as num?)?.toInt() ?? (qCount * 60 ~/ 50);
+
+            customPackages.add(
+              TestModel(
+                id: row['id'],
+                title: data['title'] ?? 'Custom Practice Set ($qCount Qs)',
+                type: qCount >= 100 ? 'full_mock' : (qCount == 25 ? 'daily' : 'subject'),
+                exam: exam,
+                subject: data['subject'] ?? 'General Studies Paper',
+                questionCount: qCount,
+                questionIds: [],
+                defaultDurationSeconds: durationMins * 60,
+                priceInPaise: 100,
+                publishDate: row['created_at']?.toString() ?? '2026-11-17',
+                isLive: true,
+              ),
+            );
+          } catch (_) {}
+        }
+        if (customPackages.isNotEmpty) {
+          baseTests = [...customPackages, ...baseTests];
+        }
+      }
+    } catch (_) {}
+
+    return baseTests;
   }
 
   /// Check if user has unlocked the test (via Rs.1 Razorpay payment)

@@ -168,6 +168,13 @@
               <i class="fa-solid fa-graduation-cap w-4 text-center text-amber-600"></i>
               <span>PYQ Question Bank</span>
             </a>
+            <a href="#section-packages" class="sidebar-link flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-layer-group w-4 text-center text-indigo-600"></i>
+                <span>Test Packages & Sets</span>
+              </div>
+              <span id="sidebarPackagesBadge" class="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">New</span>
+            </a>
             <a href="#section-students" class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
               <i class="fa-solid fa-users-gear w-4 text-center text-purple-600"></i>
               <span>Student Directory</span>
@@ -406,6 +413,108 @@
 
     </div>
 
+    <!-- Live Test Package Creator & Management Engine -->
+    <div id="section-packages">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
+      <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-200 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Custom Test Package & Mock Set Creator</h2>
+            <span class="text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-layer-group text-[10px]"></i>
+              App Real-Time Sync
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Publish brand new custom tests (25, 50, 100 Qs or Full Mock) with custom test titles that appear live in candidate apps immediately.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="downloadTestModelTemplate()" class="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-700 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>Download Model Template</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Creation Form -->
+      <form id="createPackageForm" onsubmit="handleCreateTestPackage(event)" class="bg-slate-50/80 p-5 rounded-xl border border-slate-200 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Test Title (Exactly as shown in Candidate App)</label>
+            <input type="text" id="pkgTitle" required placeholder="e.g. UPSC CSE 2026 Prelims Mega Mock (100 Qs) - Set 4" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Target Examination</label>
+            <select id="pkgExam" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black">
+              <option value="UPSC">UPSC Civil Services (CSE)</option>
+              <option value="TNPSC">TNPSC Combined Services</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Subject / Focus Area</label>
+            <input type="text" id="pkgSubject" required placeholder="e.g. Full Syllabus Paper 1" value="General Studies Full Mock" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Question Count (Set Size)</label>
+            <select id="pkgQuestionCount" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black font-mono">
+              <option value="25">25 Questions (Daily Mock / Drill)</option>
+              <option value="50">50 Questions (Subject Deep Drill)</option>
+              <option value="100" selected>100 Questions (Full Mock Prelims)</option>
+              <option value="200">200 Questions (TNPSC Grand Simulation)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Duration (Minutes)</label>
+            <input type="number" id="pkgDuration" required value="120" min="10" max="300" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-2.5 bg-white focus:ring-2 focus:ring-black font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Attach Excel / CSV Question Paper</label>
+            <input type="file" id="pkgFileInput" accept=".xlsx, .xls, .csv, .json" class="w-full text-xs border border-slate-300 rounded-xl p-1.5 bg-white file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200">
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <div class="text-[11px] text-slate-500">
+            <i class="fa-solid fa-circle-info text-blue-500"></i> If no file is attached, the test will automatically draw dynamically from the uploaded 1,000+ Question Bank pool.
+          </div>
+          <button type="submit" id="btnPublishPackage" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-plus-circle"></i>
+            <span>Publish Test to Live App</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Active Packages Table -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div class="p-3 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">Published Custom Test Packages in Candidate Apps</span>
+          <span class="text-slate-500 font-mono" id="pkgCountBadge">0 custom tests</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white text-slate-600 uppercase font-bold text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="p-3">Target Exam</th>
+                <th class="p-3">Test Title (Shown in App)</th>
+                <th class="p-3">Subject / Focus</th>
+                <th class="p-3">Questions & Duration</th>
+                <th class="p-3">Created On</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="packagesTableBody" class="divide-y divide-slate-200 text-slate-700 bg-white">
+              <tr>
+                <td colspan="6" class="p-5 text-center text-slate-400">Loading custom test packages...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div>
+
     <!-- Student Directory & Moderation Table -->
     <div id="section-students">
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -552,6 +661,7 @@
         document.getElementById('authOverlay').classList.add('hidden');
         loadAdminData();
         loadPyqQuestions();
+        loadTestPackages();
         initLiveSubscriptions();
       }
     });
@@ -659,6 +769,7 @@
         logAudit(`Administrator [${email}] authenticated successfully.`);
         loadAdminData();
         loadPyqQuestions();
+        loadTestPackages();
         initLiveSubscriptions();
       } else {
         errorBox.textContent = 'Invalid administrator credentials. Access denied.';
@@ -1266,6 +1377,247 @@
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "PYQ_Template");
       XLSX.writeFile(wb, "test11_pyq_upload_template.xlsx");
+    }
+
+    // ================= CUSTOM TEST PACKAGES MANAGEMENT =================
+    async function loadTestPackages() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('payments')
+          .select('id, razorpay_order_id, amount_paise, created_at')
+          .eq('status', 'test_package')
+          .order('created_at', { ascending: false });
+
+        const pkgBody = document.getElementById('packagesTableBody');
+        const countBadge = document.getElementById('pkgCountBadge');
+        const sideBadge = document.getElementById('sidebarPackagesBadge');
+
+        if (error || !data || data.length === 0) {
+          pkgBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No custom test packages created yet. Default tests are active in Candidate App.</td></tr>';
+          countBadge.textContent = '0 custom tests';
+          if (sideBadge) sideBadge.textContent = '0';
+          return;
+        }
+
+        countBadge.textContent = `${data.length} custom tests live`;
+        if (sideBadge) sideBadge.textContent = data.length;
+
+        pkgBody.innerHTML = data.map(p => {
+          let item = {};
+          try {
+            item = JSON.parse(p.razorpay_order_id);
+          } catch (_) {
+            item = { title: p.razorpay_order_id, exam: 'UPSC', questionCount: p.amount_paise };
+          }
+
+          const exam = item.exam || 'UPSC';
+          const title = item.title || 'Custom Practice Set';
+          const subject = item.subject || 'General Studies';
+          const qCount = item.questionCount || 25;
+          const durationMins = item.durationMinutes || 30;
+
+          const examBadge = exam === 'TNPSC'
+            ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">TNPSC</span>'
+            : '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">UPSC</span>';
+
+          return `
+            <tr class="hover:bg-indigo-50/30 transition">
+              <td class="p-3.5 whitespace-nowrap">${examBadge}</td>
+              <td class="p-3.5">
+                <div class="font-bold text-slate-900 text-xs">${title}</div>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${p.id}</div>
+              </td>
+              <td class="p-3.5 text-slate-700 font-medium">${subject}</td>
+              <td class="p-3.5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1 font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
+                  <i class="fa-solid fa-list-check text-[10px] text-indigo-600"></i> ${qCount} Qs
+                </span>
+                <span class="text-slate-400 text-xs ml-1.5">• ${durationMins} mins</span>
+              </td>
+              <td class="p-3.5 text-[11px] font-mono text-slate-500 whitespace-nowrap">${new Date(p.created_at).toLocaleDateString()}</td>
+              <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
+                <button onclick="editTestPackage('${p.id}', '${encodeURIComponent(JSON.stringify(item))}')" class="px-2.5 py-1 text-xs font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition">
+                  <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteTestPackage('${p.id}', '${title.replace(/'/g, "\\'")}')" class="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i> Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading packages:', err);
+      }
+    }
+
+    async function handleCreateTestPackage(e) {
+      e.preventDefault();
+      const title = document.getElementById('pkgTitle').value.trim();
+      const exam = document.getElementById('pkgExam').value;
+      const subject = document.getElementById('pkgSubject').value.trim();
+      const qCount = parseInt(document.getElementById('pkgQuestionCount').value) || 25;
+      const duration = parseInt(document.getElementById('pkgDuration').value) || 30;
+      const fileInput = document.getElementById('pkgFileInput');
+      const btn = document.getElementById('btnPublishPackage');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Publishing...';
+
+      try {
+        // If file is provided, ingest questions simultaneously
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const data = new Uint8Array(await file.arrayBuffer());
+          const workbook = XLSX.read(data, { type: 'array' });
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+          if (rows.length > 0) {
+            const inserts = rows.map(r => {
+              const qText = r['Question Text'] || r['question'] || r['Question'] || r['QUESTION'] || r['q'] || '';
+              const optA = (r['Option A'] ?? r['A'] ?? r['a'] ?? '').toString();
+              const optB = (r['Option B'] ?? r['B'] ?? r['b'] ?? '').toString();
+              const optC = (r['Option C'] ?? r['C'] ?? r['c'] ?? '').toString();
+              const optD = (r['Option D'] ?? r['D'] ?? r['d'] ?? '').toString();
+              const ans = (r['Correct Answer'] ?? r['correct_answer'] ?? r['Answer'] ?? 'A').toString().toUpperCase().trim();
+              const exp = (r['Detailed Explanation'] ?? r['explanation'] ?? `Official Answer Key: Option ${ans}`).toString();
+
+              return {
+                student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+                test_id: null,
+                amount_paise: 2026,
+                status: 'pyq_question',
+                razorpay_payment_id: 'pyq_question_bank',
+                razorpay_order_id: JSON.stringify({
+                  exam: exam,
+                  year: '2026',
+                  subject: subject,
+                  topic: title,
+                  question: qText,
+                  options: { A: optA, B: optB, C: optC, D: optD },
+                  correct_answer: ans,
+                  explanation: exp
+                })
+              };
+            });
+            await supabaseClient.from('payments').insert(inserts);
+            logAudit(`Uploaded ${inserts.length} specific questions for test package [${title}].`);
+          }
+        }
+
+        // Insert Test Package Definition
+        const packageData = {
+          title: title,
+          exam: exam,
+          subject: subject,
+          questionCount: qCount,
+          durationMinutes: duration,
+          publishedAt: new Date().toISOString()
+        };
+
+        const { error } = await supabaseClient.from('payments').insert({
+          student_id: '8294c73f-be46-4f65-939c-9eaebe11273f',
+          test_id: null,
+          amount_paise: qCount,
+          status: 'test_package',
+          razorpay_payment_id: 'custom_package',
+          razorpay_order_id: JSON.stringify(packageData)
+        });
+
+        if (error) throw error;
+
+        logAudit(`PUBLISHED new Test Package: [${title}] (${qCount} Questions) for ${exam}.`);
+        alert(`Test Package "${title}" is now LIVE in the Candidate App!`);
+        document.getElementById('createPackageForm').reset();
+        document.getElementById('pkgDuration').value = '120';
+        document.getElementById('pkgSubject').value = 'General Studies Full Mock';
+        loadTestPackages();
+      } catch (err) {
+        alert('Failed to publish test package: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> <span>Publish Test to Live App</span>';
+      }
+    }
+
+    async function deleteTestPackage(id, title) {
+      if (!confirm(`Are you sure you want to delete test package "${title}"? It will immediately disappear from candidate apps.`)) return;
+      try {
+        const { error } = await supabaseClient
+          .from('payments')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        logAudit(`DELETED Test Package [${title}].`);
+        loadTestPackages();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    }
+
+    async function editTestPackage(id, rawEncoded) {
+      try {
+        const item = JSON.parse(decodeURIComponent(rawEncoded));
+        const newTitle = prompt('Edit Test Title (as shown in App):', item.title || '');
+        if (!newTitle) return;
+
+        const newDuration = prompt('Edit Test Duration in Minutes:', item.durationMinutes || 120);
+        if (!newDuration) return;
+
+        item.title = newTitle.trim();
+        item.durationMinutes = parseInt(newDuration) || 120;
+
+        const { error } = await supabaseClient
+          .from('payments')
+          .update({
+            razorpay_order_id: JSON.stringify(item)
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+        logAudit(`UPDATED Test Package [${newTitle}].`);
+        alert('Test package updated successfully!');
+        loadTestPackages();
+      } catch (e) {
+        alert('Update failed: ' + e.message);
+      }
+    }
+
+    function downloadTestModelTemplate() {
+      const template = [
+        {
+          "Exam": "UPSC",
+          "Year": "2026",
+          "Subject": "General Studies Paper 1",
+          "Topic": "Indus Valley Civilization",
+          "Question Text": "Consider the following statements regarding the Harappan Civilization:\n1. The Great Bath was discovered at Mohenjo-daro.\n2. Evidence of a ploughed field has been found at Kalibangan.",
+          "Option A": "1 only",
+          "Option B": "2 only",
+          "Option C": "Both 1 and 2",
+          "Option D": "Neither 1 nor 2",
+          "Correct Answer": "C",
+          "Detailed Explanation": "The Great Bath was excavated at Mohenjo-daro and a ploughed field was discovered at Kalibangan (Rajasthan)."
+        },
+        {
+          "Exam": "TNPSC",
+          "Year": "2026",
+          "Subject": "Tamil Society & Culture",
+          "Topic": "Sangam Age",
+          "Question Text": "Which dynasty patronized the Sangam assemblies in ancient Madurai?",
+          "Option A": "Cheras",
+          "Option B": "Cholas",
+          "Option C": "Pandyas",
+          "Option D": "Pallavas",
+          "Correct Answer": "C",
+          "Detailed Explanation": "The three Sangam assemblies were held under the patronage of the Pandya kings in Madurai."
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(template);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Test_Model_Template");
+      XLSX.writeFile(wb, "test11_exam_model_template.xlsx");
     }
   </script>
 </body>
