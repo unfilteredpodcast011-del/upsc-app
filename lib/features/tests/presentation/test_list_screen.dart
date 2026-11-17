@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
@@ -33,6 +34,28 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   Future<void> _loadCandidateName() async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString('student_name') ?? prefs.getString('user_name') ?? '';
+    final studentId = prefs.getString('student_id');
+
+    // Real-time account validity check against database
+    if (studentId != null && studentId.isNotEmpty) {
+      try {
+        final res = await Supabase.instance.client
+            .from('students')
+            .select('id, account_status')
+            .eq('id', studentId)
+            .maybeSingle();
+
+        // If admin permanently deleted the user from Admin Portal
+        if (res == null) {
+          await prefs.clear();
+          if (mounted) {
+            context.go('/onboarding');
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+
     if (mounted && name.isNotEmpty) {
       setState(() {
         _candidateName = name;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,15 +35,45 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _animController.forward();
 
-    // 2-second splash screen timer
+    // 2-second splash screen timer & active account verification
     Timer(const Duration(milliseconds: 2200), () async {
       final prefs = await SharedPreferences.getInstance();
       final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
+      final studentId = prefs.getString('student_id');
 
       if (!mounted) return;
-      if (onboardingDone) {
+
+      if (!onboardingDone) {
+        context.go('/onboarding');
+        return;
+      }
+
+      // Check if student still exists and is active in Supabase (in case admin deleted or blocked them)
+      bool accountValid = true;
+      try {
+        if (studentId != null && studentId.isNotEmpty) {
+          final res = await Supabase.instance.client
+              .from('students')
+              .select('id, account_status')
+              .eq('id', studentId)
+              .maybeSingle();
+
+          if (res == null || res['account_status'] == 'Blocked' || res['account_status'] == 'Retired') {
+            accountValid = false;
+          }
+        }
+      } catch (_) {
+        // If offline or network error, permit cached access
+        accountValid = true;
+      }
+
+      if (!mounted) return;
+
+      if (accountValid) {
         context.go('/home');
       } else {
+        // Clear cached credentials and redirect to registration / onboarding
+        await prefs.clear();
         context.go('/onboarding');
       }
     });
