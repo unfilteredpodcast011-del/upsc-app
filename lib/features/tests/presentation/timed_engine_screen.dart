@@ -558,8 +558,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                     runSpacing: 4,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      // PYQ Previous Year Exam Badge
-                      if (currentQ.isPyq || currentQ.pyqYear != null)
+                      // PYQ Previous Year Exam Badge & Shuffle Notice
+                      if (currentQ.isPyq || currentQ.pyqYear != null) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
@@ -581,7 +581,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                               const Icon(Icons.history_edu, size: 14, color: Colors.white),
                               const SizedBox(width: 4),
                               Text(
-                                'PYQ: ${currentQ.exam} ${currentQ.pyqYear ?? 'Official'}',
+                                'PYQ ${currentQ.pyqYear ?? '2026'} Set',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -592,6 +592,30 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                             ],
                           ),
                         ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.shade300),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.shuffle, size: 12, color: Color(0xFF1E3A8A)),
+                              SizedBox(width: 4),
+                              Text(
+                                'Questions are shuffled on every attempt',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E3A8A),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       Chip(
                         label: Text(
                           currentQ.subject,

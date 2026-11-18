@@ -950,12 +950,30 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                               style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                             ),
                             const SizedBox(height: 4),
-                            Chip(
-                              label: Text(
-                                test.subject,
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                              visualDensity: VisualDensity.compact,
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                Chip(
+                                  label: Text(
+                                    test.subject,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.blue.shade200),
+                                  ),
+                                  child: const Text(
+                                    '100 Qs • Shuffled on retake',
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

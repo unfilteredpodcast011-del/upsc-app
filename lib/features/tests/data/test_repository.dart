@@ -524,8 +524,10 @@ class TestRepository {
         }
 
         if (bundleQuestions.isNotEmpty) {
-          // If this is a specific test paper bundle, return its fixed questions without mixing with random practice pool
-          return bundleQuestions;
+          // If this is a specific test paper bundle, return its fixed questions without mixing with random practice pool.
+          // Shuffle questions on every attempt as requested by the user, while preserving the exact 100 questions belonging to this test.
+          final shuffledList = List<QuestionModel>.from(bundleQuestions)..shuffle();
+          return shuffledList;
         }
       }
     } catch (_) {}
