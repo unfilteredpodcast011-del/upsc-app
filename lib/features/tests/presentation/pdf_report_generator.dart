@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:tamil_pdf_shaper/tamil_pdf_shaper.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 
@@ -92,7 +93,18 @@ class PdfReportGenerator {
 
   static String _t(String key, String lang) {
     final l = _pdfI18n.containsKey(lang) ? lang : 'en';
-    return _pdfI18n[l]?[key] ?? _pdfI18n['en']?[key] ?? key;
+    final text = _pdfI18n[l]?[key] ?? _pdfI18n['en']?[key] ?? key;
+    if (lang == 'ta') {
+      return text.toTamilPdf;
+    }
+    return text;
+  }
+
+  static String _formatText(String text, String lang) {
+    if (lang == 'ta') {
+      return text.toTamilPdf;
+    }
+    return text;
   }
 
   static Future<String> generateAndOpenTestReport({
@@ -134,6 +146,14 @@ class PdfReportGenerator {
 
     try {
       if (language == 'ta') {
+        // Load the Anand MuktaMalar font provided by tamil_pdf_shaper
+        try {
+          final tamilMukta = await TamilPdfFont.load();
+          fallbacks.add(tamilMukta);
+        } catch (_) {
+          final fontData = await rootBundle.load('assets/fonts/Anand_MuktaMalar.ttf');
+          fallbacks.add(pw.Font.ttf(fontData));
+        }
         final fontData = await rootBundle.load('assets/fonts/tamil.ttf');
         fallbacks.add(pw.Font.ttf(fontData));
         final boldFontData = await rootBundle.load('assets/fonts/NotoSansTamil-Bold.ttf');
@@ -288,8 +308,9 @@ class PdfReportGenerator {
                   : (isSkipped ? _t('skipped_badge', language) : _t('wrong_badge', language));
 
               final opts = q.getLocalizedOptions(language);
-              final qText = q.getLocalizedQuestion(language);
-              final explanation = q.getLocalizedExplanation(language);
+              final qText = _formatText(q.getLocalizedQuestion(language), language);
+              final explanation = _formatText(q.getLocalizedExplanation(language), language);
+              final subjectText = _formatText(q.subject, language);
 
               return pw.Container(
                 margin: const pw.EdgeInsets.only(bottom: 10),
@@ -306,7 +327,7 @@ class PdfReportGenerator {
                       children: [
                         pw.Expanded(
                           child: pw.Text(
-                            '${_t("question", language)} $idx [${q.subject}] ${q.isPyq ? "• ${_t('pyq', language)} ${q.pyqYear ?? ''}" : ""}',
+                            '${_t("question", language)} $idx [$subjectText] ${q.isPyq ? "• ${_t('pyq', language)} ${q.pyqYear ?? ''}" : ""}',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5, color: PdfColor.fromHex('#1E293B'), fontFallback: fallbacks),
                           ),
                         ),
@@ -331,7 +352,7 @@ class PdfReportGenerator {
                       children: [
                         pw.Expanded(
                           child: pw.Text(
-                            '${_t("your_answer", language)}: ${userOption ?? _t("none", language)}',
+                            '${_t("your_answer", language)}: ${userOption != null ? "${_t("option", language)} $userOption" : _t("none", language)}',
                             style: pw.TextStyle(
                               fontSize: 8.5,
                               fontWeight: pw.FontWeight.bold,
@@ -356,7 +377,7 @@ class PdfReportGenerator {
                     if (opts.isNotEmpty) ...[
                       pw.SizedBox(height: 4),
                       pw.Text(
-                        'A) ${opts["A"] ?? opts["a"] ?? ""}   B) ${opts["B"] ?? opts["b"] ?? ""}   C) ${opts["C"] ?? opts["c"] ?? ""}   D) ${opts["D"] ?? opts["d"] ?? ""}',
+                        'A) ${_formatText(opts["A"] ?? opts["a"] ?? "", language)}   B) ${_formatText(opts["B"] ?? opts["b"] ?? "", language)}   C) ${_formatText(opts["C"] ?? opts["c"] ?? "", language)}   D) ${_formatText(opts["D"] ?? opts["d"] ?? "", language)}',
                         style: pw.TextStyle(fontSize: 8, color: PdfColors.grey700, fontFallback: fallbacks),
                       ),
                     ],
@@ -395,7 +416,7 @@ class PdfReportGenerator {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ];
         },
       ),

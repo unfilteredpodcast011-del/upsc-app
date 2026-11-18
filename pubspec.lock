@@ -1066,6 +1066,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.18.3"
+  tamil_pdf_shaper:
+    dependency: "direct main"
+    description:
+      name: tamil_pdf_shaper
+      sha256: c67b10127a84be2162f9258ebfc030f2338daa50b23b46f67038182219ca0385
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   term_glyph:
     dependency: transitive
     description:
