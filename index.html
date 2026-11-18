@@ -515,6 +515,34 @@
     </div>
     </div>
 
+    <!-- Test Questions Viewer Modal -->
+    <div id="testQuestionsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white" id="tqModalTitle">Test Questions</h3>
+              <span class="text-[11px] text-slate-400" id="tqModalBadge">UPSC • 25 Questions</span>
+            </div>
+          </div>
+          <button onclick="closeTestQuestionsModal()" class="w-8 h-8 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+        <div id="tqModalBody">
+          <!-- Dynamically filled with test questions -->
+        </div>
+        <div class="p-3 bg-slate-100 border-t border-slate-200 flex justify-end">
+          <button onclick="closeTestQuestionsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition">
+            Close Viewer
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Student Directory & Moderation Table -->
     <div id="section-students">
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -1697,6 +1725,9 @@
               </td>
               <td class="p-3.5 text-xs text-slate-600 font-mono whitespace-nowrap">${t.durationMinutes} mins</td>
               <td class="p-3.5 text-right whitespace-nowrap space-x-1.5">
+                <button onclick="viewTestQuestions('${t.id}', '${t.title.replace(/'/g, "\\'")}', '${t.exam}', ${t.questionCount}, ${t.isDefault})" class="px-2.5 py-1 text-xs font-bold text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 transition">
+                  <i class="fa-solid fa-eye text-[10px]"></i> View Questions
+                </button>
                 ${!t.isDefault ? `
                   <button onclick="editTestPackage('${t.id}', '${t.rawEncoded}')" class="px-2.5 py-1 text-xs font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition">
                     <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
@@ -1934,6 +1965,113 @@
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Test_Model_Template");
       XLSX.writeFile(wb, "test11_exam_model_template.xlsx");
+    }
+
+    async function viewTestQuestions(testId, title, exam, qCount, isDefault) {
+      const modal = document.getElementById('testQuestionsModal');
+      const modalTitle = document.getElementById('tqModalTitle');
+      const modalBody = document.getElementById('tqModalBody');
+      const modalBadge = document.getElementById('tqModalBadge');
+
+      modalTitle.textContent = title;
+      modalBadge.textContent = `${exam} • ${qCount} Questions`;
+      modalBody.innerHTML = '<div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner animate-spin mr-2"></i> Loading test questions...</div>';
+      modal.classList.remove('hidden');
+
+      try {
+        let questions = [];
+
+        // 1. Check if specific questions are attached to this test in payments
+        const { data: qData, error: qErr } = await supabaseClient
+          .from('payments')
+          .select('*')
+          .eq('status', 'pyq_question')
+          .order('created_at', { ascending: false });
+
+        if (qData) {
+          // Filter questions belonging to this topic or exam
+          const matching = [];
+          for (const row of qData) {
+            try {
+              const p = JSON.parse(row.razorpay_order_id || '{}');
+              if (p.topic === title || (p.exam && p.exam.toUpperCase() === exam.toUpperCase())) {
+                matching.push({
+                  id: row.id,
+                  question: p.question,
+                  options: p.options || {},
+                  correct: p.correct_answer || 'A',
+                  explanation: p.explanation || 'Official Answer Key',
+                  translations: p.translations || null,
+                  subject: p.subject || 'General Studies'
+                });
+              }
+            } catch (_) {}
+          }
+          questions = matching.slice(0, qCount);
+        }
+
+        // If not enough questions found from specific set, pull general bank questions
+        if (questions.length === 0) {
+          modalBody.innerHTML = `
+            <div class="p-8 text-center text-slate-500">
+              <i class="fa-solid fa-layer-group text-3xl text-indigo-400 mb-3 block"></i>
+              <div class="font-bold text-sm text-slate-800">Dynamic Question Pool Allocation</div>
+              <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                This test set is configured in <b>Auto-Allot Mode</b>. When candidates launch this test, the server dynamically draws ${qCount} unseen questions from the central <b>${exam} Question Bank</b>.
+              </p>
+              <div class="mt-4">
+                <button onclick="document.querySelector('a[href=\\'#section-pyq\\']').click(); closeTestQuestionsModal();" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+                  <i class="fa-solid fa-database mr-1.5"></i> Inspect ${exam} Central Question Bank
+                </button>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        modalBody.innerHTML = `
+          <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">${questions.length} Questions Loaded for this Test</span>
+            <span class="text-slate-500 font-mono">Exam: ${exam}</span>
+          </div>
+          <div class="divide-y divide-slate-200 max-h-[60vh] overflow-y-auto p-4 space-y-4">
+            ${questions.map((q, idx) => `
+              <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2">
+                <div class="flex items-start justify-between gap-2">
+                  <span class="font-bold text-indigo-600 text-xs font-mono">Q${idx + 1}.</span>
+                  <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${q.subject}</span>
+                </div>
+                <div class="text-xs font-semibold text-slate-900 leading-relaxed whitespace-pre-line">${q.question}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
+                  ${['A', 'B', 'C', 'D'].map(opt => {
+                    const isCorrect = (q.correct || '').toUpperCase() === opt;
+                    const optText = q.options[opt] || (q.options[opt.toLowerCase()] || '');
+                    return `
+                      <div class="p-2 rounded-lg text-xs font-medium border ${isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'} flex items-start gap-2">
+                        <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${isCorrect ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-200 text-slate-600'}">${opt}</span>
+                        <span class="flex-1">${optText}</span>
+                        ${isCorrect ? '<i class="fa-solid fa-circle-check text-emerald-600 ml-auto"></i>' : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+                ${q.explanation ? `
+                  <div class="mt-2 p-2.5 rounded-lg bg-blue-50/70 border border-blue-200 text-[11px] text-blue-900">
+                    <span class="font-bold"><i class="fa-solid fa-circle-info mr-1 text-blue-600"></i> Explanation:</span>
+                    <span class="mt-0.5 block">${q.explanation}</span>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (err) {
+        modalBody.innerHTML = `<div class="p-6 text-center text-red-500 text-xs">Error loading test questions: ${err.message}</div>`;
+      }
+    }
+
+    function closeTestQuestionsModal() {
+      document.getElementById('testQuestionsModal').classList.add('hidden');
     }
   </script>
 </body>
