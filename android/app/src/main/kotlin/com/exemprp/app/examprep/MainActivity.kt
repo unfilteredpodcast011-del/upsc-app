@@ -1,4 +1,4 @@
-package com.examprep.app.examprep
+package com.exemprp.app.examprep
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

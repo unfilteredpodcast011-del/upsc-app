@@ -1,4 +1,4 @@
-package com.examprep.app.examprep
+package com.exemprp.app.examprep
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
