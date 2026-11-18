@@ -145,6 +145,43 @@ class TestRepository {
             final Map<String, String> opts = {};
             rawOpts.forEach((k, v) => opts[k.toString().toUpperCase()] = v.toString());
 
+            // Check if full multilingual translations were stored
+            final Map<String, QuestionTranslation> transMap = {};
+            if (data['translations'] is Map) {
+              final Map<String, dynamic> rawTrans = data['translations'];
+              rawTrans.forEach((lang, tData) {
+                if (tData is Map) {
+                  final tQuestion = tData['question']?.toString() ?? qText;
+                  final tExp = tData['explanation']?.toString() ?? exp;
+                  final Map<String, String> tOpts = {};
+                  if (tData['options'] is List) {
+                    final list = tData['options'] as List;
+                    const keys = ['A', 'B', 'C', 'D'];
+                    for (int i = 0; i < list.length && i < 4; i++) {
+                      tOpts[keys[i]] = list[i].toString();
+                    }
+                  } else if (tData['options'] is Map) {
+                    (tData['options'] as Map).forEach((k, v) => tOpts[k.toString().toUpperCase()] = v.toString());
+                  }
+                  transMap[lang] = QuestionTranslation(
+                    question: tQuestion,
+                    options: tOpts.isNotEmpty ? tOpts : opts,
+                    explanation: tExp,
+                  );
+                }
+              });
+            }
+
+            if (!transMap.containsKey('en')) {
+              transMap['en'] = QuestionTranslation(question: qText, options: opts, explanation: exp);
+            }
+            if (!transMap.containsKey('ta')) {
+              transMap['ta'] = transMap['en']!;
+            }
+            if (!transMap.containsKey('hi')) {
+              transMap['hi'] = transMap['en']!;
+            }
+
             dynamicPyqs.add(
               QuestionModel(
                 id: row['id'],
@@ -158,11 +195,7 @@ class TestRepository {
                 normalizedText: qText,
                 pyqYear: year,
                 isPyq: true,
-                translations: {
-                  'en': QuestionTranslation(question: qText, options: opts, explanation: exp),
-                  'ta': QuestionTranslation(question: qText, options: opts, explanation: exp),
-                  'hi': QuestionTranslation(question: qText, options: opts, explanation: exp),
-                },
+                translations: transMap,
               ),
             );
           } catch (_) {}
@@ -409,6 +442,94 @@ class TestRepository {
     required int count,
     required String userId,
   }) async {
+    // 0. CHECK FOR FIXED MOCK TEST OR SPECIFIC BUNDLE FIRST
+    // If the test has specific attached questions in payments or tests table, fetch those exact questions
+    try {
+      final specificRows = await Supabase.instance.client
+          .from('payments')
+          .select('id, razorpay_order_id, amount_paise, created_at')
+          .eq('status', 'pyq_question')
+          .order('created_at', ascending: true);
+
+      if (specificRows.isNotEmpty) {
+        final List<QuestionModel> bundleQuestions = [];
+        for (final row in specificRows) {
+          try {
+            final raw = row['razorpay_order_id'];
+            if (raw == null) continue;
+            final Map<String, dynamic> data = jsonDecode(raw);
+            if (data['topic'] == testId || data['test_id'] == testId) {
+              final qText = data['question'] ?? '';
+              final exp = data['explanation'] ?? 'Correct Answer: ${data['correct_answer']}';
+              final year = data['year']?.toString() ?? '2026';
+              final Map<String, dynamic> rawOpts = data['options'] ?? {};
+              final Map<String, String> opts = {};
+              rawOpts.forEach((k, v) => opts[k.toString().toUpperCase()] = v.toString());
+
+              // Build translations
+              final Map<String, QuestionTranslation> transMap = {};
+              if (data['translations'] is Map) {
+                final Map<String, dynamic> rawTrans = data['translations'];
+                rawTrans.forEach((lang, tData) {
+                  if (tData is Map) {
+                    final tQuestion = tData['question']?.toString() ?? qText;
+                    final tExp = tData['explanation']?.toString() ?? exp;
+                    final Map<String, String> tOpts = {};
+                    if (tData['options'] is List) {
+                      final list = tData['options'] as List;
+                      const keys = ['A', 'B', 'C', 'D'];
+                      for (int i = 0; i < list.length && i < 4; i++) {
+                        tOpts[keys[i]] = list[i].toString();
+                      }
+                    } else if (tData['options'] is Map) {
+                      (tData['options'] as Map).forEach((k, v) => tOpts[k.toString().toUpperCase()] = v.toString());
+                    }
+                    transMap[lang] = QuestionTranslation(
+                      question: tQuestion,
+                      options: tOpts.isNotEmpty ? tOpts : opts,
+                      explanation: tExp,
+                    );
+                  }
+                });
+              }
+
+              if (!transMap.containsKey('en')) {
+                transMap['en'] = QuestionTranslation(question: qText, options: opts, explanation: exp);
+              }
+              if (!transMap.containsKey('ta')) {
+                transMap['ta'] = transMap['en']!;
+              }
+              if (!transMap.containsKey('hi')) {
+                transMap['hi'] = transMap['en']!;
+              }
+
+              bundleQuestions.add(
+                QuestionModel(
+                  id: row['id'],
+                  exam: exam,
+                  subject: data['subject'] ?? 'Previous Year Question Paper',
+                  topic: data['topic'] ?? 'PYQ Fixed Bundle',
+                  ncertChapter: '',
+                  difficulty: 'medium',
+                  publishDate: '2026-11-16',
+                  correctAnswer: (data['correct_answer'] ?? 'A').toString().toUpperCase(),
+                  normalizedText: qText,
+                  pyqYear: year,
+                  isPyq: true,
+                  translations: transMap,
+                ),
+              );
+            }
+          } catch (_) {}
+        }
+
+        if (bundleQuestions.isNotEmpty) {
+          // If this is a specific test paper bundle, return its fixed questions without mixing with random practice pool
+          return bundleQuestions;
+        }
+      }
+    } catch (_) {}
+
     final allQuestions = await _loadQuestionsForExam(exam);
     if (allQuestions.isEmpty) return [];
 
