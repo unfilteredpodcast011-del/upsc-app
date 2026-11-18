@@ -362,19 +362,22 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           _optionBox('B', options['B'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('C', options['C'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('D', options['D'] ?? '', q.correctAnswer, userChoice),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(height: 12),
+                          // Prominent "View Solution" action button
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                foregroundColor: Colors.white,
+                                elevation: 1,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
-                              icon: const Icon(Icons.lightbulb_outline, size: 16),
+                              icon: const Icon(Icons.lightbulb_rounded, size: 18, color: Colors.amber),
                               label: Text(
                                 AppStrings.get('review_solution', _appLanguage),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.3),
                               ),
                               onPressed: () => _openReviewSolutionModal(displayQuestions, index),
                             ),
