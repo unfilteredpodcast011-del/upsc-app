@@ -224,16 +224,16 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF93C5FD), width: 1.5),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
-                          backgroundColor: Color(0xFF2563EB),
-                          foregroundColor: Colors.white,
-                          child: Icon(Icons.timer_outlined, size: 20),
+                        CircleAvatar(
+                          backgroundColor: Colors.blue.shade50,
+                          foregroundColor: const Color(0xFF2563EB),
+                          child: const Icon(Icons.timer_outlined, size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -242,11 +242,29 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                             children: [
                               const Text(
                                 'Standard Speed (100% Time)',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
                               ),
-                              Text(
-                                '${test.defaultDurationSeconds ~/ 60} minutes • Official exam pace',
-                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0xFF93C5FD)),
+                                    ),
+                                    child: Text(
+                                      '${test.defaultDurationSeconds ~/ 60} minutes',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1D4ED8)),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    '• Official exam pace',
+                                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -268,16 +286,16 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFCD34D), width: 1.5),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
-                          backgroundColor: Color(0xFFD97706),
-                          foregroundColor: Colors.white,
-                          child: Icon(Icons.speed, size: 20),
+                        CircleAvatar(
+                          backgroundColor: Colors.amber.shade50,
+                          foregroundColor: const Color(0xFFD97706),
+                          child: const Icon(Icons.speed, size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -286,11 +304,29 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                             children: [
                               const Text(
                                 'Rapid Practice (75% Time)',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF92400E)),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
                               ),
-                              Text(
-                                '${(test.defaultDurationSeconds * 0.75) ~/ 60} minutes • Fast accuracy drill',
-                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFFBEB),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0xFFFCD34D)),
+                                    ),
+                                    child: Text(
+                                      '${(test.defaultDurationSeconds * 0.75) ~/ 60} minutes',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    '• Fast accuracy drill',
+                                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -312,16 +348,16 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFCA5A5), width: 1.5),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
-                          backgroundColor: Color(0xFFDC2626),
-                          foregroundColor: Colors.white,
-                          child: Icon(Icons.flash_on, size: 20),
+                        CircleAvatar(
+                          backgroundColor: Colors.red.shade50,
+                          foregroundColor: const Color(0xFFDC2626),
+                          child: const Icon(Icons.flash_on, size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -330,11 +366,29 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                             children: [
                               const Text(
                                 'Sprint Mode (50% Time)',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF991B1B)),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
                               ),
-                              Text(
-                                '${(test.defaultDurationSeconds * 0.5) ~/ 60} minutes • High adrenaline challenge',
-                                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFEF2F2),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                                    ),
+                                    child: Text(
+                                      '${(test.defaultDurationSeconds * 0.5) ~/ 60} minutes',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFB91C1C)),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    '• High adrenaline challenge',
+                                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -361,7 +415,12 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
           children: [
             Icon(Icons.headset_mic_rounded, color: Colors.blueAccent),
             SizedBox(width: 10),
-            Text('Support & Help Desk', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+            Expanded(
+              child: Text(
+                'Support & Help Desk',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
           ],
         ),
         content: Column(

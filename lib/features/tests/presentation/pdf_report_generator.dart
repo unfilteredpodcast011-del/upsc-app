@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -10,6 +9,92 @@ import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 
 class PdfReportGenerator {
+  static const Map<String, Map<String, String>> _pdfI18n = {
+    'en': {
+      'report_title': 'TEST 11 - OFFICIAL EXAM REPORT',
+      'target_exam': 'Target Exam',
+      'date': 'Date',
+      'sub_header': 'Official Timed Practice Test Performance',
+      'candidate_name': 'Candidate Name',
+      'final_score': 'Final Score',
+      'accuracy': 'Accuracy',
+      'correct': 'Correct',
+      'wrong': 'Wrong',
+      'skipped': 'Skipped',
+      'time_taken': 'Time Taken',
+      'min': 'min',
+      'breakdown_title': 'Detailed Question, Answer & Explanation Breakdown',
+      'system_tag': 'Test 11 Evaluation System',
+      'question': 'Question',
+      'pyq': 'PYQ',
+      'correct_badge': '✓ CORRECT (+2.0)',
+      'wrong_badge': '✗ WRONG (-0.66)',
+      'skipped_badge': '○ SKIPPED (0.0)',
+      'your_answer': 'Your Answer',
+      'correct_answer': 'Correct Answer',
+      'option': 'Option',
+      'none': 'None',
+      'explanation': 'Explanation',
+    },
+    'ta': {
+      'report_title': 'TEST 11 - அதிகாரப்பூர்வ தேர்வு அறிக்கை',
+      'target_exam': 'இலக்கு தேர்வு',
+      'date': 'தேதி',
+      'sub_header': 'நேரக்கட்டுப்பாடு கொண்ட பயிற்சி தேர்வு செயல்திறன்',
+      'candidate_name': 'தேர்வர் பெயர்',
+      'final_score': 'இறுதி மதிப்பெண்',
+      'accuracy': 'துல்லியம்',
+      'correct': 'சரி',
+      'wrong': 'தவறு',
+      'skipped': 'தவிர்க்கப்பட்டது',
+      'time_taken': 'எடுத்துக்கொண்ட நேரம்',
+      'min': 'நிமிடம்',
+      'breakdown_title': 'விரிவான கேள்வி, விடை மற்றும் விளக்கப் பகுப்பாய்வு',
+      'system_tag': 'Test 11 மதிப்பீட்டு அமைப்பு',
+      'question': 'கேள்வி',
+      'pyq': 'முந்தைய ஆண்டு கேள்வி',
+      'correct_badge': '✓ சரி (+2.0)',
+      'wrong_badge': '✗ தவறு (-0.66)',
+      'skipped_badge': '○ பதிலளிக்கப்படவில்லை (0.0)',
+      'your_answer': 'உங்கள் விடை',
+      'correct_answer': 'சரியான விடை',
+      'option': 'விருப்பம்',
+      'none': 'இல்லை',
+      'explanation': 'விளக்கம்',
+    },
+    'hi': {
+      'report_title': 'TEST 11 - आधिकारिक परीक्षा रिपोर्ट',
+      'target_exam': 'लक्ष्य परीक्षा',
+      'date': 'दिनांक',
+      'sub_header': 'आधिकारिक समयबद्ध अभ्यास परीक्षा प्रदर्शन',
+      'candidate_name': 'परीक्षार्थी का नाम',
+      'final_score': 'अंतिम स्कोर',
+      'accuracy': 'सटीकता',
+      'correct': 'सही',
+      'wrong': 'गलत',
+      'skipped': 'छोड़ा गया',
+      'time_taken': 'लिया गया समय',
+      'min': 'मिनट',
+      'breakdown_title': 'विस्तृत प्रश्न, उत्तर और व्याख्या विश्लेषण',
+      'system_tag': 'Test 11 मूल्यांकन प्रणाली',
+      'question': 'प्रश्न',
+      'pyq': 'पिछले वर्ष का प्रश्न',
+      'correct_badge': '✓ सही (+2.0)',
+      'wrong_badge': '✗ गलत (-0.66)',
+      'skipped_badge': '○ अनुत्तरित (0.0)',
+      'your_answer': 'आपका उत्तर',
+      'correct_answer': 'सही उत्तर',
+      'option': 'विकल्प',
+      'none': 'कोई नहीं',
+      'explanation': 'विस्तृत व्याख्या',
+    },
+  };
+
+  static String _t(String key, String lang) {
+    final l = _pdfI18n.containsKey(lang) ? lang : 'en';
+    return _pdfI18n[l]?[key] ?? _pdfI18n['en']?[key] ?? key;
+  }
+
   static Future<String> generateAndOpenTestReport({
     required String studentName,
     required String testTitle,
@@ -30,11 +115,10 @@ class PdfReportGenerator {
       final logoBytes = await rootBundle.load('assets/images/app_logo.jpg');
       logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
     } catch (e) {
-      // Fallback if logo cannot be loaded
       logoImage = null;
     }
 
-    // Load Fonts: NotoSans for Latin/English and Tamil/Hindi as script fallback
+    // Load Unicode fonts: NotoSans (base Latin) + Tamil / Hindi fallbacks
     pw.Font? baseRegular;
     pw.Font? baseBold;
     final List<pw.Font> fallbacks = [];
@@ -52,14 +136,19 @@ class PdfReportGenerator {
       if (language == 'ta') {
         final fontData = await rootBundle.load('assets/fonts/tamil.ttf');
         fallbacks.add(pw.Font.ttf(fontData));
+        final boldFontData = await rootBundle.load('assets/fonts/NotoSansTamil-Bold.ttf');
+        fallbacks.add(pw.Font.ttf(boldFontData));
       } else if (language == 'hi') {
         final fontData = await rootBundle.load('assets/fonts/hindi.ttf');
         fallbacks.add(pw.Font.ttf(fontData));
+        final boldFontData = await rootBundle.load('assets/fonts/NotoSansDevanagari-Bold.ttf');
+        fallbacks.add(pw.Font.ttf(boldFontData));
       }
     } catch (e) {
       debugPrint('Script font load note: $e');
     }
 
+    // Global document typography theme with registered fallbacks
     final themeData = pw.ThemeData.withFont(
       base: baseRegular,
       bold: baseBold,
@@ -101,21 +190,22 @@ class PdfReportGenerator {
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           pw.Text(
-                            'TEST 11 - OFFICIAL EXAM REPORT',
+                            _t('report_title', language),
                             style: pw.TextStyle(
                               color: PdfColors.white,
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: pw.FontWeight.bold,
+                              fontFallback: fallbacks,
                             ),
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'Target Exam: $exam | Date: $formattedDate',
-                            style: const pw.TextStyle(color: PdfColors.white, fontSize: 9),
+                            '${_t("target_exam", language)}: $exam | ${_t("date", language)}: $formattedDate',
+                            style: pw.TextStyle(color: PdfColors.white, fontSize: 9, fontFallback: fallbacks),
                           ),
                           pw.Text(
-                            'Official Timed Practice Test Performance',
-                            style: pw.TextStyle(color: PdfColors.amberAccent, fontSize: 8),
+                            _t('sub_header', language),
+                            style: pw.TextStyle(color: PdfColors.amberAccent, fontSize: 8, fontFallback: fallbacks),
                           ),
                         ],
                       ),
@@ -125,8 +215,8 @@ class PdfReportGenerator {
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       pw.Text(
-                        'Candidate Name:',
-                        style: const pw.TextStyle(color: PdfColors.white, fontSize: 9),
+                        '${_t("candidate_name", language)}:',
+                        style: pw.TextStyle(color: PdfColors.white, fontSize: 9, fontFallback: fallbacks),
                       ),
                       pw.Text(
                         studentName,
@@ -134,6 +224,7 @@ class PdfReportGenerator {
                           color: PdfColors.amberAccent,
                           fontSize: 13,
                           fontWeight: pw.FontWeight.bold,
+                          fontFallback: fallbacks,
                         ),
                       ),
                     ],
@@ -154,12 +245,12 @@ class PdfReportGenerator {
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                 children: [
-                  _summaryCol('Final Score', '${session.score.toStringAsFixed(2)} / $totalMarks', PdfColor.fromHex('#1E3A8A')),
-                  _summaryCol('Accuracy', '${session.accuracy.toStringAsFixed(1)}%', PdfColor.fromHex('#0F766E')),
-                  _summaryCol('Correct', '${session.totalCorrect}', PdfColor.fromHex('#16A34A')),
-                  _summaryCol('Wrong', '${session.totalWrong}', PdfColor.fromHex('#DC2626')),
-                  _summaryCol('Skipped', '${session.totalUnanswered}', PdfColor.fromHex('#64748B')),
-                  _summaryCol('Time Taken', '${(session.timeTakenSeconds / 60).toStringAsFixed(1)} min', PdfColor.fromHex('#475569')),
+                  _summaryCol(_t('final_score', language), '${session.score.toStringAsFixed(2)} / $totalMarks', PdfColor.fromHex('#1E3A8A'), fallbacks),
+                  _summaryCol(_t('accuracy', language), '${session.accuracy.toStringAsFixed(1)}%', PdfColor.fromHex('#0F766E'), fallbacks),
+                  _summaryCol(_t('correct', language), '${session.totalCorrect}', PdfColor.fromHex('#16A34A'), fallbacks),
+                  _summaryCol(_t('wrong', language), '${session.totalWrong}', PdfColor.fromHex('#DC2626'), fallbacks),
+                  _summaryCol(_t('skipped', language), '${session.totalUnanswered}', PdfColor.fromHex('#64748B'), fallbacks),
+                  _summaryCol(_t('time_taken', language), '${(session.timeTakenSeconds / 60).toStringAsFixed(1)} ${_t("min", language)}', PdfColor.fromHex('#475569'), fallbacks),
                 ],
               ),
             ),
@@ -169,18 +260,18 @@ class PdfReportGenerator {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Detailed Question, Answer & Explanation Breakdown',
-                  style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#0F172A')),
+                  _t('breakdown_title', language),
+                  style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#0F172A'), fontFallback: fallbacks),
                 ),
                 pw.Text(
-                  'Test 11 Evaluation System',
-                  style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+                  _t('system_tag', language),
+                  style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600, fontFallback: fallbacks),
                 ),
               ],
             ),
             pw.SizedBox(height: 10),
 
-            // Questions List
+            // Questions List (Wrapped in pw.Wrap or atomic containers to prevent blank trailing boxes)
             ...questions.asMap().entries.map((entry) {
               final idx = entry.key + 1;
               final q = entry.value;
@@ -193,8 +284,8 @@ class PdfReportGenerator {
                   ? PdfColor.fromHex('#16A34A')
                   : (isSkipped ? PdfColor.fromHex('#64748B') : PdfColor.fromHex('#DC2626'));
               final statusText = isCorrect
-                  ? 'CORRECT (+2.0)'
-                  : (isSkipped ? 'SKIPPED (0.0)' : 'WRONG (-0.66)');
+                  ? _t('correct_badge', language)
+                  : (isSkipped ? _t('skipped_badge', language) : _t('wrong_badge', language));
 
               final opts = q.getLocalizedOptions(language);
               final qText = q.getLocalizedQuestion(language);
@@ -213,9 +304,11 @@ class PdfReportGenerator {
                     pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        pw.Text(
-                          'Question $idx [${q.subject}] ${q.isPyq ? "• PYQ ${q.pyqYear ?? ''}" : ""}',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5, color: PdfColor.fromHex('#1E293B')),
+                        pw.Expanded(
+                          child: pw.Text(
+                            '${_t("question", language)} $idx [${q.subject}] ${q.isPyq ? "• ${_t('pyq', language)} ${q.pyqYear ?? ''}" : ""}',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5, color: PdfColor.fromHex('#1E293B'), fontFallback: fallbacks),
+                          ),
                         ),
                         pw.Text(
                           statusText,
@@ -223,6 +316,7 @@ class PdfReportGenerator {
                             color: statusColor,
                             fontWeight: pw.FontWeight.bold,
                             fontSize: 8.5,
+                            fontFallback: fallbacks,
                           ),
                         ),
                       ],
@@ -230,28 +324,30 @@ class PdfReportGenerator {
                     pw.SizedBox(height: 4),
                     pw.Text(
                       qText,
-                      style: const pw.TextStyle(fontSize: 9),
+                      style: pw.TextStyle(fontSize: 9, fontFallback: fallbacks),
                     ),
                     pw.SizedBox(height: 5),
                     pw.Row(
                       children: [
                         pw.Expanded(
                           child: pw.Text(
-                            'Your Answer: ${userOption ?? "None"}',
+                            '${_t("your_answer", language)}: ${userOption ?? _t("none", language)}',
                             style: pw.TextStyle(
                               fontSize: 8.5,
                               fontWeight: pw.FontWeight.bold,
                               color: statusColor,
+                              fontFallback: fallbacks,
                             ),
                           ),
                         ),
                         pw.Expanded(
                           child: pw.Text(
-                            'Correct Answer: Option ${q.correctAnswer}',
+                            '${_t("correct_answer", language)}: ${_t("option", language)} ${q.correctAnswer}',
                             style: pw.TextStyle(
                               fontSize: 8.5,
                               fontWeight: pw.FontWeight.bold,
                               color: PdfColor.fromHex('#16A34A'),
+                              fontFallback: fallbacks,
                             ),
                           ),
                         ),
@@ -261,7 +357,7 @@ class PdfReportGenerator {
                       pw.SizedBox(height: 4),
                       pw.Text(
                         'A) ${opts["A"] ?? opts["a"] ?? ""}   B) ${opts["B"] ?? opts["b"] ?? ""}   C) ${opts["C"] ?? opts["c"] ?? ""}   D) ${opts["D"] ?? opts["d"] ?? ""}',
-                        style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+                        style: pw.TextStyle(fontSize: 8, color: PdfColors.grey700, fontFallback: fallbacks),
                       ),
                     ],
                     // Detailed Explanation Section
@@ -279,17 +375,18 @@ class PdfReportGenerator {
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             pw.Text(
-                              'Explanation:',
+                              '${_t("explanation", language)}:',
                               style: pw.TextStyle(
                                 fontSize: 8,
                                 fontWeight: pw.FontWeight.bold,
                                 color: PdfColor.fromHex('#1E3A8A'),
+                                fontFallback: fallbacks,
                               ),
                             ),
                             pw.SizedBox(height: 2),
                             pw.Text(
                               explanation,
-                              style: const pw.TextStyle(fontSize: 7.8, color: PdfColors.black),
+                              style: pw.TextStyle(fontSize: 7.8, color: PdfColors.black, fontFallback: fallbacks),
                             ),
                           ],
                         ),
@@ -314,14 +411,14 @@ class PdfReportGenerator {
     return filePath;
   }
 
-  static pw.Widget _summaryCol(String label, String value, PdfColor color) {
+  static pw.Widget _summaryCol(String label, String value, PdfColor color, List<pw.Font> fallbacks) {
     return pw.Column(
       children: [
-        pw.Text(label, style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
+        pw.Text(label, style: pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700, fontFallback: fallbacks)),
         pw.SizedBox(height: 2),
         pw.Text(
           value,
-          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: color),
+          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: color, fontFallback: fallbacks),
         ),
       ],
     );

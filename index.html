@@ -1368,48 +1368,127 @@
             return;
           }
 
-          // Ensure we have a valid student_id that exists in the database
+          // Format and validate each row into Multilingual Question Model
           let validStudentId = await getValidStudentId();
           if (!validStudentId) {
             validStudentId = 'fa8bdd0f-8cde-4fbb-b76a-22a609789b22';
           }
 
-          // Format each row into PYQ Question Model
-          const inserts = rows.map((r, idx) => {
-            const qText = r['Question Text'] || r['question'] || r['Question'] || r['QUESTION'] || r['q'] || '';
-            const optA = (r['Option A'] ?? r['A'] ?? r['a'] ?? r['option_a'] ?? '').toString();
-            const optB = (r['Option B'] ?? r['B'] ?? r['b'] ?? r['option_b'] ?? '').toString();
-            const optC = (r['Option C'] ?? r['C'] ?? r['c'] ?? r['option_c'] ?? '').toString();
-            const optD = (r['Option D'] ?? r['D'] ?? r['d'] ?? r['option_d'] ?? '').toString();
-            const ans = (r['Correct Answer'] ?? r['correct_answer'] ?? r['Answer'] ?? r['ans'] ?? r['Key'] ?? 'A').toString().toUpperCase().trim();
-            const exp = (r['Detailed Explanation'] ?? r['explanation'] ?? r['Explanation'] ?? `Official ${exam} ${year} Answer Key`).toString();
-            const subject = (r['Subject'] ?? r['subject'] ?? `${exam} Previous Year Paper ${year}`).toString();
-            const topic = (r['Topic'] ?? r['topic'] ?? `${exam} ${year}`).toString();
-            const rowExam = (r['Exam'] ?? r['exam'] ?? exam).toString();
-            const rowYear = (r['Year'] ?? r['year'] ?? year).toString();
+          const seenQCodes = new Set();
+          const validationErrors = [];
+          const questionInserts = [];
+          const legacyPaymentInserts = [];
 
-            return {
+          rows.forEach((r, idx) => {
+            const rowNum = idx + 2; // Excel row numbering
+            const qCode = (r['q_code'] || r['Q_CODE'] || `Q_${exam}_${year}_${idx + 1}`).toString().trim();
+            const rowExam = (r['exam'] || r['Exam'] || exam).toString().toUpperCase().trim();
+            const subject = (r['subject'] || r['Subject'] || `${exam} General Studies`).toString().trim();
+            const topic = (r['topic'] || r['Topic'] || `${exam} ${year}`).toString().trim();
+            const difficulty = (r['difficulty'] || r['Difficulty'] || 'medium').toString().toLowerCase().trim();
+            const ansRaw = (r['correct_answer'] ?? r['Correct Answer'] ?? r['Answer'] ?? r['ans'] ?? r['Key'] ?? 'A').toString().toUpperCase().trim();
+
+            if (seenQCodes.has(qCode)) {
+              validationErrors.push(`Row ${rowNum}: Duplicate q_code "${qCode}" in sheet.`);
+            }
+            seenQCodes.add(qCode);
+
+            const validAnswers = ['A', 'B', 'C', 'D'];
+            if (!validAnswers.includes(ansRaw)) {
+              validationErrors.push(`Row ${rowNum}: Correct Answer must be one of A, B, C, or D (got "${ansRaw}").`);
+            }
+
+            // English fields
+            const qEn = (r['question_en'] || r['question'] || r['Question Text'] || r['Question'] || '').toString().trim();
+            const optAEn = (r['opt_a_en'] || r['Option A'] || r['A'] || '').toString().trim();
+            const optBEn = (r['opt_b_en'] || r['Option B'] || r['B'] || '').toString().trim();
+            const optCEn = (r['opt_c_en'] || r['Option C'] || r['C'] || '').toString().trim();
+            const optDEn = (r['opt_d_en'] || r['Option D'] || r['D'] || '').toString().trim();
+            const expEn = (r['exp_en'] || r['explanation'] || r['Detailed Explanation'] || `Official ${rowExam} Answer Key`).toString().trim();
+
+            // Tamil fields (fallback to English if not provided in legacy sheets)
+            const qTa = (r['question_ta'] || qEn).toString().trim();
+            const optATa = (r['opt_a_ta'] || optAEn).toString().trim();
+            const optBTa = (r['opt_b_ta'] || optBEn).toString().trim();
+            const optCTa = (r['opt_c_ta'] || optCEn).toString().trim();
+            const optDTa = (r['opt_d_ta'] || optDEn).toString().trim();
+            const expTa = (r['exp_ta'] || expEn).toString().trim();
+
+            // Hindi fields (fallback to English if not provided in legacy sheets)
+            const qHi = (r['question_hi'] || qEn).toString().trim();
+            const optAHi = (r['opt_a_hi'] || optAEn).toString().trim();
+            const optBHi = (r['opt_b_hi'] || optBEn).toString().trim();
+            const optCHi = (r['opt_c_hi'] || optCEn).toString().trim();
+            const optDHi = (r['opt_d_hi'] || optDEn).toString().trim();
+            const expHi = (r['exp_hi'] || expEn).toString().trim();
+
+            if (!qEn || !optAEn || !optBEn || !optCEn || !optDEn) {
+              validationErrors.push(`Row ${rowNum}: Missing mandatory English question or options.`);
+            }
+
+            const correctIdx = ansRaw.charCodeAt(0) - 65; // 0 for A, 1 for B, 2 for C, 3 for D
+
+            const translationsPayload = {
+              en: { question: qEn, options: [optAEn, optBEn, optCEn, optDEn], explanation: expEn },
+              ta: { question: qTa, options: [optATa, optBTa, optCTa, optDTa], explanation: expTa },
+              hi: { question: qHi, options: [optAHi, optBHi, optCHi, optDHi], explanation: expHi }
+            };
+
+            questionInserts.push({
+              q_code: qCode,
+              exam: rowExam,
+              subject: subject,
+              topic: topic,
+              difficulty: difficulty,
+              correct: correctIdx,
+              translations: translationsPayload,
+              question_en: qEn,
+              option_a: optAEn,
+              option_b: optBEn,
+              option_c: optCEn,
+              option_d: optDEn,
+              explanation: expEn,
+              answer: ansRaw
+            });
+
+            legacyPaymentInserts.push({
               student_id: validStudentId,
               test_id: null,
-              amount_paise: parseInt(rowYear) || parseInt(year) || 2026,
+              amount_paise: parseInt(year) || 2026,
               status: 'pyq_question',
               razorpay_payment_id: 'pyq_question_bank',
               razorpay_order_id: JSON.stringify({
                 exam: rowExam,
-                year: rowYear,
+                year: year,
                 subject: subject,
                 topic: topic,
-                question: qText,
-                options: { A: optA, B: optB, C: optC, D: optD },
-                correct_answer: ans,
-                explanation: exp
+                question: qEn,
+                options: { A: optAEn, B: optBEn, C: optCEn, D: optDEn },
+                correct_answer: ansRaw,
+                explanation: expEn,
+                q_code: qCode,
+                translations: translationsPayload
               })
-            };
+            });
           });
 
-          // Insert batch into Supabase
-          const { error } = await supabaseClient.from('payments').insert(inserts);
-          if (error) throw error;
+          if (validationErrors.length > 0) {
+            const previewLimit = validationErrors.slice(0, 5).join('\n• ');
+            alert(`Validation errors found (${validationErrors.length}):\n• ${previewLimit}\n\nPlease correct the errors and re-upload.`);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-upload"></i> Ingest & Sync PYQ Paper';
+            return;
+          }
+
+          // Ingest into Supabase payments table and questions table
+          try {
+            await supabaseClient.from('questions').upsert(questionInserts, { onConflict: 'q_code' });
+          } catch (qErr) {
+            console.warn('Note: Direct questions table upsert (requires migration):', qErr.message);
+          }
+
+          const { error: payErr } = await supabaseClient.from('payments').insert(legacyPaymentInserts);
+          if (payErr) throw payErr;
 
           logAudit(`Ingested ${inserts.length} Previous Year Questions for [${exam} ${year}] into live database.`);
           alert(`Successfully ingested and activated ${inserts.length} previous year questions for ${exam} (${year})! The app will immediately display these with the "${exam} ${year} PYQ" badge.`);
@@ -1429,33 +1508,37 @@
     function downloadPyqTemplate() {
       const template = [
         {
-          "question": "Which of the following bodies is entrusted with the audit of receipts and expenditure of the Union and of each State?",
-          "A": "Finance Commission",
-          "B": "Comptroller and Auditor General of India",
-          "C": "Public Accounts Committee",
-          "D": "Attorney General of India",
-          "correct_answer": "B",
-          "explanation": "Article 148 to 151 of the Indian Constitution defines the office and duties of the CAG.",
+          "q_code": "UPSC_GS1_001",
+          "exam": "UPSC",
           "subject": "Indian Polity & Constitution",
-          "topic": "Constitutional Bodies"
-        },
-        {
-          "question": "Consider the following statements regarding the Sangam Literature of ancient Tamil Nadu...",
-          "A": "1 only",
-          "B": "2 only",
-          "C": "Both 1 and 2",
-          "D": "Neither 1 nor 2",
-          "correct_answer": "C",
-          "explanation": "Sangam literature was patronized by the Pandya kings in Madurai.",
-          "subject": "Tamil Society & History",
-          "topic": "Sangam Age"
+          "topic": "Constitutional Bodies",
+          "difficulty": "medium",
+          "correct_answer": "B",
+          "question_en": "Which of the following bodies is entrusted with the audit of receipts and expenditure of the Union and of each State?",
+          "opt_a_en": "Finance Commission",
+          "opt_b_en": "Comptroller and Auditor General of India",
+          "opt_c_en": "Public Accounts Committee",
+          "opt_d_en": "Attorney General of India",
+          "exp_en": "Article 148 to 151 of the Indian Constitution defines the office and duties of the CAG.",
+          "question_ta": "மத்திய மற்றும் மாநிலங்களின் வரவு செலவு கணக்குகளை தணிக்கை செய்யும் பொறுப்பு யாருக்கு வழங்கப்பட்டுள்ளது?",
+          "opt_a_ta": "நிதி ஆணையம்",
+          "opt_b_ta": "இந்திய கணக்குத் தணிக்கைத் தலைவர் (CAG)",
+          "opt_c_ta": "பொதுக் கணக்குக் குழு",
+          "opt_d_ta": "இந்திய தலைமை வழக்கறிஞர்",
+          "exp_ta": "இந்திய அரசியலமைப்பின் 148 முதல் 151 வரையிலான சரத்துகள் CAG அலுவலகம் மற்றும் அதிகாரங்களை வரையறுக்கின்றன.",
+          "question_hi": "संघ और प्रत्येक राज्य की प्राप्तियों और व्यय की लेखापरीक्षा का कार्य किसे सौंपा गया है?",
+          "opt_a_hi": "वित्त आयोग",
+          "opt_b_hi": "भारत के नियंत्रक एवं महालेखापरीक्षक (CAG)",
+          "opt_c_hi": "लोक लेखा समिति",
+          "opt_d_hi": "भारत के महान्यायवादी",
+          "exp_hi": "भारतीय संविधान के अनुच्छेद 148 से 151 तक कैग (CAG) के पद और कर्तव्यों का विवरण देते हैं।"
         }
       ];
 
       const ws = XLSX.utils.json_to_sheet(template);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "PYQ_Template");
-      XLSX.writeFile(wb, "test11_pyq_upload_template.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Multilingual_Questions");
+      XLSX.writeFile(wb, "test11_multilingual_question_template.xlsx");
     }
 
     // ================= CUSTOM & DEFAULT TEST PACKAGES MANAGEMENT =================

@@ -120,13 +120,13 @@ class TestRepository {
       }).toList();
     }
 
-    // Now dynamically fetch and prepend any admin uploaded PYQ questions from Supabase
+    // Now dynamically fetch and append any admin uploaded PYQ questions from Supabase in permanent creation order
     try {
       final res = await Supabase.instance.client
           .from('payments')
           .select('id, razorpay_order_id, amount_paise, created_at')
           .eq('status', 'pyq_question')
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: true);
 
       if (res.isNotEmpty) {
         final List<QuestionModel> dynamicPyqs = [];
@@ -169,7 +169,8 @@ class TestRepository {
         }
 
         if (dynamicPyqs.isNotEmpty) {
-          staticQuestions = [...dynamicPyqs, ...staticQuestions];
+          // Appended at the end (after 1200) to maintain permanent sequence numbers
+          staticQuestions = [...staticQuestions, ...dynamicPyqs];
         }
       }
     } catch (_) {}
@@ -395,7 +396,13 @@ class TestRepository {
     return null;
   }
 
-  /// Generate or fetch questions for a test without repeating previously attended questions
+  /// Generate or fetch questions sequentially from permanent question bank with cycle-aware no-repeat allocation.
+  /// RULE 3:
+  /// - Queries user_question_history for this user, exam and current cycle.
+  /// - Gives unseen questions in order.
+  /// - If unseen < requested, advances to cycle_no + 1 and fills the rest without duplicating within the same test.
+  /// - Newly uploaded questions automatically join the unseen pool.
+  /// - Seamlessly migrates legacy pointers so no candidate loses progress.
   Future<List<QuestionModel>> getQuestionsForTestSession({
     required String testId,
     required String exam,
@@ -403,33 +410,132 @@ class TestRepository {
     required String userId,
   }) async {
     final allQuestions = await _loadQuestionsForExam(exam);
+    if (allQuestions.isEmpty) return [];
+
+    final totalCount = allQuestions.length;
+    final int requested = count > totalCount ? totalCount : count;
     final prefs = await SharedPreferences.getInstance();
 
-    // Load attended questions IDs for this user
-    final attendedKey = 'attended_questions_${userId}_$exam';
-    final attendedIds = prefs.getStringList(attendedKey)?.toSet() ?? <String>{};
+    // 1. Try atomic Postgres RPC allocation if RPC is active on Supabase
+    if (userId.contains('-')) {
+      try {
+        final rpcRes = await Supabase.instance.client.rpc('allocate_test_questions', params: {
+          'p_user_id': userId,
+          'p_exam': exam,
+          'p_count': requested,
+        });
 
-    // Filter unvisited questions first to prevent repetition
-    List<QuestionModel> available = allQuestions.where((q) => !attendedIds.contains(q.id)).toList();
-
-    // If available is smaller than needed, reset visited pool so student can re-cycle through whole 1000 bank
-    if (available.length < count) {
-      attendedIds.clear();
-      available = List<QuestionModel>.from(allQuestions);
-      await prefs.setStringList(attendedKey, []);
+        if (rpcRes != null && rpcRes is List && rpcRes.isNotEmpty) {
+          final List<QuestionModel> rpcAllocated = [];
+          for (final row in rpcRes) {
+            final qId = row['id']?.toString() ?? '';
+            final match = allQuestions.firstWhere(
+              (q) => q.id == qId,
+              orElse: () => QuestionModel.fromMap(row, qId),
+            );
+            rpcAllocated.add(match);
+          }
+          if (rpcAllocated.length == requested) {
+            return rpcAllocated;
+          }
+        }
+      } catch (_) {}
     }
 
-    // Shuffle randomly to give a realistic fresh mock test every time
-    available.shuffle();
-    final selected = available.take(count).toList();
+    // 2. Client-side cycle-aware no-repeat allocation engine (Syncs with user_question_history & local cache)
+    final cycleKey = 'exam_cycle_${userId}_$exam';
+    final seenKey = 'seen_qids_${userId}_$exam';
 
-    // Mark these as attended for future sessions
-    for (final q in selected) {
-      attendedIds.add(q.id);
+    int currentCycle = prefs.getInt(cycleKey) ?? 1;
+    List<String> seenIds = prefs.getStringList(seenKey) ?? [];
+
+    // Migrate existing legacy pointer if seenIds is empty
+    final pointerKey = 'question_pointer_${userId}_$exam';
+    final legacyPointer = prefs.getInt(pointerKey);
+    if (seenIds.isEmpty && legacyPointer != null && legacyPointer > 0 && legacyPointer <= totalCount) {
+      for (int i = 0; i < legacyPointer; i++) {
+        seenIds.add(allQuestions[i].id);
+      }
+      await prefs.setStringList(seenKey, seenIds);
     }
-    await prefs.setStringList(attendedKey, attendedIds.toList());
 
-    return selected;
+    // Try fetching remote history from user_question_history or pointer row
+    try {
+      if (userId.contains('-')) {
+        final histRes = await Supabase.instance.client
+            .from('user_question_history')
+            .select('question_id, cycle_no')
+            .eq('user_id', userId)
+            .eq('exam', exam)
+            .order('seen_at', ascending: true);
+
+        if (histRes.isNotEmpty) {
+          final Set<String> remoteSeen = {};
+          int maxCycle = 1;
+          for (final row in histRes) {
+            final c = (row['cycle_no'] as num?)?.toInt() ?? 1;
+            if (c > maxCycle) maxCycle = c;
+            final qId = row['question_id']?.toString();
+            if (qId != null) remoteSeen.add(qId);
+          }
+          currentCycle = maxCycle;
+          seenIds = remoteSeen.toList();
+          await prefs.setInt(cycleKey, currentCycle);
+          await prefs.setStringList(seenKey, seenIds);
+        }
+      }
+    } catch (_) {}
+
+    final seenSet = seenIds.toSet();
+    final List<QuestionModel> unseenPool = allQuestions.where((q) => !seenSet.contains(q.id)).toList();
+
+    final List<QuestionModel> allocated = [];
+
+    if (unseenPool.length >= requested) {
+      // Plenty of unseen questions in current cycle
+      allocated.addAll(unseenPool.take(requested));
+    } else {
+      // Take all remaining unseen
+      allocated.addAll(unseenPool);
+      final int neededFromNextCycle = requested - allocated.length;
+
+      // Start new cycle (cycle_no + 1)
+      currentCycle += 1;
+      await prefs.setInt(cycleKey, currentCycle);
+      seenIds.clear();
+
+      // Allocate remainder from new cycle without repeating questions already chosen in this test
+      final currentChosenIds = allocated.map((q) => q.id).toSet();
+      final freshPool = allQuestions.where((q) => !currentChosenIds.contains(q.id)).toList();
+      allocated.addAll(freshPool.take(neededFromNextCycle));
+    }
+
+    // Mark newly allocated questions as seen
+    final newlySeenIds = allocated.map((q) => q.id).toList();
+    seenIds.addAll(newlySeenIds);
+    await prefs.setStringList(seenKey, seenIds);
+    await prefs.setInt(cycleKey, currentCycle);
+
+    // Sync newly seen questions to user_question_history in Supabase
+    if (userId.contains('-')) {
+      try {
+        final inserts = newlySeenIds.map((qId) => {
+          'user_id': userId,
+          'question_id': qId.contains('-') ? qId : null,
+          'exam': exam,
+          'cycle_no': currentCycle,
+          'seen_at': DateTime.now().toIso8601String(),
+        }).where((m) => m['question_id'] != null).toList();
+
+        if (inserts.isNotEmpty) {
+          await Supabase.instance.client
+              .from('user_question_history')
+              .upsert(inserts, onConflict: 'user_id,question_id,cycle_no');
+        }
+      } catch (_) {}
+    }
+
+    return allocated;
   }
 
   /// Mark question as Important (Starred)
@@ -463,7 +569,7 @@ class TestRepository {
     return set.contains(questionId);
   }
 
-  /// Start or resume a test session
+  /// Start or resume a test session with initial in_progress attempt record in Supabase
   Future<TestSessionModel> startOrResumeSession({
     required String userId,
     required String testId,
@@ -505,7 +611,68 @@ class TestRepository {
     );
 
     await _cacheSessionLocally(newSession);
+
+    // Save attempt record to Supabase as source of truth
+    try {
+      final attemptPayload = {
+        'sessionId': sessionId,
+        'userId': userId,
+        'testId': testId,
+        'exam': exam,
+        'status': 'in_progress',
+        'test_size': questions.length,
+        'question_ids': questions.map((q) => q.id).toList(),
+        'started_at': newSession.startedAt.toIso8601String(),
+        'allowed_duration_seconds': allowedDuration,
+        'last_heartbeat': DateTime.now().toIso8601String(),
+        'answers': {},
+      };
+
+      await Supabase.instance.client.from('payments').insert({
+        'student_id': userId,
+        'test_id': null,
+        'amount_paise': questions.length,
+        'status': 'exam_attempt_in_progress',
+        'razorpay_payment_id': sessionId,
+        'razorpay_order_id': jsonEncode(attemptPayload),
+      });
+    } catch (_) {}
+
     return newSession;
+  }
+
+  /// Send heartbeat and sync selected answer to server immediately
+  Future<void> sendHeartbeatAndSyncAnswer({
+    required String sessionId,
+    required String userId,
+    required Map<String, AnswerEntry> answers,
+  }) async {
+    try {
+      final ansMap = <String, dynamic>{};
+      answers.forEach((k, v) => ansMap[k] = v.toMap());
+
+      final existingRow = await Supabase.instance.client
+          .from('payments')
+          .select('id, razorpay_order_id')
+          .eq('student_id', userId)
+          .eq('razorpay_payment_id', sessionId)
+          .eq('status', 'exam_attempt_in_progress')
+          .maybeSingle();
+
+      if (existingRow != null) {
+        Map<String, dynamic> data = {};
+        try {
+          data = jsonDecode(existingRow['razorpay_order_id'].toString());
+        } catch (_) {}
+        data['last_heartbeat'] = DateTime.now().toIso8601String();
+        data['answers'] = ansMap;
+
+        await Supabase.instance.client
+            .from('payments')
+            .update({'razorpay_order_id': jsonEncode(data)})
+            .eq('id', existingRow['id']);
+      }
+    } catch (_) {}
   }
 
   /// Save answer progress locally
@@ -524,6 +691,7 @@ class TestRepository {
   }
 
   /// Submit and evaluate test session (+2 for correct, -0.66 for wrong)
+  /// Marks unattended questions as skipped. Supports auto-submitted flag.
   Future<TestSessionModel> evaluateAndSubmitSession({
     required String sessionId,
     required String testId,
@@ -532,6 +700,7 @@ class TestRepository {
     required Map<String, AnswerEntry> answers,
     required int timeTakenSeconds,
     required String userId,
+    bool isAutoSubmitted = false,
   }) async {
     int correct = 0;
     int wrong = 0;
@@ -570,7 +739,7 @@ class TestRepository {
       startedAt: DateTime.now().subtract(Duration(seconds: timeTakenSeconds)),
       allowedDurationSeconds: timeTakenSeconds,
       speedPracticePercent: 100,
-      status: 'completed',
+      status: isAutoSubmitted ? 'auto_submitted' : 'completed',
       answers: answers,
       score: score,
       accuracy: accuracy,
@@ -602,13 +771,16 @@ class TestRepository {
       }).toList()),
     );
 
-    // Save to local test attempts history list so Profile & Leaderboard display immediately
+    // Save to local test attempts history list so Profile & Test History display immediately
     final historyKey = 'test_attempts_history_$userId';
     final existingHistory = prefs.getStringList(historyKey) ?? [];
     final attemptJson = jsonEncode({
       'sessionId': sessionId,
       'testId': testId,
       'exam': exam,
+      'testTitle': testId.contains('tnpsc') ? 'TNPSC Combined Services Mock' : 'UPSC Civil Services Prelims Mock',
+      'test_size': questions.length,
+      'status': isAutoSubmitted ? 'Auto-submitted' : 'Submitted',
       'score': score,
       'accuracy': accuracy,
       'totalCorrect': correct,
@@ -620,18 +792,57 @@ class TestRepository {
     existingHistory.insert(0, attemptJson);
     await prefs.setStringList(historyKey, existingHistory);
 
-    // Also record test attempt in Supabase if online
+    // Finalize attempt in Supabase (idempotent update or insert)
     try {
-      await Supabase.instance.client.from('test_attempts').insert({
-        'student_id': userId,
-        'test_id': testId,
+      final ansMap = <String, dynamic>{};
+      answers.forEach((k, v) => ansMap[k] = v.toMap());
+
+      final finishedPayload = {
+        'sessionId': sessionId,
+        'userId': userId,
+        'testId': testId,
+        'exam': exam,
+        'status': isAutoSubmitted ? 'auto_submitted' : 'submitted',
         'score': score,
         'accuracy': accuracy,
         'total_correct': correct,
         'total_wrong': wrong,
-        'total_unanswered': unanswered,
+        'total_skipped': unanswered,
+        'total_questions': questions.length,
         'time_taken_seconds': timeTakenSeconds,
-      });
+        'submitted_at': DateTime.now().toIso8601String(),
+        'question_ids': questions.map((q) => q.id).toList(),
+        'answers': ansMap,
+      };
+
+      // Check if an in_progress attempt exists
+      final inProg = await Supabase.instance.client
+          .from('payments')
+          .select('id')
+          .eq('student_id', userId)
+          .eq('razorpay_payment_id', sessionId)
+          .eq('status', 'exam_attempt_in_progress')
+          .maybeSingle();
+
+      if (inProg != null) {
+        await Supabase.instance.client
+            .from('payments')
+            .update({
+              'status': isAutoSubmitted ? 'exam_auto_submitted' : 'exam_submitted',
+              'amount_paise': (score * 100).toInt(),
+              'razorpay_order_id': jsonEncode(finishedPayload),
+            })
+            .eq('id', inProg['id']);
+      } else {
+        await Supabase.instance.client.from('payments').insert({
+          'student_id': userId,
+          'test_id': null,
+          'amount_paise': (score * 100).toInt(),
+          'status': isAutoSubmitted ? 'exam_auto_submitted' : 'exam_submitted',
+          'razorpay_payment_id': sessionId,
+          'razorpay_order_id': jsonEncode(finishedPayload),
+        });
+      }
     } catch (_) {}
 
     return session;

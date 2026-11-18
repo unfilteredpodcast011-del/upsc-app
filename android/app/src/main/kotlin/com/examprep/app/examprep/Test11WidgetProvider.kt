@@ -22,6 +22,9 @@ class Test11WidgetProvider : AppWidgetProvider() {
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.test11_widget_layout)
 
+            // Ensure app icon is explicitly set
+            views.setImageViewResource(R.id.widget_icon, R.mipmap.ic_launcher)
+
             // Read preferences written by Flutter
             val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
             val selectedExam = prefs.getString("flutter.target_exam", "UPSC") ?: "UPSC"

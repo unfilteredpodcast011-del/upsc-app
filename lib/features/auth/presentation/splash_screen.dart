@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       if (!mounted) return;
 
       if (!onboardingDone) {
-        context.go('/onboarding');
+        context.go('/login');
         return;
       }
 
@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       } else {
         // Clear cached credentials and redirect to registration / onboarding
         await prefs.clear();
-        context.go('/onboarding');
+        context.go('/login');
       }
     });
   }

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'firebase_options.dart';
 import 'app.dart';
+import 'core/services/notification_service.dart';
 
 const String supabaseUrl = 'https://jkbndifpcepnsjgmyrfr.supabase.co';
 const String supabaseAnonKey = 'sb_publishable_tjoAjn0nSkhIIXYrRpB7Lw_8YPdMPxi';
@@ -16,6 +17,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Initialize Notification Service
+    await NotificationService().initialize();
   } catch (e) {
     debugPrint('Firebase init note: $e');
   }

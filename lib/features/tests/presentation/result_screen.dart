@@ -7,6 +7,7 @@ import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 import 'timed_engine_screen.dart';
 import 'pdf_report_generator.dart';
+import '../../../core/localization/app_strings.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -361,6 +362,23 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           _optionBox('B', options['B'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('C', options['C'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('D', options['D'] ?? '', q.correctAnswer, userChoice),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.lightbulb_outline, size: 16),
+                              label: Text(
+                                AppStrings.get('review_solution', _appLanguage),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                              onPressed: () => _openReviewSolutionModal(displayQuestions, index),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -530,6 +548,261 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _openReviewSolutionModal(List<QuestionModel> questionsList, int initialIndex) {
+    int curIdx = initialIndex;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final q = questionsList[curIdx];
+            final ans = _session?.answers[q.id];
+            final userChoice = ans?.selectedOption;
+            final isCorrect = userChoice != null && userChoice.toUpperCase() == q.correctAnswer.toUpperCase();
+            final isSkipped = userChoice == null;
+            final opts = q.getLocalizedOptions(_appLanguage);
+            final exp = q.getLocalizedExplanation(_appLanguage);
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Modal Top Bar
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Question ${curIdx + 1} of ${questionsList.length}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isCorrect
+                                ? Colors.green.shade50
+                                : (isSkipped ? Colors.grey.shade100 : Colors.red.shade50),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isCorrect
+                                  ? Colors.green.shade300
+                                  : (isSkipped ? Colors.grey.shade300 : Colors.red.shade300),
+                            ),
+                          ),
+                          child: Text(
+                            isCorrect ? 'Correct (+2)' : (isSkipped ? 'Skipped (0)' : 'Wrong (-0.66)'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: isCorrect
+                                  ? Colors.green.shade800
+                                  : (isSkipped ? Colors.grey.shade800 : Colors.red.shade800),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Solution Content Body
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            q.getLocalizedQuestion(_appLanguage),
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.4),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // 4 Options with clear highlights
+                          ...['A', 'B', 'C', 'D'].map((optKey) {
+                            final text = opts[optKey] ?? '';
+                            final isThisOfficial = optKey == q.correctAnswer;
+                            final isThisUser = optKey == userChoice;
+
+                            Color borderCol = Colors.grey.shade300;
+                            Color bgCol = Colors.white;
+                            if (isThisOfficial) {
+                              borderCol = Colors.green;
+                              bgCol = Colors.green.shade50;
+                            } else if (isThisUser && !isCorrect) {
+                              borderCol = Colors.red;
+                              bgCol = Colors.red.shade50;
+                            }
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: bgCol,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: borderCol, width: (isThisOfficial || isThisUser) ? 1.5 : 1),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: borderCol,
+                                    foregroundColor: (isThisOfficial || (isThisUser && !isCorrect)) ? Colors.white : Colors.black87,
+                                    child: Text(optKey, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(text, style: const TextStyle(fontSize: 13, height: 1.3)),
+                                  ),
+                                  if (isThisOfficial)
+                                    const Icon(Icons.check_circle, size: 18, color: Colors.green),
+                                  if (isThisUser && !isCorrect)
+                                    const Icon(Icons.cancel, size: 18, color: Colors.red),
+                                ],
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 16),
+
+                          // User Choice vs Official Correct
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${AppStrings.get("your_selected_option", _appLanguage)}:',
+                                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                    ),
+                                    Text(
+                                      userChoice ?? 'Skipped',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: isCorrect ? Colors.green : (isSkipped ? Colors.grey : Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${AppStrings.get("official_correct_option", _appLanguage)}:',
+                                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                    ),
+                                    Text(
+                                      'Option ${q.correctAnswer}',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Detailed Explanation Box
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFBFDBFE)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.menu_book_rounded, size: 16, color: Color(0xFF1D4ED8)),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      AppStrings.get('solution_explanation', _appLanguage),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Color(0xFF1E3A8A),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  exp.isNotEmpty ? exp : 'Explanation available in detailed evaluation sheet.',
+                                  style: const TextStyle(fontSize: 13, height: 1.45, color: Color(0xFF1E293B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom Modal Navigation
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: curIdx > 0
+                              ? () => setModalState(() => curIdx--)
+                              : null,
+                          icon: const Icon(Icons.chevron_left),
+                          label: Text(AppStrings.get('previous_question', _appLanguage)),
+                        ),
+                        Text(
+                          '${curIdx + 1} / ${questionsList.length}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: curIdx < questionsList.length - 1
+                              ? () => setModalState(() => curIdx++)
+                              : null,
+                          icon: const Icon(Icons.chevron_right),
+                          label: Text(AppStrings.get('next_question', _appLanguage)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

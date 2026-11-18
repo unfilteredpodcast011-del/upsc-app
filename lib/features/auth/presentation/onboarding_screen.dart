@@ -17,9 +17,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _districtController = TextEditingController();
   final _schoolStandardController = TextEditingController();
   final _degreeNameController = TextEditingController();
+
+  DateTime? _selectedDob;
+  bool _obscurePassword = true;
 
   String _targetExam = 'UPSC'; // 'UPSC' or 'TNPSC'
   String _yearsTrying = '1st Attempt';
@@ -43,10 +48,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _dobController.dispose();
+    _passwordController.dispose();
     _districtController.dispose();
     _schoolStandardController.dispose();
     _degreeNameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDob(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDob ?? DateTime(2000, 1, 1),
+      firstDate: DateTime(1960),
+      lastDate: DateTime(now.year - 15, now.month, now.day),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDob = picked;
+        _dobController.text =
+            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      });
+    }
   }
 
   void _showPrivacyPolicyModal() {
@@ -156,7 +181,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               Icon(Icons.shield_outlined, color: Colors.red),
               SizedBox(width: 8),
-              Text('Mandatory Acceptance'),
+              Expanded(
+                child: Text(
+                  'Mandatory Acceptance',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
           content: const Text(
@@ -187,13 +217,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
+      final dobStr = _dobController.text.trim();
+      final passwordStr = _passwordController.text;
+      final credentialPayload = 'DOB:$dobStr|PWD:$passwordStr';
+
       final studentData = {
         'full_name': _nameController.text.trim(),
         'phone': _phoneController.text.trim(),
         'email': _emailController.text.trim(),
         'district': _districtController.text.trim(),
         'target_exam': _targetExam,
-        'years_trying': _yearsTrying,
+        'years_trying': credentialPayload,
         'education_status': _educationStatus,
         'education_level': _educationStatus == 'studying' ? _educationLevel : 'graduated',
         'school_standard': _educationStatus == 'studying' && _educationLevel == 'school'
@@ -213,6 +247,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await prefs.setString('student_phone', _phoneController.text.trim());
       await prefs.setString('student_email', _emailController.text.trim());
       await prefs.setString('student_district', _districtController.text.trim());
+      await prefs.setString('student_dob', dobStr);
+      await prefs.setString('student_password', passwordStr);
       await prefs.setString('target_exam', _targetExam);
       await prefs.setBool('onboarding_completed', true);
 
@@ -338,6 +374,49 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email address' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Date of Birth (DOB)
+                TextFormField(
+                  controller: _dobController,
+                  readOnly: true,
+                  onTap: () => _pickDob(context),
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
+                    labelText: 'Date of Birth (DOB) *',
+                    hintText: 'YYYY-MM-DD',
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.calendar_month_outlined),
+                    suffixIcon: const Icon(Icons.arrow_drop_down),
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Please select your Date of Birth' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Password
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
+                    labelText: 'Account Password (min 6 characters) *',
+                    labelStyle: TextStyle(color: subTextColor),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Please create a password';
+                    if (v.length < 6) return 'Password must be at least 6 characters';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 

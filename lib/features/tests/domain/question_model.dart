@@ -33,23 +33,41 @@ class QuestionModel {
     required this.translations,
   });
 
-  /// Convenience getter for localized question text, falling back to English
+  /// Check if question is fully translated for given language
+  bool isFullyTranslated(String languageCode) {
+    if (languageCode == 'en') return true;
+    final tr = translations[languageCode];
+    if (tr == null) return false;
+    if (tr.question.trim().isEmpty) return false;
+    final opts = tr.options;
+    if (!opts.containsKey('A') || !opts.containsKey('B') || !opts.containsKey('C') || !opts.containsKey('D')) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Convenience getter for localized question text.
+  /// RULE 4: If any part of translation is missing for the language,
+  /// fallback to English for the WHOLE question (never a half-translated one).
   String getLocalizedQuestion(String languageCode) {
-    return translations[languageCode]?.question ??
-        translations['en']?.question ??
-        '';
+    if (isFullyTranslated(languageCode)) {
+      return translations[languageCode]!.question;
+    }
+    return translations['en']?.question ?? '';
   }
 
   Map<String, String> getLocalizedOptions(String languageCode) {
-    return translations[languageCode]?.options ??
-        translations['en']?.options ??
-        {};
+    if (isFullyTranslated(languageCode)) {
+      return translations[languageCode]!.options;
+    }
+    return translations['en']?.options ?? {};
   }
 
   String getLocalizedExplanation(String languageCode) {
-    return translations[languageCode]?.explanation ??
-        translations['en']?.explanation ??
-        '';
+    if (isFullyTranslated(languageCode)) {
+      return translations[languageCode]!.explanation;
+    }
+    return translations['en']?.explanation ?? '';
   }
 
   factory QuestionModel.fromMap(Map<String, dynamic> map, String id) {

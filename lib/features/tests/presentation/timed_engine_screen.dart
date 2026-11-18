@@ -24,7 +24,7 @@ class TimedEngineScreen extends ConsumerStatefulWidget {
   ConsumerState<TimedEngineScreen> createState() => _TimedEngineScreenState();
 }
 
-class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
+class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with WidgetsBindingObserver {
   bool _isLoading = true;
   String? _error;
   TestModel? _test;
@@ -38,19 +38,51 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
   final Set<String> _importantQuestionIds = {};
 
   Timer? _countdownTimer;
+  Timer? _heartbeatTimer;
+  Timer? _gracePeriodTimer;
+  bool _isSubmitted = false;
   int _secondsRemaining = 0;
   int _totalDurationSeconds = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeTest();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
+    _heartbeatTimer?.cancel();
+    _gracePeriodTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isSubmitted || _session == null) return;
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.hidden) {
+      // User closed app or switched away: Start 12-second grace period timer.
+      // If user does not resume within 12 seconds, auto-submit the exam!
+      _gracePeriodTimer?.cancel();
+      _gracePeriodTimer = Timer(const Duration(seconds: 12), () {
+        if (!_isSubmitted && mounted) {
+          _triggerBackgroundAutoSubmit();
+        }
+      });
+    } else if (state == AppLifecycleState.resumed) {
+      // User returned within grace period
+      _gracePeriodTimer?.cancel();
+    }
+  }
+
+  void _triggerBackgroundAutoSubmit() {
+    if (_isSubmitted) return;
+    _isSubmitted = true;
+    _executeSubmission(isAuto: true);
   }
 
   Future<void> _initializeTest() async {
@@ -107,6 +139,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
       }
 
       _startTimer();
+      _startHeartbeat();
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() {
@@ -129,6 +162,21 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
     });
   }
 
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (_isSubmitted || _session == null) {
+        timer.cancel();
+        return;
+      }
+      ref.read(testRepoProvider).sendHeartbeatAndSyncAnswer(
+            sessionId: _session!.id,
+            userId: _studentId,
+            answers: _answers,
+          );
+    });
+  }
+
   void _selectOption(String option) {
     final currentQ = _questions[_currentIndex];
     final existing = _answers[currentQ.id] ?? AnswerEntry();
@@ -143,6 +191,11 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
             sessionId: _session!.id,
             questionId: currentQ.id,
             answer: updated,
+          );
+      ref.read(testRepoProvider).sendHeartbeatAndSyncAnswer(
+            sessionId: _session!.id,
+            userId: _studentId,
+            answers: _answers,
           );
     }
   }
@@ -214,30 +267,82 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
 
   Future<void> _submitTest() async {
     final answeredCount = _answers.values.where((a) => a.selectedOption != null).length;
+    final totalCount = _questions.length;
+    final unattemptedCount = totalCount - answeredCount;
+    final isHalfway = answeredCount < totalCount;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Submit Practice Test?'),
-        content: Text(
-          'You have answered $answeredCount of ${_questions.length} questions.\n\n'
-          'Are you sure you want to finish and calculate your score?',
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(
+              isHalfway ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+              color: isHalfway ? Colors.amber.shade800 : Colors.green,
+            ),
+            const SizedBox(width: 8),
+            Text(isHalfway ? 'Incomplete Exam Warning' : 'Submit Practice Test?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isHalfway)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.amber.shade300),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.report_problem, color: Colors.amber.shade800, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'You are submitting halfway! You answered only $answeredCount of $totalCount questions. The remaining $unattemptedCount questions will be marked as SKIPPED.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Text(
+              'You have answered $answeredCount of $totalCount questions.\n\n'
+              'Are you sure you want to finish and calculate your score?',
+              style: const TextStyle(fontSize: 13, height: 1.4),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: const Text('Cancel & Continue'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isHalfway ? Colors.deepOrange : Colors.green,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Submit Now', style: TextStyle(color: Colors.white)),
+            child: Text(isHalfway ? 'Submit Halfway' : 'Submit Now'),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
-      _executeSubmission();
+      _executeSubmission(isAuto: false);
     }
   }
 
@@ -252,11 +357,16 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
         ),
       );
     }
-    _executeSubmission();
+    _executeSubmission(isAuto: true);
   }
 
-  Future<void> _executeSubmission() async {
+  Future<void> _executeSubmission({bool isAuto = false}) async {
+    if (_isSubmitted) return;
+    _isSubmitted = true;
     _countdownTimer?.cancel();
+    _heartbeatTimer?.cancel();
+    _gracePeriodTimer?.cancel();
+
     setState(() => _isLoading = true);
 
     final rawTimeTaken = _totalDurationSeconds - _secondsRemaining;
@@ -271,6 +381,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
               answers: _answers,
               timeTakenSeconds: timeTaken,
               userId: _studentId,
+              isAutoSubmitted: isAuto,
             );
 
     if (mounted) {
@@ -403,10 +514,23 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
             tooltip: isImportant ? 'Marked as Important' : 'Mark as Important',
             onPressed: _toggleImportantQuestion,
           ),
-          IconButton(
-            icon: const Icon(Icons.check_circle_outline),
-            tooltip: 'Submit Test',
-            onPressed: _submitTest,
+          Padding(
+            padding: const EdgeInsets.only(right: 10, top: 8, bottom: 8),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF16A34A),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: const Icon(Icons.check_circle, size: 16, color: Colors.white),
+              label: const Text(
+                'Submit Exam',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              onPressed: _submitTest,
+            ),
           ),
         ],
       ),
@@ -666,7 +790,6 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> {
                 children: [
                   _legendItem(Colors.green, 'Answered'),
                   _legendItem(Colors.purple, 'Review'),
-                  _legendItem(Colors.amber, 'Important ⭐'),
                   _legendItem(Colors.grey.shade400, 'Unvisited'),
                 ],
               ),

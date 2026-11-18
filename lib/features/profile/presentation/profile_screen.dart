@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/exam/exam_controller.dart';
+import '../../../core/services/notification_service.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -23,11 +25,37 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   int _streakCount = 1;
   int _totalPoints = 50;
   List<Map<String, dynamic>> _attemptsHistory = [];
+  String _appVersionDisplay = 'v1.1.0 (Build 8)';
+  String _dailyReminderTime = '09:00';
+  bool _dailyReminderEnabled = true;
 
   @override
   void initState() {
     super.initState();
     _loadProfileData();
+    _loadAppVersion();
+    _loadReminderPreferences();
+  }
+
+  Future<void> _loadReminderPreferences() async {
+    final prefs = await NotificationService().getReminderPreferences();
+    if (mounted) {
+      setState(() {
+        _dailyReminderTime = prefs['reminder_time'] as String;
+        _dailyReminderEnabled = prefs['is_enabled'] as bool;
+      });
+    }
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersionDisplay = 'v${info.version} (Build ${info.buildNumber})';
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadProfileData() async {
@@ -56,6 +84,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _switchExamWithTransition(String newExam) async {
     final currentExam = ref.read(selectedExamProvider);
     if (currentExam == newExam) return;
+
+    final currentLocale = ref.read(localeProvider);
+    final langCode = currentLocale.languageCode;
 
     // Show professional loading dialog with smooth animation
     showDialog(
@@ -87,7 +118,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Switching to $newExam',
+                  AppStrings.get('switching_to', langCode, params: {'exam': newExam}),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -95,7 +126,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Configuring question banks, syllabus & mock tests for $newExam...',
+                  AppStrings.get('configuring_for', langCode, params: {'exam': newExam}),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
@@ -252,20 +283,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               children: [
                 _badgeCard(
                   AppStrings.get('day_streak', langCode),
-                  '$_streakCount Days',
+                  AppStrings.get('days_label', langCode, params: {'n': '$_streakCount'}),
                   Icons.local_fire_department,
                   Colors.orange,
                 ),
                 const SizedBox(width: 8),
                 _badgeCard(
                   AppStrings.get('points', langCode),
-                  '$_totalPoints pts',
+                  AppStrings.get('points_label', langCode, params: {'n': '$_totalPoints'}),
                   Icons.stars,
                   Colors.amber.shade800,
                 ),
                 const SizedBox(width: 8),
                 _badgeCard(
-                  'ROLE',
+                  AppStrings.get('role_label', langCode),
                   AppStrings.get('role_student', langCode),
                   Icons.verified_user,
                   Colors.indigo,
@@ -297,8 +328,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         child: const Icon(Icons.school, color: Color(0xFF1E3A8A), size: 22),
                       ),
-                      title: const Text('UPSC Civil Services (CSE)', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: const Text('IAS, IPS, IFS • General Studies Paper 1 • Prelims Simulation', style: TextStyle(fontSize: 12)),
+                      title: Text(AppStrings.get('upsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(AppStrings.get('upsc_subtitle', langCode), style: const TextStyle(fontSize: 12)),
                       value: 'UPSC',
                       groupValue: currentExam,
                       onChanged: (val) {
@@ -316,8 +347,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         child: const Icon(Icons.account_balance, color: Color(0xFF0F766E), size: 22),
                       ),
-                      title: const Text('TNPSC Combined Services', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Group 1, 2, 2A & 4 • General Studies & Mental Ability (1000 Bank)', style: TextStyle(fontSize: 12)),
+                      title: Text(AppStrings.get('tnpsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(AppStrings.get('tnpsc_subtitle', langCode), style: const TextStyle(fontSize: 12)),
                       value: 'TNPSC',
                       groupValue: currentExam,
                       onChanged: (val) {
@@ -337,8 +368,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   backgroundColor: Color(0xFFFEF3C7),
                   child: Icon(Icons.receipt_long, color: Color(0xFFD97706)),
                 ),
-                title: const Text('My Payment History', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('View transactions, ₹1 test orders & status', style: TextStyle(fontSize: 12)),
+                title: Text(AppStrings.get('payment_history_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(AppStrings.get('payment_history_subtitle', langCode), style: const TextStyle(fontSize: 12)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/payment-history'),
               ),
@@ -352,8 +383,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   backgroundColor: Color(0xFFEFF6FF),
                   child: Icon(Icons.support_agent_rounded, color: Color(0xFF2563EB)),
                 ),
-                title: const Text('Help, Grievance & Feedback Form', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Submit queries, payment issues or feedback directly to admin', style: TextStyle(fontSize: 12)),
+                title: Text(AppStrings.get('support_desk_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(AppStrings.get('support_desk_subtitle', langCode), style: const TextStyle(fontSize: 12)),
                 trailing: const Icon(Icons.send_rounded, color: Color(0xFF2563EB), size: 20),
                 onTap: () => _showSupportDialog(context),
               ),
@@ -370,7 +401,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Column(
                 children: [
                   RadioListTile<String>(
-                    title: const Text('English (Default)'),
+                    title: Text(AppStrings.get('lang_en', langCode)),
                     value: 'en',
                     groupValue: currentLocale.languageCode,
                     onChanged: (val) {
@@ -379,7 +410,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const Divider(height: 1),
                   RadioListTile<String>(
-                    title: const Text('தமிழ் (Tamil - TNPSC Specialized)'),
+                    title: Text(AppStrings.get('lang_ta', langCode)),
                     value: 'ta',
                     groupValue: currentLocale.languageCode,
                     onChanged: (val) {
@@ -388,7 +419,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const Divider(height: 1),
                   RadioListTile<String>(
-                    title: const Text('हिन्दी (Hindi)'),
+                    title: Text(AppStrings.get('lang_hi', langCode)),
                     value: 'hi',
                     groupValue: currentLocale.languageCode,
                     onChanged: (val) {
@@ -452,16 +483,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
                       title: Text(
-                        'Mock Test ($exam)',
+                        AppStrings.get('mock_test_label', langCode, params: {'exam': '$exam'}),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
-                        'Accuracy: $accuracy% • Time: ${timeSec ~/ 60}m ${timeSec % 60}s\nCorrect: ${att['totalCorrect']} | Wrong: ${att['totalWrong']} | Skipped: ${att['totalUnanswered']}',
+                        '${AppStrings.get("accuracy_label", langCode)}: $accuracy% • ${AppStrings.get("time_label", langCode)}: ${timeSec ~/ 60}m ${timeSec % 60}s\n${AppStrings.get("correct_label", langCode)}: ${att['totalCorrect']} | ${AppStrings.get("wrong_label", langCode)}: ${att['totalWrong']} | ${AppStrings.get("skipped_label", langCode)}: ${att['totalUnanswered']}',
                         style: const TextStyle(fontSize: 12),
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.chevron_right),
-                        tooltip: 'Review Test',
+                        tooltip: AppStrings.get('review_test', langCode),
                         onPressed: () {
                           if (sessionId.isNotEmpty) {
                             context.push('/test-result/$sessionId');
@@ -472,6 +503,345 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   );
                 },
               ),
+            const SizedBox(height: 28),
+
+            // Daily Test Reminder Notification Card
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.blue.shade200),
+              ),
+              color: Colors.blue.shade50.withOpacity(0.4),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          radius: 18,
+                          child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF1E3A8A), size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppStrings.get('daily_test_reminder_title', langCode),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                              Text(
+                                AppStrings.get('daily_test_reminder_sub', langCode),
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: _dailyReminderEnabled,
+                          activeColor: const Color(0xFF1E3A8A),
+                          onChanged: (val) async {
+                            setState(() => _dailyReminderEnabled = val);
+                            await NotificationService().updateReminderPreferences(
+                              reminderTime: '$_dailyReminderTime:00',
+                              isEnabled: val,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    if (_dailyReminderEnabled) ...[
+                      const Divider(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppStrings.get('reminder_time_label', langCode),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF1E3A8A)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            ),
+                            onPressed: () async {
+                              final parts = _dailyReminderTime.split(':');
+                              final initial = TimeOfDay(
+                                hour: int.tryParse(parts[0]) ?? 9,
+                                minute: parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0,
+                              );
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: initial,
+                              );
+                              if (picked != null) {
+                                final hStr = picked.hour.toString().padLeft(2, '0');
+                                final mStr = picked.minute.toString().padLeft(2, '0');
+                                final timeStr = '$hStr:$mStr';
+                                setState(() => _dailyReminderTime = timeStr);
+                                await NotificationService().updateReminderPreferences(
+                                  reminderTime: '$timeStr:00',
+                                  isEnabled: _dailyReminderEnabled,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFF1E3A8A)),
+                            label: Text(
+                              _dailyReminderTime,
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Reset Points & Accuracy Button
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.amber.shade300),
+              ),
+              color: Colors.amber.shade50.withOpacity(0.5),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.amber.shade100,
+                  child: const Icon(Icons.restart_alt_rounded, color: Colors.orange),
+                ),
+                title: Text(
+                  AppStrings.get('reset_leaderboard_title', langCode),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                subtitle: Text(
+                  AppStrings.get('reset_leaderboard_subtitle', langCode),
+                  style: const TextStyle(fontSize: 12),
+                ),
+                trailing: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade700,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => _showResetPointsDialog(context),
+                  child: Text(AppStrings.get('reset_btn', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Sign Out Button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: Colors.red, width: 1.5),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  foregroundColor: Colors.red,
+                ),
+                onPressed: () => _confirmSignOut(context),
+                icon: const Icon(Icons.logout_rounded),
+                label: Text(
+                  AppStrings.get('sign_out', langCode),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // App Version & Play Store Sync Info Footer
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.verified_rounded, size: 14, color: Color(0xFF16A34A)),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Test 11 App • $_appVersionDisplay',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Synced with Google Play Store Releases',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmSignOut(BuildContext context) async {
+    final currentLocale = ref.read(localeProvider);
+    final langCode = currentLocale.languageCode;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.logout, color: Colors.red),
+            const SizedBox(width: 8),
+            Text(AppStrings.get('sign_out_confirm_title', langCode)),
+          ],
+        ),
+        content: Text(
+          AppStrings.get('sign_out_confirm_msg', langCode),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppStrings.get('cancel', langCode)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppStrings.get('sign_out', langCode)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_completed', false);
+      if (mounted) {
+        context.go('/login');
+      }
+    }
+  }
+
+  void _showResetPointsDialog(BuildContext context) {
+    final currentLocale = ref.read(localeProvider);
+    final langCode = currentLocale.languageCode;
+    final textController = TextEditingController();
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text(AppStrings.get('reset_dialog_title', langCode)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.get('reset_dialog_desc', langCode),
+                style: const TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                AppStrings.get('reset_type_prompt', langCode),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: textController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'reset point',
+                  isDense: true,
+                  errorText: errorText,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onChanged: (_) {
+                  if (errorText != null) {
+                    setDialogState(() => errorText = null);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppStrings.get('cancel', langCode)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange.shade700,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                final typed = textController.text.trim().toLowerCase();
+                if (typed != 'reset point') {
+                  setDialogState(() {
+                    errorText = AppStrings.get('reset_error_mismatch', langCode);
+                  });
+                  return;
+                }
+
+                // Execute Reset
+                final prefs = await SharedPreferences.getInstance();
+                final studentId = prefs.getString('student_id') ?? 'student_guest';
+
+                await prefs.setInt('total_points', 0);
+                await prefs.setInt('streak_count', 0);
+                await prefs.remove('test_attempts_history_$studentId');
+                await prefs.remove('overall_accuracy');
+
+                if (mounted) {
+                  Navigator.pop(ctx);
+                  setState(() {
+                    _totalPoints = 0;
+                    _streakCount = 0;
+                    _attemptsHistory = [];
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(AppStrings.get('reset_success', langCode)),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: Text(AppStrings.get('confirm_reset_btn', langCode)),
+            ),
           ],
         ),
       ),
@@ -479,6 +849,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _showSupportDialog(BuildContext context) {
+    final currentLocale = ref.read(localeProvider);
+    final langCode = currentLocale.languageCode;
     final nameCtrl = TextEditingController(text: _displayName != 'Aspirant' ? _displayName : '');
     final emailCtrl = TextEditingController(text: _email);
     final phoneCtrl = TextEditingController();
@@ -491,11 +863,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.support_agent_rounded, color: Color(0xFF2563EB)),
-              SizedBox(width: 10),
-              Text('Feedback & Support Desk', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+              const Icon(Icons.support_agent_rounded, color: Color(0xFF2563EB)),
+              const SizedBox(width: 10),
+              Text(AppStrings.get('feedback_dialog_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
             ],
           ),
           content: SingleChildScrollView(
@@ -503,15 +875,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Facing an issue, payment glitch, or question suggestion? Submit your feedback directly to the administrator team:',
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
+                Text(
+                  AppStrings.get('feedback_prompt', langCode),
+                  style: const TextStyle(fontSize: 12, color: Colors.black87),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: nameCtrl,
                   decoration: InputDecoration(
-                    labelText: 'Your Name *',
+                    labelText: AppStrings.get('feedback_name', langCode),
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -521,7 +893,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    labelText: 'Phone Number *',
+                    labelText: AppStrings.get('feedback_phone', langCode),
                     hintText: 'e.g. 9876543210',
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -532,7 +904,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   controller: emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email Address',
+                    labelText: AppStrings.get('feedback_email', langCode),
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -541,7 +913,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 TextField(
                   controller: orderCtrl,
                   decoration: InputDecoration(
-                    labelText: 'Razorpay Payment / Order ID (Optional)',
+                    labelText: AppStrings.get('feedback_order', langCode),
                     hintText: 'pay_... or order_...',
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -552,7 +924,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   controller: messageCtrl,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    labelText: 'Feedback / Issue Message *',
+                    labelText: AppStrings.get('feedback_msg', langCode),
                     hintText: 'Explain the error or suggestion in detail...',
                     isDense: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -566,14 +938,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.blue.shade100),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.email_outlined, size: 16, color: Color(0xFF2563EB)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.email_outlined, size: 16, color: Color(0xFF2563EB)),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Direct Email: plantgreeninertiamanagement@gmail.com',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                          AppStrings.get('feedback_direct_email', langCode),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                         ),
                       ),
                     ],
@@ -585,7 +957,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(AppStrings.get('cancel', langCode)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -604,7 +976,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                       if (message.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter your feedback or grievance details.')),
+                          SnackBar(content: Text(AppStrings.get('feedback_empty_err', langCode))),
                         );
                         return;
                       }
@@ -630,10 +1002,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         if (context.mounted) {
                           Navigator.pop(ctx);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Thank you! Your feedback has been sent directly to the Admin Portal.'),
+                            SnackBar(
+                              content: Text(AppStrings.get('feedback_submitted', langCode)),
                               backgroundColor: Colors.green,
-                              duration: Duration(seconds: 3),
+                              duration: const Duration(seconds: 3),
                             ),
                           );
                         }
@@ -641,14 +1013,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         setDialogState(() => isSubmitting = false);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Submission failed: $err'), backgroundColor: Colors.red),
+                            SnackBar(content: Text('${AppStrings.get("feedback_failed", langCode)}$err'), backgroundColor: Colors.red),
                           );
                         }
                       }
                     },
               child: isSubmitting
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Submit Feedback'),
+                  : Text(AppStrings.get('submit_feedback', langCode)),
             ),
           ],
         ),
