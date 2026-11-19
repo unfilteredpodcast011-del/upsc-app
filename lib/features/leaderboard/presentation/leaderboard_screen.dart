@@ -80,65 +80,103 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     }
 
     final list = <LeaderboardEntry>[];
+    final Map<String, LeaderboardEntry> studentEntries = {};
 
-    // If user has attempted tests in this exam, add their single consolidated total score
-    if (userExamAttemptCount > 0) {
-      list.add(LeaderboardEntry(
-        name: '$studentName (You)',
-        exam: _selectedExam,
-        score: double.parse(userExamScoreSum.toStringAsFixed(1)),
-        accuracy: double.parse((userAccuracySum / userExamAttemptCount).toStringAsFixed(1)),
-        timeTakenSeconds: userTotalTime,
-        rank: 1,
-      ));
+    // 1. Fetch all registered students from Supabase
+    try {
+      final studentsRes = await Supabase.instance.client
+          .from('students')
+          .select('id, full_name, target_exam');
+
+      final Map<String, Map<String, dynamic>> allStudents = {};
+      for (final s in studentsRes) {
+        final sid = s['id']?.toString() ?? '';
+        allStudents[sid] = s;
+      }
+
+      // 2. Fetch all real exam submissions from Supabase payments table
+      final examSubmissions = await Supabase.instance.client
+          .from('payments')
+          .select('student_id, razorpay_order_id, created_at')
+          .eq('status', 'exam_submitted')
+          .order('created_at', ascending: false);
+
+      // Track aggregated scores and attempts per student
+      final Map<String, double> studentScores = {};
+      final Map<String, double> studentAccuracies = {};
+      final Map<String, int> studentTimes = {};
+      final Map<String, int> studentCounts = {};
+
+      for (final row in examSubmissions) {
+        try {
+          final sid = row['student_id']?.toString() ?? '';
+          final rawOrder = row['razorpay_order_id'];
+          if (rawOrder == null) continue;
+          final Map<String, dynamic> data = jsonDecode(rawOrder);
+          final examType = (data['exam'] ?? 'UPSC').toString().toUpperCase();
+          if (examType != _selectedExam.toUpperCase()) continue;
+
+          final sc = (data['score'] as num?)?.toDouble() ?? 0.0;
+          final acc = (data['accuracy'] as num?)?.toDouble() ?? 0.0;
+          final tm = (data['time_taken_seconds'] as num?)?.toInt() ?? 0;
+
+          studentScores[sid] = (studentScores[sid] ?? 0.0) + sc;
+          studentAccuracies[sid] = (studentAccuracies[sid] ?? 0.0) + acc;
+          studentTimes[sid] = (studentTimes[sid] ?? 0) + tm;
+          studentCounts[sid] = (studentCounts[sid] ?? 0) + 1;
+        } catch (_) {}
+      }
+
+      // 3. Populate all registered students for the selected exam
+      allStudents.forEach((sid, sInfo) {
+        final sExam = (sInfo['target_exam'] ?? 'UPSC').toString().toUpperCase();
+        if (sExam != _selectedExam.toUpperCase() && _selectedExam.isNotEmpty) {
+          // Keep students if their target exam matches or if they took tests in this exam
+          if (!studentCounts.containsKey(sid)) return;
+        }
+
+        final rawName = sInfo['full_name']?.toString() ?? 'Aspirant';
+        final isCurrent = sid == studentId || rawName.toLowerCase() == studentName.toLowerCase();
+        final displayName = isCurrent ? '$rawName (You)' : rawName;
+
+        final attempts = studentCounts[sid] ?? 0;
+        double totalScore = studentScores[sid] ?? 0.0;
+        double avgAccuracy = attempts > 0 ? (studentAccuracies[sid]! / attempts) : 0.0;
+        int totalTime = studentTimes[sid] ?? 0;
+
+        // If it's the current user, combine with local session storage if higher
+        if (isCurrent && userExamAttemptCount > 0) {
+          if (userExamScoreSum > totalScore) totalScore = userExamScoreSum;
+          if (userAccuracySum / userExamAttemptCount > avgAccuracy) {
+            avgAccuracy = userAccuracySum / userExamAttemptCount;
+          }
+          if (userTotalTime > totalTime) totalTime = userTotalTime;
+        }
+
+        studentEntries[sid] = LeaderboardEntry(
+          name: displayName,
+          exam: _selectedExam,
+          score: double.parse(totalScore.toStringAsFixed(1)),
+          accuracy: double.parse(avgAccuracy.toStringAsFixed(1)),
+          timeTakenSeconds: totalTime,
+          rank: 1,
+        );
+      });
+    } catch (_) {
+      // Fallback: If offline, show current user entry
+      if (userExamAttemptCount > 0) {
+        studentEntries[studentId] = LeaderboardEntry(
+          name: '$studentName (You)',
+          exam: _selectedExam,
+          score: double.parse(userExamScoreSum.toStringAsFixed(1)),
+          accuracy: double.parse((userAccuracySum / userExamAttemptCount).toStringAsFixed(1)),
+          timeTakenSeconds: userTotalTime,
+          rank: 1,
+        );
+      }
     }
 
-    // 2. Fetch live global attempts from Supabase if connected
-    try {
-      final res = await Supabase.instance.client
-          .from('test_attempts')
-          .select('*, students(full_name, target_exam)')
-          .eq('exam', _selectedExam)
-          .order('score', ascending: false)
-          .limit(30);
-
-      if (res.isNotEmpty) {
-        // Group by student to avoid duplicate entries of the same student
-        final Map<String, LeaderboardEntry> uniqueGlobal = {};
-        for (final row in res) {
-          final sName = row['students']?['full_name'] ?? 'Candidate';
-          final sc = (row['score'] as num?)?.toDouble() ?? 0.0;
-          final acc = (row['accuracy'] as num?)?.toDouble() ?? 0.0;
-          final tm = (row['time_taken_seconds'] as num?)?.toInt() ?? 0;
-          
-          if (!uniqueGlobal.containsKey(sName)) {
-            uniqueGlobal[sName] = LeaderboardEntry(
-              name: sName,
-              exam: _selectedExam,
-              score: sc,
-              accuracy: acc,
-              timeTakenSeconds: tm,
-              rank: 1,
-            );
-          } else {
-            // Add up points for the student in this exam
-            final prev = uniqueGlobal[sName]!;
-            uniqueGlobal[sName] = LeaderboardEntry(
-              name: sName,
-              exam: _selectedExam,
-              score: prev.score + sc,
-              accuracy: (prev.accuracy + acc) / 2,
-              timeTakenSeconds: prev.timeTakenSeconds + tm,
-              rank: 1,
-            );
-          }
-        }
-        list.addAll(uniqueGlobal.values);
-      }
-    } catch (_) {}
-
-    // No fake sample names! Only actual test takers are ranked.
-    // If no attempts in this exam yet, list remains empty or shows only active users.
+    list.addAll(studentEntries.values);
 
     // Sort by score desc, time asc
     list.sort((a, b) {
