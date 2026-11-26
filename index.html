@@ -962,7 +962,24 @@
           <h2 class="text-base font-bold text-slate-900">Registered Students Directory</h2>
           <p class="text-xs text-slate-500 mt-0.5">Manage aspirant accounts, verify districts, or moderate access</p>
         </div>
-        <span class="text-xs text-slate-500 font-semibold">Actions: Block, Retire, Delete</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="studentSearchInput" oninput="filterStudentsTable()" placeholder="Search name, email, phone, district..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg w-56 focus:ring-2 focus:ring-black">
+          </div>
+          <select id="studentExamFilter" onchange="filterStudentsTable()" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold">
+            <option value="ALL">All Exams</option>
+            <option value="UPSC">UPSC</option>
+            <option value="TNPSC">TNPSC</option>
+            <option value="BANK">BANK</option>
+          </select>
+          <select id="studentStatusFilter" onchange="filterStudentsTable()" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold">
+            <option value="ALL">All Status</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="retired">Retired</option>
+          </select>
+        </div>
       </div>
 
       <div class="overflow-x-auto">
@@ -1038,11 +1055,22 @@
           <h2 class="text-base font-bold text-slate-900">Payment & Transaction Audit Logs</h2>
           <p class="text-xs text-slate-500 mt-0.5">Audit trail of every ₹1 test fee with payment mode & specific test attended</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-            <input type="text" id="paymentSearchInput" oninput="filterPaymentsTable()" placeholder="Search Order / Payment ID..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg w-56 font-mono focus:ring-2 focus:ring-black">
+            <input type="text" id="paymentSearchInput" oninput="filterPaymentsTable()" placeholder="Search Order / Payment ID / Name..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg w-56 font-mono focus:ring-2 focus:ring-black">
           </div>
+          <select id="paymentStatusFilter" onchange="filterPaymentsTable()" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold">
+            <option value="ALL">All Status</option>
+            <option value="success">SUCCESS</option>
+            <option value="cancelled">CANCELLED</option>
+            <option value="failed">FAILED</option>
+          </select>
+          <select id="paymentAmountFilter" onchange="filterPaymentsTable()" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold">
+            <option value="ALL">All Amounts</option>
+            <option value="1100">₹11.00</option>
+            <option value="100">₹1.00</option>
+          </select>
           <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg">
             Real-Time Audit
           </span>
@@ -1631,14 +1659,61 @@
       }).join('');
     }
 
-    function filterPaymentsTable() {
-      const query = (document.getElementById('paymentSearchInput').value || '').trim().toLowerCase();
-      if (!window.allPaymentsCache) return;
-      if (!query) {
-        renderPaymentsTable(window.allPaymentsCache);
+    function filterStudentsTable() {
+      const q = (document.getElementById('studentSearchInput')?.value || '').trim().toLowerCase();
+      const examF = document.getElementById('studentExamFilter')?.value || 'ALL';
+      const statusF = document.getElementById('studentStatusFilter')?.value || 'ALL';
+      const all = window.allStudentsList || [];
+      const filtered = all.filter(s => {
+        const yt = (s.years_trying || '').toString();
+        const isBlocked = s.account_status === 'blocked' || yt.includes('STATUS:BLOCKED');
+        const isRetired = s.account_status === 'retired' || yt.includes('STATUS:RETIRED');
+        const st = isBlocked ? 'blocked' : (isRetired ? 'retired' : 'active');
+        if (examF !== 'ALL' && (s.target_exam || 'TNPSC').toUpperCase() !== examF) return false;
+        if (statusF !== 'ALL' && st !== statusF) return false;
+        if (!q) return true;
+        return (s.full_name || '').toLowerCase().includes(q) ||
+               (s.email || '').toLowerCase().includes(q) ||
+               (s.phone || '').toLowerCase().includes(q) ||
+               (s.district || '').toLowerCase().includes(q);
+      });
+      const stuBody = document.getElementById('studentsBody');
+      if (!stuBody) return;
+      if (filtered.length === 0) {
+        stuBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No matching students found.</td></tr>';
         return;
       }
+      stuBody.innerHTML = filtered.map(s => {
+        const yt = (s.years_trying || '').toString();
+        const isBlocked = s.account_status === 'blocked' || yt.includes('STATUS:BLOCKED');
+        const isRetired = s.account_status === 'retired' || yt.includes('STATUS:RETIRED');
+        let statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>';
+        if (isBlocked) statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Blocked</span>';
+        else if (isRetired) statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Retired</span>';
+        const degName = (s.college_degree_name || '').trim();
+        const degType = (s.college_degree_type || '').trim();
+        const eduStatus = (s.education_status || '').trim();
+        const schoolStd = (s.school_standard || '').trim();
+        let eduDisplay = '-';
+        if (schoolStd) eduDisplay = `<span class="font-semibold text-slate-800">${schoolStd}th Standard</span>`;
+        else if (degName && degType) eduDisplay = `<div><div class="font-bold text-slate-900 text-xs">${degType} • ${degName}</div><div class="mt-0.5"><span class="text-[10px] font-bold ${eduStatus === 'graduated' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-blue-700 bg-blue-50 border-blue-200'} px-1.5 py-0.5 rounded border">${eduStatus === 'graduated' ? 'Graduated' : 'Pursuing'}</span></div></div>`;
+        else if (degName) eduDisplay = `<span class="font-semibold text-slate-800 text-xs">${degName}</span>`;
+        else if (degType) eduDisplay = `<span class="font-semibold text-slate-800 text-xs">${degType} ${eduStatus === 'graduated' ? 'Graduate' : 'Student'}</span>`;
+        return `<tr class="hover:bg-slate-50 transition"><td class="p-3.5"><div class="font-bold text-slate-900">${s.full_name || 'Candidate'}</div><div class="text-[11px] text-slate-500">${s.email || '-'}</div></td><td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '-'}</td><td class="p-3.5 font-semibold text-slate-900">${s.district || '-'}</td><td class="p-3.5"><span class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 text-slate-800 rounded-md">${s.target_exam || 'TNPSC'}</span></td><td class="p-3.5">${eduDisplay}</td><td class="p-3.5">${statusBadge}</td><td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">${isBlocked ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 shadow-sm transition">Unblock</button>` : `<button onclick="updateAccountStatus('${s.id}', 'blocked', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition shadow-sm">Block</button>`}${isRetired ? `<button onclick="updateAccountStatus('${s.id}', 'active', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-bold rounded-lg border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-sm transition">Un-retire</button>` : `<button onclick="updateAccountStatus('${s.id}', 'retired', '${s.full_name}', '${encodeURIComponent(yt)}')" class="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm transition">Retire</button>`}<button onclick="deleteAccount('${s.id}', '${s.full_name}')" class="p-1.5 text-xs font-medium text-slate-400 hover:text-red-600 transition" title="Delete Candidate"><i class="fa-regular fa-trash-can"></i></button></td></tr>`;
+      }).join('');
+    }
+
+    function filterPaymentsTable() {
+      const query = (document.getElementById('paymentSearchInput')?.value || '').trim().toLowerCase();
+      const statusF = (document.getElementById('paymentStatusFilter')?.value || 'ALL').toLowerCase();
+      const amountF = document.getElementById('paymentAmountFilter')?.value || 'ALL';
+      if (!window.allPaymentsCache) return;
       const filtered = window.allPaymentsCache.filter(p => {
+        const st = (p.status || '').toLowerCase();
+        const normSt = (st === 'captured' || st === 'success') ? 'success' : st;
+        if (statusF !== 'ALL' && normSt !== statusF) return false;
+        if (amountF !== 'ALL' && String(p.amount_paise || 100) !== amountF) return false;
+        if (!query) return true;
         const order = (p.razorpay_order_id || '').toLowerCase();
         const payId = (p.razorpay_payment_id || '').toLowerCase();
         const id = (p.id || '').toLowerCase();
