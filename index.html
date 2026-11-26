@@ -1379,7 +1379,11 @@
 
         const candName = (p.students && p.students.full_name) ? p.students.full_name : 'Candidate';
         const candDistrict = (p.students && p.students.district) ? p.students.district : '-';
-        const testAttended = p.test_id || 'UPSC / TNPSC Timed Practice Mock';
+        const testLookup = window.testPackageLookup || {};
+        const testInfo = p.test_id ? testLookup[p.test_id] : null;
+        const testAttended = testInfo
+          ? `<div class="flex items-center gap-1.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${testInfo.exam === 'TNPSC' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">${testInfo.exam}</span><span class="font-semibold text-slate-900 text-xs">${testInfo.title}</span></div>`
+          : (p.test_id || 'UPSC / TNPSC Timed Practice Mock');
         const paymentMode = p.payment_mode || 'UPI / Netbanking';
         const orderText = p.razorpay_order_id || p.razorpay_payment_id || p.id;
         const feeAmount = (p.amount_paise / 100).toFixed(2);
@@ -2113,6 +2117,15 @@
 
         countBadge.textContent = `${allTests.length} tests active in app`;
         if (sideBadge) sideBadge.textContent = allTests.length;
+
+        // Build global lookup map for Payment Audit Logs
+        window.testPackageLookup = {};
+        allTests.forEach(t => {
+          window.testPackageLookup[t.id] = { title: t.title, exam: t.exam, questionCount: t.questionCount };
+        });
+        if (window.allPaymentsCache && window.allPaymentsCache.length > 0) {
+          renderPaymentsTable(window.allPaymentsCache);
+        }
 
         if (allTests.length === 0) {
           pkgBody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">All tests are currently hidden or deleted.</td></tr>';
