@@ -132,44 +132,44 @@
   </div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3.5">
-    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-3 sm:px-6 py-2.5 sm:py-3.5">
+    <div class="max-w-7xl mx-auto flex justify-between items-center gap-2 sm:gap-4">
+      <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+        <div class="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-xl bg-black text-white flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-sm">
           11
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold text-slate-900">Test 11</h1>
-            <span class="text-[11px] font-bold bg-slate-100 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200">
-              Admin Portal
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <h1 class="text-sm sm:text-base font-bold text-slate-900 truncate">Test 11</h1>
+            <span class="text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-800 px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-200 whitespace-nowrap">
+              Admin
             </span>
           </div>
-          <p class="text-xs text-slate-500">Student Directory, Revenue & Question Ingestion</p>
+          <p class="hidden sm:block text-xs text-slate-500 truncate">Student Directory, Revenue & Question Ingestion</p>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
         <button 
           onclick="loadAdminData()" 
-          class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm"
+          class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm"
         >
           <i class="fa-solid fa-arrows-rotate text-slate-500 text-xs"></i>
-          <span>Refresh</span>
+          <span class="hidden sm:inline">Refresh</span>
         </button>
 
-        <div class="flex items-center gap-2 pl-3 border-l border-slate-200">
-          <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+        <div class="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
             M
           </div>
-          <div class="hidden sm:block text-left">
+          <div class="hidden md:block text-left">
             <div id="currentUserLabel" class="text-xs font-bold text-slate-900">Laven Lokesh Barani (Super Admin)</div>
             <div class="text-[11px] text-slate-500">plantgreeninertiamanagement@gmail.com</div>
           </div>
           <button 
             onclick="logoutAdmin()" 
             title="Sign Out" 
-            class="ml-2 text-xs text-slate-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-slate-100"
+            class="ml-1 sm:ml-2 text-xs text-slate-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-slate-100"
           >
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
@@ -179,50 +179,50 @@
   </header>
 
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
-  <!-- ================= ADMIN LAYOUT WITH SIDEBAR ================= -->
-  <div class="flex min-h-[calc(100vh-65px)]">
+  <!-- ================= ADMIN LAYOUT WITH STATIC SIDEBAR (PC & MOBILE) ================= -->
+  <div class="flex min-h-[calc(100vh-57px)] sm:min-h-[calc(100vh-65px)]">
 
-    <!-- DESKTOP SIDEBAR NAVIGATION -->
-    <aside id="adminSidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 sticky top-[65px] h-[calc(100vh-65px)] z-30 transition-all duration-300">
-      <div class="space-y-6">
+    <!-- STATIC SIDEBAR NAVIGATION (Compact Icon Rail on Mobile, Full Sidebar on Desktop) -->
+    <aside id="adminSidebar" class="w-14 sm:w-16 lg:w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col justify-between p-1.5 sm:p-2 lg:p-4 sticky top-[53px] sm:top-[65px] h-[calc(100vh-53px)] sm:h-[calc(100vh-65px)] overflow-y-auto z-30 transition-all duration-300">
+      <div class="space-y-4 lg:space-y-6">
         <div>
-          <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-3 mb-2">Main Navigation</div>
+          <div class="hidden lg:block text-[11px] font-black uppercase tracking-wider text-slate-400 px-3 mb-2">Main Navigation</div>
           <nav class="space-y-1">
-            <a href="#section-dashboard" class="sidebar-link active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
-              <i class="fa-solid fa-chart-pie w-4 text-center text-blue-600"></i>
-              <span>Dashboard & KPIs</span>
+            <a href="#section-dashboard" title="Dashboard & KPIs" class="sidebar-link active flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+              <i class="fa-solid fa-chart-pie w-4 text-center text-blue-600 text-sm lg:text-xs"></i>
+              <span class="hidden lg:inline">Dashboard & KPIs</span>
             </a>
-            <a href="#section-inquiries" class="sidebar-link flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+            <a href="#section-inquiries" title="User Inquiries" class="sidebar-link flex items-center justify-center lg:justify-between px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition relative">
               <div class="flex items-center gap-3">
-                <i class="fa-solid fa-headset w-4 text-center text-emerald-600"></i>
-                <span>User Inquiries</span>
+                <i class="fa-solid fa-headset w-4 text-center text-emerald-600 text-sm lg:text-xs"></i>
+                <span class="hidden lg:inline">User Inquiries</span>
               </div>
-              <span id="sidebarInquiryBadge" class="bg-blue-100 text-blue-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">0</span>
+              <span id="sidebarInquiryBadge" class="hidden lg:inline-block bg-blue-100 text-blue-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">0</span>
             </a>
-            <a href="#section-pyq" class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
-              <i class="fa-solid fa-graduation-cap w-4 text-center text-amber-600"></i>
-              <span>PYQ Question Bank</span>
+            <a href="#section-pyq" title="PYQ Question Bank" class="sidebar-link flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+              <i class="fa-solid fa-graduation-cap w-4 text-center text-amber-600 text-sm lg:text-xs"></i>
+              <span class="hidden lg:inline">PYQ Question Bank</span>
             </a>
-            <a href="#section-packages" class="sidebar-link flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+            <a href="#section-packages" title="Test Packages & Sets" class="sidebar-link flex items-center justify-center lg:justify-between px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
               <div class="flex items-center gap-3">
-                <i class="fa-solid fa-layer-group w-4 text-center text-indigo-600"></i>
-                <span>Test Packages & Sets</span>
+                <i class="fa-solid fa-layer-group w-4 text-center text-indigo-600 text-sm lg:text-xs"></i>
+                <span class="hidden lg:inline">Test Packages & Sets</span>
               </div>
-              <span id="sidebarPackagesBadge" class="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">New</span>
+              <span id="sidebarPackagesBadge" class="hidden lg:inline-block bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">New</span>
             </a>
-            <a href="#section-students" class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
-              <i class="fa-solid fa-users-gear w-4 text-center text-purple-600"></i>
-              <span>Student Directory</span>
+            <a href="#section-students" title="Student Directory" class="sidebar-link flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+              <i class="fa-solid fa-users-gear w-4 text-center text-purple-600 text-sm lg:text-xs"></i>
+              <span class="hidden lg:inline">Student Directory</span>
             </a>
-            <a href="#section-payments" class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
-              <i class="fa-solid fa-receipt w-4 text-center text-rose-600"></i>
-              <span>Payments & Audits</span>
+            <a href="#section-payments" title="Payments & Audits" class="sidebar-link flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:text-black hover:bg-slate-100 transition">
+              <i class="fa-solid fa-receipt w-4 text-center text-rose-600 text-sm lg:text-xs"></i>
+              <span class="hidden lg:inline">Payments & Audits</span>
             </a>
           </nav>
         </div>
 
         <!-- Today's Live Pulse Metric in Sidebar -->
-        <div class="p-3.5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl shadow-sm border border-slate-800 space-y-2.5">
+        <div class="hidden lg:block p-3.5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl shadow-sm border border-slate-800 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -273,7 +273,7 @@
     </aside>
 
     <!-- MAIN SCROLLABLE CONTENT -->
-    <main class="flex-1 p-6 space-y-6 max-w-7xl">
+    <main class="flex-1 min-w-0 p-3 sm:p-6 space-y-5 sm:space-y-6 max-w-7xl">
 
     <!-- KPI Metric Summary Cards -->
     <div id="section-dashboard" class="space-y-6">
