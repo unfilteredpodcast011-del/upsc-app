@@ -580,16 +580,21 @@
           </div>
         </div>
 
-        <!-- Automatic Tiered Pricing Preview Box -->
-        <div class="p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
-          <div class="flex items-center gap-2">
-            <i class="fa-solid fa-tags text-amber-600"></i>
-            <span class="font-bold text-slate-800">Auto Pricing Rule Applied:</span>
-            <span id="pkgPricePreviewText" class="text-slate-600 font-semibold">100 Questions: Regular MRP ₹111 → Discounted Access Fee ₹11</span>
+        <!-- Editable Tiered Pricing Controls (Auto-filled by Question Count, Editable by Admin) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl items-center">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Regular MRP (₹) <span class="text-slate-400 font-normal">(Crossed out)</span></label>
+            <input type="number" id="pkgOriginalPrice" required value="111" min="1" class="w-full text-xs font-bold border border-amber-300 rounded-lg p-2 bg-white font-mono">
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 uppercase">90% Discount</span>
-            <span class="font-extrabold text-slate-900 font-mono text-sm" id="pkgFinalPriceBadge">₹11.00</span>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Discounted Access Fee (₹) <span class="text-emerald-700 font-bold">(Actual Charge)</span></label>
+            <input type="number" id="pkgDiscountedPrice" required value="11" min="1" class="w-full text-xs font-bold border border-emerald-400 rounded-lg p-2 bg-white font-mono text-emerald-700">
+          </div>
+          <div class="text-xs text-slate-600">
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-tags text-amber-600"></i> Auto Pricing Preview
+            </div>
+            <div id="pkgPricePreviewText" class="text-[11px] text-slate-600 mt-0.5">100 Questions: MRP ₹111 → Fee ₹11</div>
           </div>
         </div>
 
@@ -2211,10 +2216,12 @@
     function updateTierPricePreview() {
       const qCount = parseInt(document.getElementById('pkgQuestionCount').value) || 25;
       const tier = getTierPricing(qCount);
+      const origEl = document.getElementById('pkgOriginalPrice');
+      const discEl = document.getElementById('pkgDiscountedPrice');
       const textEl = document.getElementById('pkgPricePreviewText');
-      const badgeEl = document.getElementById('pkgFinalPriceBadge');
-      if (textEl) textEl.textContent = `${qCount} Questions: Regular MRP ₹${tier.originalRs} → Discounted Access Fee ₹${tier.discountedRs}`;
-      if (badgeEl) badgeEl.textContent = `₹${tier.discountedRs}.00`;
+      if (origEl) origEl.value = tier.originalRs;
+      if (discEl) discEl.value = tier.discountedRs;
+      if (textEl) textEl.textContent = `${qCount} Questions: MRP ₹${tier.originalRs} → Fee ₹${tier.discountedRs}`;
     }
 
     async function handleCreateTestPackage(e) {
@@ -2276,25 +2283,29 @@
           }
         }
 
-        // Insert Test Package Definition with Automatic Tier Pricing
+        // Insert Test Package Definition with Admin-Edited (or Auto-Tiered) Pricing
         const tier = getTierPricing(qCount);
+        const origRs = parseInt(document.getElementById('pkgOriginalPrice')?.value) || tier.originalRs;
+        const discRs = parseInt(document.getElementById('pkgDiscountedPrice')?.value) || tier.discountedRs;
+        const effectivePaise = discRs * 100;
+
         const packageData = {
           title: title,
           exam: exam,
           subject: subject,
           questionCount: qCount,
           durationMinutes: duration,
-          originalPriceRs: tier.originalRs,
-          discountedPriceRs: tier.discountedRs,
-          priceInPaise: tier.effectivePaise,
-          originalPriceInPaise: tier.originalRs * 100,
+          originalPriceRs: origRs,
+          discountedPriceRs: discRs,
+          priceInPaise: effectivePaise,
+          originalPriceInPaise: origRs * 100,
           publishedAt: new Date().toISOString()
         };
 
         const { error } = await supabaseClient.from('payments').insert({
           student_id: validStudentId,
           test_id: null,
-          amount_paise: tier.effectivePaise,
+          amount_paise: effectivePaise,
           status: 'test_package',
           razorpay_payment_id: 'custom_package',
           razorpay_order_id: JSON.stringify(packageData)
