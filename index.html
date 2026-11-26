@@ -719,6 +719,118 @@
     </div>
     </div>
 
+    <!-- Edit Published Test Bundle Modal -->
+    <div id="editPackageModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden">
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+          <div class="font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-indigo-400"></i>
+            <span>Edit Published Test Bundle</span>
+          </div>
+          <button onclick="document.getElementById('editPackageModal').classList.add('hidden')" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form onsubmit="saveEditedTestPackage(event)" class="p-5 space-y-4 text-xs">
+          <input type="hidden" id="editPkgId">
+          <input type="hidden" id="editPkgRaw">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Test Title (Shown in App)</label>
+            <input type="text" id="editPkgTitle" required class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Target Exam Category</label>
+              <select id="editPkgExam" class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold bg-white"></select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Subject / Focus Area</label>
+              <input type="text" id="editPkgSubject" required class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Questions</label>
+              <input type="number" id="editPkgQCount" required min="1" class="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Duration (Min)</label>
+              <input type="number" id="editPkgDuration" required min="5" class="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Regular MRP (₹)</label>
+              <input type="number" id="editPkgOrigRs" required min="1" class="w-full border border-amber-300 rounded-lg p-2 font-mono font-bold">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Discount Fee (₹)</label>
+              <input type="number" id="editPkgDiscRs" required min="1" class="w-full border border-emerald-400 rounded-lg p-2 font-mono font-bold text-emerald-700">
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <button type="button" onclick="document.getElementById('editPackageModal').classList.add('hidden')" class="px-4 py-2 rounded-lg border border-slate-300 font-bold text-slate-700">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Save Bundle Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Individual Question & Explanation Modal -->
+    <div id="editQuestionModal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+          <div class="font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-file-pen text-emerald-400"></i>
+            <span>Edit Question & Explanation</span>
+          </div>
+          <button onclick="document.getElementById('editQuestionModal').classList.add('hidden')" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form onsubmit="saveEditedQuestion(event)" class="p-5 space-y-3 text-xs overflow-y-auto">
+          <input type="hidden" id="editQIndex">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Question Text</label>
+            <textarea id="editQText" rows="3" required class="w-full border border-slate-300 rounded-lg p-2.5 font-medium"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Option A</label>
+              <input type="text" id="editQOptA" required class="w-full border border-slate-300 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Option B</label>
+              <input type="text" id="editQOptB" required class="w-full border border-slate-300 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Option C</label>
+              <input type="text" id="editQOptC" required class="w-full border border-slate-300 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Option D</label>
+              <input type="text" id="editQOptD" required class="w-full border border-slate-300 rounded-lg p-2">
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Correct Answer</label>
+            <select id="editQCorrect" class="w-full sm:w-40 border border-slate-300 rounded-lg p-2 font-bold bg-white">
+              <option value="A">Option A</option>
+              <option value="B">Option B</option>
+              <option value="C">Option C</option>
+              <option value="D">Option D</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Detailed Explanation</label>
+            <textarea id="editQExplanation" rows="3" class="w-full border border-emerald-300 rounded-lg p-2.5 bg-emerald-50/30"></textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <button type="button" onclick="document.getElementById('editQuestionModal').classList.add('hidden')" class="px-4 py-2 rounded-lg border border-slate-300 font-bold text-slate-700">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Save Question & Explanation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Test Questions Viewer Modal -->
     <div id="testQuestionsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -2243,13 +2355,19 @@
         pkgBody.innerHTML = allTests.map(t => {
           const examBadge = t.exam === 'TNPSC'
             ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">TNPSC</span>'
-            : '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">UPSC</span>';
+            : (t.exam === 'UPSC'
+              ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">UPSC</span>'
+              : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-800 border border-purple-200">${t.exam}</span>`);
 
           const tagBadge = t.isDefault
             ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Built-in Set</span>'
             : '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Custom Admin Set</span>';
 
           const tier = getTierPricing(t.questionCount);
+          let parsedItem = {};
+          try { if (t.rawEncoded) parsedItem = JSON.parse(decodeURIComponent(t.rawEncoded)); } catch (_) {}
+          const discRs = parsedItem.discountedPriceRs || (parsedItem.priceInPaise ? Math.round(parsedItem.priceInPaise / 100) : tier.discountedRs);
+          const origRs = parsedItem.originalPriceRs || (parsedItem.originalPriceInPaise ? Math.round(parsedItem.originalPriceInPaise / 100) : tier.originalRs);
 
           return `
             <tr class="hover:bg-slate-50 transition">
@@ -2270,8 +2388,8 @@
               <td class="p-3.5 text-xs text-slate-600 font-mono whitespace-nowrap">${t.durationMinutes} mins</td>
               <td class="p-3.5 whitespace-nowrap">
                 <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">₹${tier.discountedRs}</span>
-                  <span class="text-[10px] text-slate-400 line-through">₹${tier.originalRs}</span>
+                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">₹${discRs}</span>
+                  <span class="text-[10px] text-slate-400 line-through">₹${origRs}</span>
                 </div>
               </td>
               <td class="p-3.5 text-right whitespace-nowrap space-x-1.5">
@@ -2545,31 +2663,68 @@
       }
     }
 
-    async function editTestPackage(id, rawEncoded) {
+    function editTestPackage(id, rawEncoded) {
       try {
         const item = JSON.parse(decodeURIComponent(rawEncoded));
-        const newTitle = prompt('Edit Test Title (as shown in App):', item.title || '');
-        if (!newTitle) return;
+        document.getElementById('editPkgId').value = id;
+        document.getElementById('editPkgRaw').value = rawEncoded;
+        document.getElementById('editPkgTitle').value = item.title || '';
+        document.getElementById('editPkgSubject').value = item.subject || 'General Studies';
+        const qCount = item.questionCount || 25;
+        document.getElementById('editPkgQCount').value = qCount;
+        document.getElementById('editPkgDuration').value = item.durationMinutes || 30;
 
-        const newDuration = prompt('Edit Test Duration in Minutes:', item.durationMinutes || 120);
-        if (!newDuration) return;
+        const tier = getTierPricing(qCount);
+        document.getElementById('editPkgOrigRs').value = item.originalPriceRs || (item.originalPriceInPaise ? Math.round(item.originalPriceInPaise / 100) : tier.originalRs);
+        document.getElementById('editPkgDiscRs').value = item.discountedPriceRs || (item.priceInPaise ? Math.round(item.priceInPaise / 100) : tier.discountedRs);
 
-        item.title = newTitle.trim();
-        item.durationMinutes = parseInt(newDuration) || 120;
+        // Populate exam dropdown from #pkgExam
+        const srcSelect = document.getElementById('pkgExam');
+        const dstSelect = document.getElementById('editPkgExam');
+        if (srcSelect && dstSelect) {
+          dstSelect.innerHTML = srcSelect.innerHTML;
+          dstSelect.value = (item.exam || 'UPSC').toUpperCase();
+        }
+
+        document.getElementById('editPackageModal').classList.remove('hidden');
+      } catch (e) {
+        alert('Error opening edit modal: ' + e.message);
+      }
+    }
+
+    async function saveEditedTestPackage(e) {
+      e.preventDefault();
+      try {
+        const id = document.getElementById('editPkgId').value;
+        const item = JSON.parse(decodeURIComponent(document.getElementById('editPkgRaw').value));
+        const origRs = parseInt(document.getElementById('editPkgOrigRs').value) || 49;
+        const discRs = parseInt(document.getElementById('editPkgDiscRs').value) || 1;
+
+        item.title = document.getElementById('editPkgTitle').value.trim();
+        item.exam = document.getElementById('editPkgExam').value;
+        item.subject = document.getElementById('editPkgSubject').value.trim();
+        item.questionCount = parseInt(document.getElementById('editPkgQCount').value) || 25;
+        item.durationMinutes = parseInt(document.getElementById('editPkgDuration').value) || 30;
+        item.originalPriceRs = origRs;
+        item.discountedPriceRs = discRs;
+        item.priceInPaise = discRs * 100;
+        item.originalPriceInPaise = origRs * 100;
 
         const { error } = await supabaseClient
           .from('payments')
           .update({
-            razorpay_order_id: JSON.stringify(item)
+            razorpay_order_id: JSON.stringify(item),
+            amount_paise: discRs * 100,
           })
           .eq('id', id);
 
         if (error) throw error;
-        logAudit(`UPDATED Test Package [${newTitle}].`);
-        alert('Test package updated successfully!');
+        document.getElementById('editPackageModal').classList.add('hidden');
+        logAudit(`UPDATED Test Bundle [${item.title}] (${item.exam}) • Fee ₹${discRs} (MRP ₹${origRs}).`);
+        alert('Test bundle updated! Changes are immediately live in the app.');
         loadTestPackages();
-      } catch (e) {
-        alert('Update failed: ' + e.message);
+      } catch (err) {
+        alert('Update failed: ' + err.message);
       }
     }
 
@@ -2745,7 +2900,10 @@
           <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2">
             <div class="flex items-start justify-between gap-2">
               <span class="font-bold text-indigo-600 text-xs font-mono">Q${idx + 1}.</span>
-              <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${q.subject}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${q.subject}</span>
+                ${q.id ? `<button onclick="openEditQuestionModal(${idx})" class="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded transition"><i class="fa-solid fa-pen-to-square"></i> Edit</button>` : ''}
+              </div>
             </div>
             <div class="text-xs font-semibold text-slate-900 leading-relaxed whitespace-pre-line">${qText}</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
@@ -2769,6 +2927,71 @@
           </div>
         `;
       }).join('');
+    }
+
+    function openEditQuestionModal(idx) {
+      const questions = window._loadedViewerQuestions || [];
+      const q = questions[idx];
+      if (!q) return;
+      document.getElementById('editQIndex').value = idx;
+      document.getElementById('editQText').value = q.question || '';
+      document.getElementById('editQOptA').value = q.options?.A || q.options?.a || '';
+      document.getElementById('editQOptB').value = q.options?.B || q.options?.b || '';
+      document.getElementById('editQOptC').value = q.options?.C || q.options?.c || '';
+      document.getElementById('editQOptD').value = q.options?.D || q.options?.d || '';
+      document.getElementById('editQCorrect').value = (q.correct || 'A').toUpperCase();
+      document.getElementById('editQExplanation').value = q.explanation || '';
+      document.getElementById('editQuestionModal').classList.remove('hidden');
+    }
+
+    async function saveEditedQuestion(e) {
+      e.preventDefault();
+      try {
+        const idx = parseInt(document.getElementById('editQIndex').value);
+        const questions = window._loadedViewerQuestions || [];
+        const q = questions[idx];
+        if (!q || !q.id) {
+          alert('Only cloud-stored questions can be edited.');
+          return;
+        }
+
+        q.question = document.getElementById('editQText').value.trim();
+        q.options = {
+          A: document.getElementById('editQOptA').value.trim(),
+          B: document.getElementById('editQOptB').value.trim(),
+          C: document.getElementById('editQOptC').value.trim(),
+          D: document.getElementById('editQOptD').value.trim(),
+        };
+        q.correct = document.getElementById('editQCorrect').value;
+        q.explanation = document.getElementById('editQExplanation').value.trim();
+
+        // Fetch existing row to preserve metadata
+        const { data: row } = await supabaseClient
+          .from('payments')
+          .select('razorpay_order_id')
+          .eq('id', q.id)
+          .single();
+
+        let payload = {};
+        try { payload = JSON.parse(row.razorpay_order_id); } catch (_) {}
+        payload.question = q.question;
+        payload.options = q.options;
+        payload.correct_answer = q.correct;
+        payload.explanation = q.explanation;
+
+        const { error } = await supabaseClient
+          .from('payments')
+          .update({ razorpay_order_id: JSON.stringify(payload) })
+          .eq('id', q.id);
+
+        if (error) throw error;
+        document.getElementById('editQuestionModal').classList.add('hidden');
+        renderViewerQuestions();
+        logAudit(`UPDATED Question Q${idx + 1} (${q.id}) & Explanation.`);
+        alert('Question & Explanation updated! Users will see the latest version immediately.');
+      } catch (err) {
+        alert('Failed to update question: ' + err.message);
+      }
     }
 
     function closeTestQuestionsModal() {
