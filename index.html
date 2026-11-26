@@ -1100,20 +1100,45 @@
                 statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Retired</span>';
               }
 
+              // Format detailed education qualification
+              let eduDisplay = '-';
+              const degName = (s.college_degree_name || '').trim();
+              const degType = (s.college_degree_type || '').trim();
+              const eduStatus = (s.education_status || '').trim();
+              const schoolStd = (s.school_standard || '').trim();
+
+              if (schoolStd) {
+                eduDisplay = `<span class="font-semibold text-slate-800">${schoolStd}th Standard</span>`;
+              } else if (degName && degType) {
+                const statusBadge = eduStatus === 'graduated' 
+                  ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Graduated</span>'
+                  : '<span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Pursuing</span>';
+                eduDisplay = `<div><div class="font-bold text-slate-900 text-xs">${degType} • ${degName}</div><div class="mt-0.5">${statusBadge}</div></div>`;
+              } else if (degName) {
+                eduDisplay = `<span class="font-semibold text-slate-800 text-xs">${degName}</span>`;
+              } else if (degType) {
+                const statusText = eduStatus === 'graduated' ? 'Graduate' : 'Student';
+                eduDisplay = `<span class="font-semibold text-slate-800 text-xs">${degType} ${statusText}</span>`;
+              } else if (s.education) {
+                eduDisplay = `<span class="font-semibold text-slate-800 text-xs">${s.education}</span>`;
+              } else if (eduStatus) {
+                eduDisplay = `<span class="font-semibold text-slate-800 text-xs capitalize">${eduStatus}</span>`;
+              }
+
               return `
                 <tr class="hover:bg-slate-50 transition">
                   <td class="p-3.5">
                     <div class="font-bold text-slate-900">${s.full_name || 'Candidate'}</div>
                     <div class="text-[11px] text-slate-500">${s.email || '-'}</div>
                   </td>
-                  <td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '9345029705'}</td>
-                  <td class="p-3.5 font-semibold text-slate-900">${s.district || 'Ranipet'}</td>
+                  <td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '-'}</td>
+                  <td class="p-3.5 font-semibold text-slate-900">${s.district || '-'}</td>
                   <td class="p-3.5">
                     <span class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 text-slate-800 rounded-md">
                       ${s.target_exam || 'TNPSC'}
                     </span>
                   </td>
-                  <td class="p-3.5 text-slate-600 font-medium">${s.education || 'PG Graduate'}</td>
+                  <td class="p-3.5">${eduDisplay}</td>
                   <td class="p-3.5">${statusBadge}</td>
                   <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
                     ${isBlocked 
