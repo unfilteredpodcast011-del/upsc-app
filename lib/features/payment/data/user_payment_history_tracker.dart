@@ -50,6 +50,7 @@ class UserPaymentHistoryTracker {
     required String paymentId,
     required String status, // 'SUCCESS', 'FAILED', 'CANCELLED'
     String paymentMode = 'UPI',
+    int amountPaise = 100,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final studentId = prefs.getString('student_id') ?? 'student_guest';
@@ -59,7 +60,7 @@ class UserPaymentHistoryTracker {
       paymentId: paymentId,
       testTitle: testTitle,
       paymentMode: paymentMode,
-      amountPaise: 100,
+      amountPaise: amountPaise,
       status: status,
       date: DateTime.now().toIso8601String(),
     );
@@ -82,7 +83,7 @@ class UserPaymentHistoryTracker {
         'test_id': testUuid,
         'razorpay_order_id': orderId,
         'razorpay_payment_id': paymentId,
-        'amount_paise': 100,
+        'amount_paise': amountPaise,
         'status': status == 'SUCCESS' ? 'captured' : status.toLowerCase(),
       });
     } catch (_) {}

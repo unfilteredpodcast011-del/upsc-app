@@ -15,46 +15,73 @@ class PaymentRepository {
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _functions = functions ?? FirebaseFunctions.instance;
 
-  /// Creates a Razorpay Order server-side (callable Cloud Function)
-  /// Always charges Rs. 1 (100 paise)
+  /// Creates a Razorpay Order server-side via Supabase Edge Function
   Future<String> createRazorpayOrder({
     required String testId,
     required String userId,
+    int amountPaise = 100,
+    String testTitle = '',
   }) async {
     try {
-      final callable = _functions.httpsCallable('createRazorpayOrder');
-      final result = await callable.call<Map<String, dynamic>>({
-        'testId': testId,
-        'userId': userId,
-      });
-      return result.data['orderId'] as String;
-    } catch (e) {
-      // Direct local/Supabase record for payments
-      final orderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
-      try {
-        await Supabase.instance.client.from('payments').insert({
-          'student_id': userId,
-          'test_id': testId,
-          'razorpay_order_id': orderId,
-          'amount_paise': 100,
-          'status': 'created',
-        });
-      } catch (e) {
-        // Continue
+      final res = await Supabase.instance.client.functions.invoke(
+        'razorpay-create-order',
+        body: {
+          'testId': testId,
+          'userId': userId,
+          'amountPaise': amountPaise,
+          'testTitle': testTitle,
+        },
+      );
+      final data = res.data as Map<String, dynamic>?;
+      if (data != null && data['orderId'] != null) {
+        return data['orderId'].toString();
       }
-      return orderId;
-    }
+    } catch (_) {}
+
+    // Fallback: Direct Supabase record with status 'created'
+    final orderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
+    try {
+      await Supabase.instance.client.from('payments').insert({
+        'student_id': userId.contains('-') ? userId : null,
+        'test_id': testId.contains('-') ? testId : null,
+        'razorpay_order_id': orderId,
+        'amount_paise': amountPaise,
+        'status': 'created',
+      });
+    } catch (_) {}
+    return orderId;
   }
 
-  /// Verifies HMAC SHA-256 signature and unlocks test
+  /// Verifies HMAC SHA-256 signature via Supabase Edge Function and unlocks test
   Future<bool> verifyAndUnlockTest({
     required String orderId,
     required String paymentId,
     required String signature,
     required String testId,
     required String userId,
+    int amountPaise = 100,
     String? testModeSecretKey,
   }) async {
+    try {
+      final res = await Supabase.instance.client.functions.invoke(
+        'razorpay-verify-payment',
+        body: {
+          'orderId': orderId,
+          'paymentId': paymentId,
+          'signature': signature,
+          'testId': testId,
+          'userId': userId,
+          'amountPaise': amountPaise,
+        },
+      );
+      final data = res.data as Map<String, dynamic>?;
+      if (data != null && data['success'] == true) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('unlocked_${userId}_$testId', true);
+        return true;
+      }
+    } catch (_) {}
+
     try {
       final callable = _functions.httpsCallable('verifyPayment');
       final result = await callable.call<Map<String, dynamic>>({
@@ -90,7 +117,7 @@ class PaymentRepository {
             'test_id': testId,
             'razorpay_order_id': orderId,
             'razorpay_payment_id': paymentId,
-            'amount_paise': 100,
+            'amount_paise': amountPaise,
             'status': 'captured',
           });
         } catch (_) {}

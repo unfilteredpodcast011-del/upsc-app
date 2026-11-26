@@ -1336,6 +1336,28 @@
       });
     }
 
+    async function syncFromRazorpay() {
+      const btn = document.getElementById('btnSyncRazorpay');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing...';
+      }
+      try {
+        const { data, error } = await supabaseClient.functions.invoke('razorpay-sync-payments');
+        if (error) throw error;
+        logAudit(`Razorpay Sync complete: ${data?.syncedCount || 0} missing payments imported.`);
+        alert(`Razorpay Sync complete! ${data?.syncedCount || 0} missing payments imported.`);
+        loadAdminData();
+      } catch (err) {
+        alert('Sync note: Deploy razorpay-sync-payments Edge Function in Supabase to enable 1-click API sync. (' + err.message + ')');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync from Razorpay';
+        }
+      }
+    }
+
     function renderPaymentsTable(list) {
       const payBody = document.getElementById('paymentsBody');
       if (!list || list.length === 0) {

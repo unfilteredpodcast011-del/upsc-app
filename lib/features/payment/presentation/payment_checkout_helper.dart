@@ -15,8 +15,8 @@ class PaymentCheckoutHelper {
   final TestModel test;
   final Function() onPaymentSuccess;
 
-  // Razorpay Test Key ID
-  static const String razorpayTestKeyId = 'rzp_test_U0kJAgrYUcMteT';
+  // Razorpay Live Key ID
+  static const String razorpayTestKeyId = 'rzp_live_TvILTj34p5TVTl';
 
   PaymentCheckoutHelper({
     required this.ref,
@@ -40,11 +40,20 @@ class PaymentCheckoutHelper {
     final studentPhone = prefs.getString('student_phone') ?? '';
     final studentName = prefs.getString('student_name') ?? 'Aspirant';
     final studentDistrict = prefs.getString('student_district') ?? '';
+    final studentId = prefs.getString('student_id') ?? 'student_guest';
 
     try {
+      final orderId = await ref.read(paymentRepoProvider).createRazorpayOrder(
+            testId: test.id,
+            userId: studentId,
+            amountPaise: test.priceInPaise,
+            testTitle: test.title,
+          );
+
       final options = {
         'key': razorpayTestKeyId,
-        'amount': test.priceInPaise, // 100 paise = ₹1.00
+        'amount': test.priceInPaise,
+        if (orderId.startsWith('order_') && !orderId.startsWith('order_17')) 'order_id': orderId,
         'name': 'Test 11',
         'description': '${test.exam}: ${test.title}',
         'timeout': 300,
@@ -92,6 +101,7 @@ class PaymentCheckoutHelper {
       paymentId: response.paymentId ?? 'pay_success',
       status: 'SUCCESS',
       paymentMode: 'UPI / Netbanking',
+      amountPaise: test.priceInPaise,
     );
 
     final isVerified = await ref.read(paymentRepoProvider).verifyAndUnlockTest(
@@ -100,6 +110,7 @@ class PaymentCheckoutHelper {
           signature: response.signature ?? 'direct_sig',
           testId: test.id,
           userId: studentId,
+          amountPaise: test.priceInPaise,
         );
 
     if (isVerified) {
@@ -124,6 +135,7 @@ class PaymentCheckoutHelper {
       paymentId: 'fail_code_${response.code}',
       status: status,
       paymentMode: 'UPI / Netbanking',
+      amountPaise: test.priceInPaise,
     );
 
     if (context.mounted) {
