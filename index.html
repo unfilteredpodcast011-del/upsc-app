@@ -542,6 +542,25 @@
 
       <!-- Test Creation Form -->
       <form id="createPackageForm" onsubmit="handleCreateTestPackage(event)" class="bg-slate-50/80 p-5 rounded-xl border border-slate-200 space-y-4">
+        <!-- Add New Government Exam Category -->
+        <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl flex flex-wrap items-end gap-3 mb-2">
+          <div class="flex-1 min-w-[120px]">
+            <label class="block text-[11px] font-bold text-indigo-900 mb-1">New Exam Code (e.g. BANK, SSC)</label>
+            <input type="text" id="newExamCode" placeholder="BANK" class="w-full text-xs font-bold uppercase border border-indigo-200 rounded-lg p-2 bg-white">
+          </div>
+          <div class="flex-[2] min-w-[180px]">
+            <label class="block text-[11px] font-bold text-indigo-900 mb-1">Display Title (Shown in App Profile)</label>
+            <input type="text" id="newExamTitle" placeholder="Bank Exams (IBPS / SBI)" class="w-full text-xs font-semibold border border-indigo-200 rounded-lg p-2 bg-white">
+          </div>
+          <div class="flex-[2] min-w-[180px]">
+            <label class="block text-[11px] font-bold text-indigo-900 mb-1">Subtitle / Description</label>
+            <input type="text" id="newExamSubtitle" placeholder="PO, Clerk & Specialist Officer Prelims" class="w-full text-xs font-semibold border border-indigo-200 rounded-lg p-2 bg-white">
+          </div>
+          <button type="button" onclick="addNewExamCategory()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
+            <i class="fa-solid fa-plus"></i> Add Exam to App
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold text-slate-700 mb-1">Test Title (Exactly as shown in Candidate App)</label>
@@ -914,6 +933,7 @@
         document.getElementById('authOverlay').classList.add('hidden');
         loadAdminData();
         loadPyqQuestions();
+        loadExamCategories();
         loadTestPackages();
         initLiveSubscriptions();
       }
@@ -1022,6 +1042,7 @@
         logAudit(`Administrator [${email}] authenticated successfully.`);
         loadAdminData();
         loadPyqQuestions();
+        loadExamCategories();
         loadTestPackages();
         initLiveSubscriptions();
       } else {
@@ -2232,6 +2253,65 @@
         loadTestPackages();
       } catch (e) {
         alert('Delete failed: ' + e.message);
+      }
+    }
+
+    async function loadExamCategories() {
+      try {
+        const { data } = await supabaseClient
+          .from('payments')
+          .select('razorpay_order_id')
+          .eq('status', 'exam_category')
+          .order('created_at', { ascending: true });
+
+        const select = document.getElementById('pkgExam');
+        if (!select) return;
+        const existing = new Set(['UPSC', 'TNPSC']);
+        (data || []).forEach(row => {
+          try {
+            const item = JSON.parse(row.razorpay_order_id);
+            const code = (item.code || '').toUpperCase().trim();
+            if (code && !existing.has(code)) {
+              existing.add(code);
+              const opt = document.createElement('option');
+              opt.value = code;
+              opt.textContent = `${code} — ${item.title || code}`;
+              select.appendChild(opt);
+            }
+          } catch (_) {}
+        });
+      } catch (_) {}
+    }
+
+    async function addNewExamCategory() {
+      const code = (document.getElementById('newExamCode')?.value || '').trim().toUpperCase();
+      const title = (document.getElementById('newExamTitle')?.value || '').trim();
+      const subtitle = (document.getElementById('newExamSubtitle')?.value || '').trim() || 'Government Exam Mock Tests';
+      if (!code || !title) {
+        alert('Please enter both Exam Code (e.g. BANK) and Display Title.');
+        return;
+      }
+      try {
+        const studentId = (window.allStudentsList && window.allStudentsList.length > 0)
+          ? window.allStudentsList[0].id
+          : '8294c73f-be46-4f65-939c-9eaebe11273f';
+        const { error } = await supabaseClient.from('payments').insert({
+          student_id: studentId,
+          test_id: null,
+          amount_paise: 0,
+          status: 'exam_category',
+          razorpay_payment_id: 'admin_exam_category',
+          razorpay_order_id: JSON.stringify({ code, title, subtitle }),
+        });
+        if (error) throw error;
+        logAudit(`ADDED new Government Exam Category: [${code}] ${title}`);
+        alert(`"${title}" (${code}) added! It will now appear in the Admin dropdown and the User Profile page.`);
+        document.getElementById('newExamCode').value = '';
+        document.getElementById('newExamTitle').value = '';
+        document.getElementById('newExamSubtitle').value = '';
+        loadExamCategories();
+      } catch (err) {
+        alert('Failed to add exam category: ' + err.message);
       }
     }
 

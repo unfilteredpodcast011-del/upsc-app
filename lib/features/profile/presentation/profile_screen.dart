@@ -125,7 +125,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 controller: titleController,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
-                  hintText: 'e.g. Manoj IAS, Ananya IPS',
+                  hintText: 'e.g. Laven Lokesh IAS, Ananya IPS',
                   isDense: true,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
@@ -468,7 +468,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Target Exam Settings Selector Card
+            // Target Exam Settings Selector Card (Dynamic: UPSC, TNPSC + Admin-Added Exams)
             Text(
               AppStrings.get('target_exam', langCode),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -479,46 +479,81 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Column(
-                  children: [
-                    RadioListTile<String>(
-                      activeColor: const Color(0xFF1E3A8A),
-                      secondary: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          shape: BoxShape.circle,
+                child: ref.watch(availableExamsProvider).when(
+                  data: (exams) => Column(
+                    children: [
+                      for (int i = 0; i < exams.length; i++) ...[
+                        if (i > 0) const Divider(height: 1),
+                        RadioListTile<String>(
+                          activeColor: exams[i].code == 'TNPSC'
+                              ? const Color(0xFF0F766E)
+                              : (exams[i].code == 'UPSC' ? const Color(0xFF1E3A8A) : Colors.deepPurple),
+                          secondary: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: exams[i].code == 'TNPSC'
+                                  ? Colors.teal.shade50
+                                  : (exams[i].code == 'UPSC' ? Colors.blue.shade50 : Colors.deepPurple.shade50),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              exams[i].code == 'TNPSC'
+                                  ? Icons.account_balance
+                                  : (exams[i].code == 'UPSC' ? Icons.school : Icons.assured_workload_rounded),
+                              color: exams[i].code == 'TNPSC'
+                                  ? const Color(0xFF0F766E)
+                                  : (exams[i].code == 'UPSC' ? const Color(0xFF1E3A8A) : Colors.deepPurple),
+                              size: 22,
+                            ),
+                          ),
+                          title: Text(
+                            exams[i].code == 'UPSC'
+                                ? AppStrings.get('upsc_title', langCode)
+                                : (exams[i].code == 'TNPSC' ? AppStrings.get('tnpsc_title', langCode) : exams[i].title),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            exams[i].code == 'UPSC'
+                                ? AppStrings.get('upsc_subtitle', langCode)
+                                : (exams[i].code == 'TNPSC' ? AppStrings.get('tnpsc_subtitle', langCode) : exams[i].subtitle),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          value: exams[i].code,
+                          groupValue: currentExam,
+                          onChanged: (val) {
+                            if (val != null) _switchExamWithTransition(val);
+                          },
                         ),
-                        child: const Icon(Icons.school, color: Color(0xFF1E3A8A), size: 22),
+                      ],
+                    ],
+                  ),
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (_, __) => Column(
+                    children: [
+                      RadioListTile<String>(
+                        activeColor: const Color(0xFF1E3A8A),
+                        title: Text(AppStrings.get('upsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        value: 'UPSC',
+                        groupValue: currentExam,
+                        onChanged: (val) {
+                          if (val != null) _switchExamWithTransition(val);
+                        },
                       ),
-                      title: Text(AppStrings.get('upsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(AppStrings.get('upsc_subtitle', langCode), style: const TextStyle(fontSize: 12)),
-                      value: 'UPSC',
-                      groupValue: currentExam,
-                      onChanged: (val) {
-                        if (val != null) _switchExamWithTransition(val);
-                      },
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<String>(
-                      activeColor: const Color(0xFF0F766E),
-                      secondary: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.teal.shade50,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.account_balance, color: Color(0xFF0F766E), size: 22),
+                      const Divider(height: 1),
+                      RadioListTile<String>(
+                        activeColor: const Color(0xFF0F766E),
+                        title: Text(AppStrings.get('tnpsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        value: 'TNPSC',
+                        groupValue: currentExam,
+                        onChanged: (val) {
+                          if (val != null) _switchExamWithTransition(val);
+                        },
                       ),
-                      title: Text(AppStrings.get('tnpsc_title', langCode), style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(AppStrings.get('tnpsc_subtitle', langCode), style: const TextStyle(fontSize: 12)),
-                      value: 'TNPSC',
-                      groupValue: currentExam,
-                      onChanged: (val) {
-                        if (val != null) _switchExamWithTransition(val);
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -759,6 +794,59 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           value: _dailyReminderEnabled,
                           activeColor: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
                           onChanged: (val) async {
+                            if (val) {
+                              final granted = await NotificationService().requestNotificationPermission();
+                              if (!granted && mounted) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Notification Permission Required'),
+                                    content: const Text(
+                                      'Please allow notifications for Test 11 in your phone settings so we can send your daily mock test reminder.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx);
+                                          NotificationService().requestNotificationPermission();
+                                        },
+                                        child: const Text('Open Settings'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                return;
+                              }
+                              final canExact = await NotificationService().canScheduleExactAlarms();
+                              if (!canExact && mounted) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Alarms & Reminders Permission'),
+                                    content: const Text(
+                                      'To deliver your daily reminder at the exact chosen time, please allow "Alarms & reminders" for Test 11.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text('Later'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx);
+                                          NotificationService().requestExactAlarmPermission();
+                                        },
+                                        child: const Text('Allow Exact Alarms'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
                             setState(() => _dailyReminderEnabled = val);
                             await NotificationService().updateReminderPreferences(
                               reminderTime: '$_dailyReminderTime:00',
@@ -833,6 +921,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            await NotificationService().sendTestNotification();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Test notification sent! Check your notification tray.'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          icon: Icon(
+                            Icons.notifications_none_rounded,
+                            size: 16,
+                            color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8),
+                          ),
+                          label: Text(
+                            'Send test notification',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ],
