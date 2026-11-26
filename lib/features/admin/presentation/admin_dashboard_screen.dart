@@ -143,7 +143,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     "Today's Revenue",
                     '₹${_stats!.todayRevenueRs.toStringAsFixed(0)}',
                     Icons.bolt_rounded,
-                    Colors.emerald.shade700,
+                    const Color(0xFF047857),
                   ),
                   const SizedBox(width: 8),
                   _buildStatCard(

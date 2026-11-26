@@ -67,7 +67,9 @@ class _LoginScreenState extends State<LoginScreen> {
           String dbPassword = '';
           String dbDob = '';
 
-          // Parse encoded credentials: "DOB:YYYY-MM-DD|PWD:secret"
+          // Parse encoded credentials: "DOB:YYYY-MM-DD|PWD:secret|TITLE:title|VISION:vision"
+          String dbTitle = '';
+          String dbVision = '';
           if (yearsTrying.contains('PWD:')) {
             final parts = yearsTrying.split('|');
             for (final part in parts) {
@@ -75,6 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 dbPassword = part.substring(4);
               } else if (part.startsWith('DOB:')) {
                 dbDob = part.substring(4);
+              } else if (part.startsWith('TITLE:')) {
+                dbTitle = part.substring(6);
+              } else if (part.startsWith('VISION:')) {
+                dbVision = part.substring(7);
               }
             }
           }
@@ -93,6 +99,12 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('student_password', password);
           if (dbDob.isNotEmpty) {
             await prefs.setString('student_dob', dbDob);
+          }
+          if (dbTitle.isNotEmpty) {
+            await prefs.setString('preferred_title', dbTitle);
+          }
+          if (dbVision.isNotEmpty) {
+            await prefs.setString('vision_board', dbVision);
           }
           await prefs.setBool('onboarding_completed', true);
 

@@ -22,6 +22,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _districtController = TextEditingController();
   final _schoolStandardController = TextEditingController();
   final _degreeNameController = TextEditingController();
+  final _preferredTitleController = TextEditingController();
+  final _visionBoardController = TextEditingController();
 
   DateTime? _selectedDob;
   bool _obscurePassword = true;
@@ -53,6 +55,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _districtController.dispose();
     _schoolStandardController.dispose();
     _degreeNameController.dispose();
+    _preferredTitleController.dispose();
+    _visionBoardController.dispose();
     super.dispose();
   }
 
@@ -219,7 +223,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       final dobStr = _dobController.text.trim();
       final passwordStr = _passwordController.text;
-      final credentialPayload = 'DOB:$dobStr|PWD:$passwordStr';
+      final rawTitle = _preferredTitleController.text.trim();
+      final preferredTitle = rawTitle.isNotEmpty ? rawTitle : '${_nameController.text.trim()} ${_targetExam == "TNPSC" ? "Deputy Collector" : "IAS"}';
+      final rawVision = _visionBoardController.text.trim();
+      final visionBoard = rawVision.isNotEmpty ? rawVision : 'Serving as a respected civil servant transforming public welfare.';
+
+      // Clean pipeline separator characters
+      final cleanTitle = preferredTitle.replaceAll('|', '/').replaceAll(':', '-');
+      final cleanVision = visionBoard.replaceAll('|', '/').replaceAll(':', '-');
+      final credentialPayload = 'DOB:$dobStr|PWD:$passwordStr|TITLE:$cleanTitle|VISION:$cleanVision';
 
       final studentData = {
         'full_name': _nameController.text.trim(),
@@ -244,6 +256,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       // 1. Save locally in device SharedPreferences
       await prefs.setString('student_name', _nameController.text.trim());
+      await prefs.setString('preferred_title', preferredTitle);
+      await prefs.setString('vision_board', visionBoard);
       await prefs.setString('student_phone', _phoneController.text.trim());
       await prefs.setString('student_email', _emailController.text.trim());
       await prefs.setString('student_district', _districtController.text.trim());
@@ -326,6 +340,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Name
                 TextFormField(
                   controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
                   style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
                     labelText: 'Full Name *',
@@ -334,6 +349,128 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your name' : null,
+                  onChanged: (val) {
+                    if (_preferredTitleController.text.isEmpty && val.trim().isNotEmpty) {
+                      setState(() {});
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // How should we address you (e.g. Manoj IAS)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFBBF7D0),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.military_tech_rounded, color: Color(0xFF16A34A), size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'How Should We Address You? (Aspirational Title)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'E.g. Manoj IAS, Ananya IPS, Vignesh Deputy Collector. We will greet you with this daily!',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _preferredTitleController,
+                        textCapitalization: TextCapitalization.words,
+                        style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
+                          hintText: _nameController.text.trim().isNotEmpty 
+                              ? '${_nameController.text.trim()} ${_targetExam == "TNPSC" ? "Deputy Collector" : "IAS"}' 
+                              : 'e.g. Manoj IAS',
+                          hintStyle: TextStyle(color: subTextColor.withOpacity(0.6)),
+                          isDense: true,
+                          fillColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 5-Year Future Vision Board
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFEF3C7).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFFDE68A),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.rocket_launch_rounded, color: Color(0xFFD97706), size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '5-Year Future Vision Board',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isDark ? const Color(0xFFFCD34D) : const Color(0xFFB45309),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Where will you be after 5 years? Write your dream designation and service goal. It will motivate you on your daily dashboard!',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _visionBoardController,
+                        maxLines: 2,
+                        textCapitalization: TextCapitalization.sentences,
+                        style: TextStyle(color: textColor, fontWeight: FontWeight.w500, fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'e.g. In 5 years, I will be a District Collector or Sub-Collector serving Tamil Nadu with integrity.',
+                          hintStyle: TextStyle(color: subTextColor.withOpacity(0.6), fontSize: 12),
+                          isDense: true,
+                          fillColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
 

@@ -9,9 +9,28 @@ class TestModel {
   final int defaultDurationSeconds;
   final double negativeMarkingFactor; // default 0.3333
   final double marksPerQuestion; // default 2.0
-  final int priceInPaise; // 100 paise = Rs. 1
+  final int priceInPaise; // effective payable amount in paise
+  final int originalPriceInPaise; // original MRP in paise (e.g. 4900 for ₹49, 11100 for ₹111)
   final String publishDate;
   final bool isLive;
+
+  /// Helper to get official tiered pricing based on question count:
+  /// 25q: Original ₹49 -> Discounted ₹1
+  /// 50q: Original ₹49 -> Discounted ₹11
+  /// 100q: Original ₹111 -> Discounted ₹11
+  /// 200q: Original ₹111 -> Discounted ₹11
+  static ({int originalRs, int discountedRs, int effectivePaise}) getTierPricing(int questionCount) {
+    if (questionCount <= 25) {
+      return (originalRs: 49, discountedRs: 1, effectivePaise: 100);
+    } else if (questionCount <= 50) {
+      return (originalRs: 49, discountedRs: 11, effectivePaise: 1100);
+    } else if (questionCount <= 100) {
+      return (originalRs: 111, discountedRs: 11, effectivePaise: 1100);
+    } else {
+      // 200q or higher
+      return (originalRs: 111, discountedRs: 11, effectivePaise: 1100);
+    }
+  }
 
   TestModel({
     required this.id,
@@ -24,19 +43,23 @@ class TestModel {
     this.defaultDurationSeconds = 1200, // 20 mins default
     this.negativeMarkingFactor = 0.3333,
     this.marksPerQuestion = 2.0,
-    this.priceInPaise = 100,
+    int? priceInPaise,
+    int? originalPriceInPaise,
     required this.publishDate,
     this.isLive = true,
-  });
+  })  : priceInPaise = priceInPaise ?? getTierPricing(questionCount).effectivePaise,
+        originalPriceInPaise = originalPriceInPaise ?? (getTierPricing(questionCount).originalRs * 100);
 
   factory TestModel.fromMap(Map<String, dynamic> map, String id) {
+    final qCount = (map['questionCount'] as num?)?.toInt() ?? 0;
+    final tier = getTierPricing(qCount);
     return TestModel(
       id: id,
       title: map['title'] ?? '',
       type: map['type'] ?? 'daily',
       exam: map['exam'] ?? 'UPSC',
       subject: map['subject'] ?? 'General Studies',
-      questionCount: (map['questionCount'] as num?)?.toInt() ?? 0,
+      questionCount: qCount,
       questionIds: List<String>.from(map['questionIds'] ?? []),
       defaultDurationSeconds:
           (map['defaultDurationSeconds'] as num?)?.toInt() ?? 1200,
@@ -44,7 +67,8 @@ class TestModel {
           (map['negativeMarkingFactor'] as num?)?.toDouble() ?? 0.3333,
       marksPerQuestion:
           (map['marksPerQuestion'] as num?)?.toDouble() ?? 2.0,
-      priceInPaise: (map['priceInPaise'] as num?)?.toInt() ?? 100,
+      priceInPaise: (map['priceInPaise'] as num?)?.toInt() ?? tier.effectivePaise,
+      originalPriceInPaise: (map['originalPriceInPaise'] as num?)?.toInt() ?? (tier.originalRs * 100),
       publishDate: map['publishDate'] ?? '',
       isLive: map['isLive'] ?? true,
     );

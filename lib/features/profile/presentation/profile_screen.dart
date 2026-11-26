@@ -24,6 +24,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String _email = '';
   String _targetExam = 'UPSC';
   String _district = '';
+  String _preferredTitle = '';
+  String _visionBoard = '';
   int _streakCount = 1;
   int _totalPoints = 50;
   List<Map<String, dynamic>> _attemptsHistory = [];
@@ -78,6 +80,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() {
       _displayName = prefs.getString('student_name') ?? 'Aspirant';
+      _preferredTitle = prefs.getString('preferred_title') ?? '';
+      _visionBoard = prefs.getString('vision_board') ?? '';
       _email = prefs.getString('student_email') ?? '';
       _targetExam = prefs.getString('target_exam') ?? 'UPSC';
       _district = prefs.getString('student_district') ?? '';
@@ -85,6 +89,118 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _totalPoints = calculatedPoints;
       _attemptsHistory = parsedAttempts;
     });
+  }
+
+  void _showEditVisionDialog(BuildContext context, String langCode) {
+    final titleController = TextEditingController(text: _preferredTitle);
+    final visionController = TextEditingController(text: _visionBoard);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.military_tech_rounded, color: Color(0xFF16A34A)),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Personalize Title & 5-Year Vision',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'How should we address you?',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: titleController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  hintText: 'e.g. Manoj IAS, Ananya IPS',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                '5-Year Future Vision Board',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: visionController,
+                maxLines: 3,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: 'Where will you be in 5 years? Write your goal.',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF16A34A),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              final newTitle = titleController.text.trim();
+              final newVision = visionController.text.trim();
+
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('preferred_title', newTitle);
+              await prefs.setString('vision_board', newVision);
+
+              final studentId = prefs.getString('student_id');
+              if (studentId != null && studentId.contains('-')) {
+                try {
+                  final curYt = prefs.getString('student_dob') ?? '';
+                  final curPwd = prefs.getString('student_password') ?? '';
+                  final cleanT = newTitle.replaceAll('|', '/').replaceAll(':', '-');
+                  final cleanV = newVision.replaceAll('|', '/').replaceAll(':', '-');
+                  final payload = 'DOB:$curYt|PWD:$curPwd|TITLE:$cleanT|VISION:$cleanV';
+                  await Supabase.instance.client
+                      .from('students')
+                      .update({'years_trying': payload})
+                      .eq('id', studentId);
+                } catch (_) {}
+              }
+
+              if (mounted) {
+                setState(() {
+                  _preferredTitle = newTitle;
+                  _visionBoard = newVision;
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Aspirational title & 5-year vision updated!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _switchExamWithTransition(String newExam) async {
@@ -407,6 +523,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Payment History Navigation Button
+            Card(
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFFDCFCE7),
+                  child: Icon(Icons.military_tech_rounded, color: Color(0xFF16A34A)),
+                ),
+                title: Text(
+                  _preferredTitle.isNotEmpty ? _preferredTitle : 'Set Aspirational Title',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  _visionBoard.isNotEmpty ? 'Vision: "$_visionBoard"' : 'Tap to set your addressing title and 5-year vision board',
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: const Icon(Icons.edit_note_rounded, color: Color(0xFF16A34A)),
+                onTap: () => _showEditVisionDialog(context, langCode),
+              ),
+            ),
+            const SizedBox(height: 12),
 
             // Payment History Navigation Button
             Card(

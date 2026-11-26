@@ -29,6 +29,8 @@ class TestListScreen extends ConsumerStatefulWidget {
 
 class _TestListScreenState extends ConsumerState<TestListScreen> {
   String _candidateName = '';
+  String _preferredTitle = '';
+  String _visionBoard = '';
   int _liveStreak = 1;
   int _livePoints = 50;
 
@@ -39,7 +41,169 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
     _loadLiveStreakAndPoints();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppUpdateChecker.checkAppUpdate(context);
+      _checkAndPromptVisionIfMissing();
     });
+  }
+
+  Future<void> _checkAndPromptVisionIfMissing() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasPrompted = prefs.getBool('prompted_vision_board_setup') ?? false;
+    final currentTitle = prefs.getString('preferred_title') ?? '';
+    final currentVision = prefs.getString('vision_board') ?? '';
+
+    if (!hasPrompted && (currentTitle.isEmpty || currentVision.isEmpty) && mounted) {
+      await prefs.setBool('prompted_vision_board_setup', true);
+      _showVisionSetupModal();
+    }
+  }
+
+  void _showVisionSetupModal() {
+    final titleController = TextEditingController(text: _preferredTitle);
+    final visionController = TextEditingController(text: _visionBoard);
+    final selectedExam = ref.read(selectedExamProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.rocket_launch_rounded, color: Colors.orange, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Personalize Your Aspiration',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        Text(
+                          'We will greet you with your dream title every day!',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'How should we address you?',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: titleController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  hintText: _candidateName.isNotEmpty 
+                      ? '$_candidateName ${selectedExam == "TNPSC" ? "Deputy Collector" : "IAS"}' 
+                      : 'e.g. Manoj IAS',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                'Your 5-Year Vision (Where do you see yourself?)',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: visionController,
+                maxLines: 2,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: 'e.g. Serving as District Collector leading citizen-first reforms.',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 18),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () async {
+                  final newTitle = titleController.text.trim().isNotEmpty
+                      ? titleController.text.trim()
+                      : (_candidateName.isNotEmpty ? '$_candidateName ${selectedExam == "TNPSC" ? "Deputy Collector" : "IAS"}' : 'Officer');
+                  final newVision = visionController.text.trim().isNotEmpty
+                      ? visionController.text.trim()
+                      : 'Serving as a respected civil servant transforming public welfare.';
+
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('preferred_title', newTitle);
+                  await prefs.setString('vision_board', newVision);
+
+                  // Sync to Supabase student record if available
+                  final studentId = prefs.getString('student_id');
+                  if (studentId != null && studentId.contains('-')) {
+                    try {
+                      final cleanT = newTitle.replaceAll('|', '/').replaceAll(':', '-');
+                      final cleanV = newVision.replaceAll('|', '/').replaceAll(':', '-');
+                      final curYt = prefs.getString('student_dob') ?? '';
+                      final curPwd = prefs.getString('student_password') ?? '';
+                      final payload = 'DOB:$curYt|PWD:$curPwd|TITLE:$cleanT|VISION:$cleanV';
+                      await Supabase.instance.client
+                          .from('students')
+                          .update({'years_trying': payload})
+                          .eq('id', studentId);
+                    } catch (_) {}
+                  }
+
+                  if (mounted) {
+                    setState(() {
+                      _preferredTitle = newTitle;
+                      _visionBoard = newVision;
+                    });
+                    Navigator.pop(ctx);
+                  }
+                },
+                child: const Text('Save My Vision & Title', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _getTimeGreeting(String currentLang) {
+    final hour = DateTime.now().hour;
+    if (hour >= 4 && hour < 12) {
+      return currentLang == 'ta' ? 'காலை வணக்கம்' : (currentLang == 'hi' ? 'शुभ प्रभात' : 'Good Morning');
+    } else if (hour >= 12 && hour < 17) {
+      return currentLang == 'ta' ? 'மதிய வணக்கம்' : (currentLang == 'hi' ? 'शुभ दोपहर' : 'Good Afternoon');
+    } else {
+      return currentLang == 'ta' ? 'மாலை வணக்கம்' : (currentLang == 'hi' ? 'शुभ संध्या' : 'Good Evening');
+    }
   }
 
   Future<void> _loadLiveStreakAndPoints() async {
@@ -58,13 +222,15 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString('student_name') ?? prefs.getString('user_name') ?? '';
     final studentId = prefs.getString('student_id');
+    final prefTitle = prefs.getString('preferred_title') ?? '';
+    final prefVision = prefs.getString('vision_board') ?? '';
 
     // Real-time account validity check against database
     if (studentId != null && studentId.isNotEmpty) {
       try {
         final res = await Supabase.instance.client
             .from('students')
-            .select('id, account_status')
+            .select('id, account_status, years_trying')
             .eq('id', studentId)
             .maybeSingle();
 
@@ -75,13 +241,31 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
             context.go('/onboarding');
             return;
           }
+        } else {
+          // Parse title and vision if stored on DB and missing locally
+          final yt = (res['years_trying'] ?? '').toString();
+          if (yt.contains('TITLE:') && prefTitle.isEmpty) {
+            for (final part in yt.split('|')) {
+              if (part.startsWith('TITLE:')) {
+                final val = part.substring(6);
+                await prefs.setString('preferred_title', val);
+                if (mounted) setState(() => _preferredTitle = val);
+              } else if (part.startsWith('VISION:')) {
+                final val = part.substring(7);
+                await prefs.setString('vision_board', val);
+                if (mounted) setState(() => _visionBoard = val);
+              }
+            }
+          }
         }
       } catch (_) {}
     }
 
-    if (mounted && name.isNotEmpty) {
+    if (mounted) {
       setState(() {
-        _candidateName = name;
+        if (name.isNotEmpty) _candidateName = name;
+        if (prefTitle.isNotEmpty) _preferredTitle = prefTitle;
+        if (prefVision.isNotEmpty) _visionBoard = prefVision;
       });
     }
   }
@@ -92,6 +276,11 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
   }
 
   void _showPaymentPrompt(TestModel test) {
+    final pricing = TestModel.getTierPricing(test.questionCount);
+    final originalFee = pricing.originalRs;
+    final payableFee = pricing.discountedRs;
+    final discountPercent = (((originalFee - payableFee) / originalFee) * 100).round();
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -114,24 +303,73 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                 style: TextStyle(color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
+
+              // Pricing Summary Card with MRP & Special Discounted Price
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.shade300),
+                  gradient: LinearGradient(
+                    colors: [Colors.amber.shade50, Colors.orange.shade50],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.amber.shade400, width: 1.2),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Access Fee',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              'Special Access Fee',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF16A34A),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '$discountPercent% OFF',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              'Regular MRP: ',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            ),
+                            Text(
+                              '₹$originalFee',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                                decoration: TextDecoration.lineThrough,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     Text(
-                      '₹1.00',
-                      style: TextStyle(
-                        fontSize: 22,
+                      '₹$payableFee',
+                      style: const TextStyle(
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.deepOrange,
                       ),
@@ -169,8 +407,17 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                icon: const Icon(Icons.payment),
-                label: const Text('Pay ₹1 with Razorpay & Start'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.payment_rounded, color: Colors.amberAccent),
+                label: Text(
+                  'Pay ₹$payableFee with Razorpay & Start',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
                 onPressed: () {
                   Navigator.pop(ctx);
                   final checkoutHelper = PaymentCheckoutHelper(
@@ -695,7 +942,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Daily Streak & Hero Card
+            // Daily Streak & Hero Card with Time-Based Greeting & Custom Title
             Card(
               color: Theme.of(context).colorScheme.primary,
               child: Padding(
@@ -706,11 +953,30 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            children: [
+                              Text(
+                                '${_getTimeGreeting(currentLang)},',
+                                style: const TextStyle(
+                                  color: Colors.amberAccent,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.wb_sunny_rounded, color: Colors.amberAccent, size: 16),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
                           Text(
-                            '${AppStrings.get('hello', currentLang)}, ${(_candidateName.isNotEmpty ? _candidateName : (user?.displayName != null && user!.displayName!.isNotEmpty ? user.displayName! : 'Aspirant'))}!',
+                            (_preferredTitle.isNotEmpty 
+                                ? _preferredTitle 
+                                : (_candidateName.isNotEmpty 
+                                    ? '$_candidateName ${selectedExam == "TNPSC" ? "Deputy Collector" : "IAS"}' 
+                                    : (user?.displayName != null && user!.displayName!.isNotEmpty ? user.displayName! : 'Aspirant'))),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 19,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -744,6 +1010,129 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Daily 5-Year Vision Board Motivation Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                      : [const Color(0xFFF0FDF4), const Color(0xFFDCFCE7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFF86EFAC),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF166534)
+                                  : const Color(0xFFBBF7D0),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.rocket_launch_rounded, color: Color(0xFF15803D), size: 16),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            currentLang == 'ta' 
+                                ? '5 ஆண்டுகள் தொலைநோக்குப் பார்வை' 
+                                : (currentLang == 'hi' ? '5 वर्षीय भविष्य दृष्टि' : '5-Year Future Vision'),
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF86EFAC)
+                                  : const Color(0xFF166534),
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () => _showVisionSetupModal(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit_note_rounded, 
+                                size: 18, 
+                                color: Theme.of(context).brightness == Brightness.dark 
+                                    ? const Color(0xFF86EFAC) 
+                                    : const Color(0xFF15803D),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                currentLang == 'ta' ? 'மாற்று' : 'Edit',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).brightness == Brightness.dark 
+                                      ? const Color(0xFF86EFAC) 
+                                      : const Color(0xFF15803D),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _visionBoard.isNotEmpty 
+                        ? '"$_visionBoard"' 
+                        : '"In 5 years, I will be serving with excellence as a top civil servant transforming lives."',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      height: 1.45,
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFFF1F5F9)
+                          : const Color(0xFF14532D),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    currentLang == 'ta'
+                        ? '⚡ தினமும் நினைவில் கொள்ளுங்கள்: உங்கள் கடின உழைப்பு உங்களை இங்கு கொண்டு சேர்க்கும்!'
+                        : (currentLang == 'hi'
+                            ? '⚡ याद रखें: आपका निरंतर अभ्यास आपको इस लक्ष्य तक पहुँचाएगा!'
+                            : '⚡ Keep this dream in front of you every day. Every mock test brings you closer!'),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF166534).withOpacity(0.8),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 14),

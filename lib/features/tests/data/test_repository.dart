@@ -431,6 +431,7 @@ class TestRepository {
 
             final int qCount = (data['questionCount'] as num?)?.toInt() ?? 25;
             final int durationMins = (data['durationMinutes'] as num?)?.toInt() ?? (qCount * 60 ~/ 50);
+            final tier = TestModel.getTierPricing(qCount);
 
             customPackages.add(
               TestModel(
@@ -442,7 +443,8 @@ class TestRepository {
                 questionCount: qCount,
                 questionIds: [],
                 defaultDurationSeconds: durationMins * 60,
-                priceInPaise: 100,
+                priceInPaise: (data['priceInPaise'] as num?)?.toInt() ?? tier.effectivePaise,
+                originalPriceInPaise: (data['originalPriceInPaise'] as num?)?.toInt() ?? (tier.originalRs * 100),
                 publishDate: row['created_at']?.toString() ?? '2026-11-17',
                 isLive: true,
               ),
