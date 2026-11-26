@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/services/streak_service.dart';
 import '../domain/test_model.dart';
 import '../domain/question_model.dart';
 
@@ -228,6 +229,71 @@ class TestRepository {
     if (exam == 'TNPSC') {
       baseTests = [
         TestModel(
+          id: 'tnpsc_pyq_group1_2022',
+          title: 'TNPSC Group 1 Combined Civil Services Official Prelims Paper',
+          type: 'daily',
+          exam: 'TNPSC',
+          subject: 'General Studies & Mental Ability (Official GS Prelims)',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-20',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_pyq_group2_2022',
+          title: 'TNPSC Group 2 & 2A Combined Civil Services Official Prelims Paper',
+          type: 'daily',
+          exam: 'TNPSC',
+          subject: 'General Studies, Aptitude & Mental Ability',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-20',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_pyq_group4_2022',
+          title: 'TNPSC Group 4 & VAO General Studies Comprehensive PYQ Paper',
+          type: 'daily',
+          exam: 'TNPSC',
+          subject: 'General Studies, Tamil Heritage & Mental Ability',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-20',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_pyq_unit8_unit9',
+          title: 'TNPSC Tamil Society, Heritage & Administration Special PYQ Paper',
+          type: 'subject',
+          exam: 'TNPSC',
+          subject: 'Unit 8 (Tamil Heritage) & Unit 9 (Development Administration)',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-20',
+          isLive: true,
+        ),
+        TestModel(
+          id: 'tnpsc_pyq_science_aptitude',
+          title: 'TNPSC General Science, Economy & Aptitude Master PYQ Paper',
+          type: 'subject',
+          exam: 'TNPSC',
+          subject: 'General Science, Indian Economy & Mental Ability',
+          questionCount: 25,
+          questionIds: [],
+          defaultDurationSeconds: 1800, // 30 mins
+          priceInPaise: 100,
+          publishDate: '2026-11-20',
+          isLive: true,
+        ),
+        TestModel(
           id: 'tnpsc_mock_daily_1',
           title: 'TNPSC Group 1/2 Daily Prelims Mock (Random 25)',
           type: 'daily',
@@ -442,14 +508,100 @@ class TestRepository {
     required int count,
     required String userId,
   }) async {
-    // 0. CHECK FOR FIXED MOCK TEST OR SPECIFIC BUNDLE FIRST
+    // 0A. CHECK BUILT-IN 5 OFFICIAL TNPSC PYQ SETS FIRST
+    if (exam == 'TNPSC' && testId.startsWith('tnpsc_pyq_')) {
+      try {
+        final jsonStr = await rootBundle.loadString('assets/data/tnpsc_pyq_5_sets.json');
+        final List<dynamic> setsList = jsonDecode(jsonStr);
+        for (final s in setsList) {
+          if (s['id'] == testId) {
+            final List<dynamic> qRawList = s['questions'] ?? [];
+            final List<QuestionModel> pyqQuestions = [];
+            for (final qItem in qRawList) {
+              final Map<String, dynamic> m = qItem;
+              final rawEn = m['en'] as Map<String, dynamic>? ?? {};
+              final rawTa = m['ta'] as Map<String, dynamic>? ?? {};
+              final rawHi = m['hi'] as Map<String, dynamic>? ?? {};
+
+              final Map<String, QuestionTranslation> translationsMap = {
+                'en': QuestionTranslation(
+                  question: rawEn['question'] ?? '',
+                  options: (rawEn['options'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? {},
+                  explanation: rawEn['explanation'] ?? '',
+                ),
+                'ta': QuestionTranslation(
+                  question: rawTa['question'] ?? rawEn['question'] ?? '',
+                  options: (rawTa['options'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? {},
+                  explanation: rawTa['explanation'] ?? rawEn['explanation'] ?? '',
+                ),
+                'hi': QuestionTranslation(
+                  question: rawHi['question'] ?? rawEn['question'] ?? '',
+                  options: (rawHi['options'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? {},
+                  explanation: rawHi['explanation'] ?? rawEn['explanation'] ?? '',
+                ),
+              };
+
+              pyqQuestions.add(
+                QuestionModel(
+                  id: m['id'] ?? '',
+                  exam: 'TNPSC',
+                  subject: m['subject'] ?? 'General Studies',
+                  topic: m['topic'] ?? 'TNPSC Official PYQ',
+                  ncertChapter: '',
+                  difficulty: 'medium',
+                  publishDate: '2026-11-20',
+                  correctAnswer: m['correct_answer'] ?? 'A',
+                  normalizedText: rawEn['question'] ?? '',
+                  pyqYear: m['year']?.toString() ?? '2022',
+                  isPyq: true,
+                  translations: translationsMap,
+                ),
+              );
+            }
+            if (pyqQuestions.isNotEmpty) {
+              return pyqQuestions;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    // 0B. CHECK FOR FIXED MOCK TEST OR SPECIFIC BUNDLE IN DATABASE
     // If the test has specific attached questions in payments or tests table, fetch those exact questions
     try {
-      final specificRows = await Supabase.instance.client
-          .from('payments')
-          .select('id, razorpay_order_id, amount_paise, created_at')
-          .eq('status', 'pyq_question')
-          .order('created_at', ascending: true);
+      // Resolve package title if testId is a UUID
+      String targetTopic = testId;
+      try {
+        final pkgRows = await Supabase.instance.client
+            .from('payments')
+            .select('razorpay_order_id')
+            .eq('status', 'test_package')
+            .eq('id', testId);
+        if (pkgRows.isNotEmpty) {
+          final pkgData = jsonDecode(pkgRows.first['razorpay_order_id'] ?? '{}');
+          if (pkgData['title'] != null) {
+            targetTopic = pkgData['title'].toString();
+          }
+        }
+      } catch (_) {}
+
+      // Fetch all questions for this topic/test_id in batches to bypass the 1000-row PostgREST default ceiling
+      final List<dynamic> specificRows = [];
+      int offset = 0;
+      const batchSize = 1000;
+      while (true) {
+        final batch = await Supabase.instance.client
+            .from('payments')
+            .select('id, razorpay_order_id, amount_paise, created_at')
+            .eq('status', 'pyq_question')
+            .range(offset, offset + batchSize - 1)
+            .order('created_at', ascending: true);
+
+        if (batch.isEmpty) break;
+        specificRows.addAll(batch);
+        if (batch.length < batchSize) break;
+        offset += batchSize;
+      }
 
       if (specificRows.isNotEmpty) {
         final List<QuestionModel> bundleQuestions = [];
@@ -458,13 +610,26 @@ class TestRepository {
             final raw = row['razorpay_order_id'];
             if (raw == null) continue;
             final Map<String, dynamic> data = jsonDecode(raw);
-            if (data['topic'] == testId || data['test_id'] == testId) {
+            final rowTopic = (data['topic'] ?? '').toString();
+            final rowTestId = (data['test_id'] ?? '').toString();
+
+            if (rowTopic == testId ||
+                rowTestId == testId ||
+                rowTopic == targetTopic ||
+                rowTestId == targetTopic) {
               final qText = data['question'] ?? '';
               final exp = data['explanation'] ?? 'Correct Answer: ${data['correct_answer']}';
               final year = data['year']?.toString() ?? '2026';
-              final Map<String, dynamic> rawOpts = data['options'] ?? {};
               final Map<String, String> opts = {};
-              rawOpts.forEach((k, v) => opts[k.toString().toUpperCase()] = v.toString());
+              if (data['options'] is List) {
+                final list = data['options'] as List;
+                const keys = ['A', 'B', 'C', 'D'];
+                for (int i = 0; i < list.length && i < 4; i++) {
+                  opts[keys[i]] = list[i].toString();
+                }
+              } else if (data['options'] is Map) {
+                (data['options'] as Map).forEach((k, v) => opts[k.toString().toUpperCase()] = v.toString());
+              }
 
               // Build translations
               final Map<String, QuestionTranslation> transMap = {};
@@ -524,8 +689,6 @@ class TestRepository {
         }
 
         if (bundleQuestions.isNotEmpty) {
-          // If this is a specific test paper bundle, return its fixed questions without mixing with random practice pool.
-          // Shuffle questions on every attempt as requested by the user, while preserving the exact 100 questions belonging to this test.
           final shuffledList = List<QuestionModel>.from(bundleQuestions)..shuffle();
           return shuffledList;
         }
@@ -891,6 +1054,11 @@ class TestRepository {
         'options': q.getLocalizedOptions(appLang),
         'correct_answer': q.correctAnswer,
         'explanation': q.getLocalizedExplanation(appLang),
+        'translations': q.translations.map((lang, trans) => MapEntry(lang, {
+          'question': trans.question,
+          'options': trans.options,
+          'explanation': trans.explanation,
+        })),
       }).toList()),
     );
 
@@ -914,6 +1082,15 @@ class TestRepository {
     });
     existingHistory.insert(0, attemptJson);
     await prefs.setStringList(historyKey, existingHistory);
+
+    // Accurately compute and update daily streak & points
+    try {
+      await StreakService.recordTestCompletion(
+        userId: userId,
+        score: score,
+        accuracy: accuracy,
+      );
+    } catch (_) {}
 
     // Finalize attempt in Supabase (idempotent update or insert)
     try {

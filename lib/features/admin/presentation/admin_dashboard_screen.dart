@@ -136,6 +136,25 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             if (_loadingStats)
               const Center(child: LinearProgressIndicator())
             else if (_stats != null) ...[
+              // Today's Pulse Row
+              Row(
+                children: [
+                  _buildStatCard(
+                    "Today's Revenue",
+                    '₹${_stats!.todayRevenueRs.toStringAsFixed(0)}',
+                    Icons.bolt_rounded,
+                    Colors.emerald.shade700,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildStatCard(
+                    "Today's Users",
+                    '${_stats!.todayNewUsers}',
+                    Icons.person_add_alt_1_rounded,
+                    Colors.blue.shade700,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   _buildStatCard(

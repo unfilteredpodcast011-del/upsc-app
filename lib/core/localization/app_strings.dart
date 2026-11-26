@@ -98,6 +98,12 @@ class AppStrings {
       'daily_test_reminder_title': 'Daily Mock Test Reminder',
       'daily_test_reminder_sub': 'Receive daily notification to practice your target exam',
       'reminder_time_label': 'Reminder Time',
+      'streak_rules_title': 'Streak Rules & Regulations',
+      'streak_rules_desc': '• Complete at least 1 practice or mock test every day to grow your daily streak (+1 Day).\n• Practicing consecutive days builds your streak multiplier.\n• If you miss an entire calendar day without practicing any test, your streak resets to 0.\n• Completing tests also earns points: +20 pts base, +15 bonus pts for accuracy >= 80%, plus points equal to your score.',
+      'streak_rules_btn': 'Streak Rules',
+      'leaderboard_rules_title': 'Leaderboard Scoring System',
+      'leaderboard_rules_desc': '• The live leaderboard ranks candidates by Total Accumulated Test Scores across verified attempts.\n• Faster completion times serve as a tie-breaker for identical scores.\n• Resetting points in your Profile will set your personal score & accuracy back to 0, placing you fresh at the entry level.\n• All rankings update in real time with server-verified test evaluations.',
+      'leaderboard_rules_btn': 'Scoring Rules',
     },
     'ta': {
       'app_title': 'Test 11',
@@ -197,6 +203,12 @@ class AppStrings {
       'daily_test_reminder_title': 'தினசரி மாதிரி தேர்வு நினைவூட்டல்',
       'daily_test_reminder_sub': 'தினமும் பயிற்சி செய்ய அறிவிப்பைப் பெறுங்கள்',
       'reminder_time_label': 'நினைவூட்டல் நேரம்',
+      'streak_rules_title': 'தொடர் பயிற்சி விதிகள் & வழிகாட்டுதல்',
+      'streak_rules_desc': '• தினமும் குறைந்தபட்சம் 1 மாதிரித் தேர்வை முடித்தால் உங்கள் தொடர் நாட்கள் (+1 நாள்) உயரும்.\n• தொடர்ந்து ஒவ்வொரு நாளும் பயிற்சி செய்வதன் மூலம் உங்கள் தொடர் உயர்ந்து கொண்டே செல்லும்.\n• ஒரு நாள் கூட தேர்வு எழுதாமல் விட்டால், தொடர் நாட்கள் 0 ஆகக் குறைந்து மீண்டும் தொடங்கும்.\n• ஒவ்வொரு தேர்வுக்கும் +20 புள்ளிகள், 80%-க்கு மேல் துல்லியம் இருந்தால் +15 போனஸ் புள்ளிகள் மற்றும் உங்கள் மதிப்பெண்களும் புள்ளிகளாகச் சேர்க்கப்படும்.',
+      'streak_rules_btn': 'பயிற்சி விதிகள்',
+      'leaderboard_rules_title': 'தரவரிசைப் பட்டியல் கணக்கீட்டு முறை',
+      'leaderboard_rules_desc': '• மாணவர்கள் எழுதிய சரிபார்க்கப்பட்ட மாதிரித் தேர்வுகளின் மொத்த மதிப்பெண்கள் அடிப்படையில் தரவரிசை கணக்கிடப்படுகிறது.\n• ஒரே மதிப்பெண் பெற்ற மாணவர்களில் குறைந்த நேரத்தில் முடித்தவருக்கு முன்னுரிமை வழங்கப்படும்.\n• சுயவிவரத்தில் புள்ளிகளை மீட்டமைத்தால் (Reset), உங்கள் மதிப்பெண் 0 ஆகி தரவரிசை மீண்டும் முதலில் இருந்து தொடங்கும்.\n• ஒவ்வொரு தேர்வு சமர்ப்பிப்பின் போதும் நேரலைத் தரவரிசை உடனுக்குடன் புதுப்பிக்கப்படும்.',
+      'leaderboard_rules_btn': 'தரவரிசை விதிகள்',
     },
     'hi': {
       'app_title': 'Test 11',
@@ -296,6 +308,12 @@ class AppStrings {
       'daily_test_reminder_title': 'दैनिक मॉक टेस्ट रिमाइंडर',
       'daily_test_reminder_sub': 'दैनिक अभ्यास के लिए समय पर सूचना प्राप्त करें',
       'reminder_time_label': 'रिमाइंडर समय',
+      'streak_rules_title': 'लगातार अभ्यास (Streak) नियम और शर्तें',
+      'streak_rules_desc': '• प्रतिदिन कम से कम 1 टेस्ट पूरा करने पर आपकी स्ट्रीक (+1 दिन) बढ़ती है।\n• लगातार अभ्यास करने से आपकी स्ट्रीक बढ़ती रहती है।\n• यदि आप एक भी दिन अभ्यास नहीं करते हैं, तो स्ट्रीक 0 पर रीसेट हो जाती है।\n• प्रत्येक टेस्ट पूरा करने पर +20 अंक, 80% सटीकता पर +15 बोनस अंक और आपके टेस्ट अंक भी जुड़ते हैं।',
+      'streak_rules_btn': 'अभ्यास नियम',
+      'leaderboard_rules_title': 'लीडरबोर्ड स्कोरिंग नियम',
+      'leaderboard_rules_desc': '• लीडरबोर्ड पर रैंक कुल अर्जित टेस्ट स्कोर के आधार पर दी जाती है।\n• समान स्कोर होने पर कम समय लेने वाले उम्मीदवार को उच्च रैंक मिलती है।\n• प्रोफाइल में अंक रीसेट करने पर आपका स्कोर 0 हो जाएगा और रैंक नए सिरे से शुरू होगी।\n• प्रत्येक टेस्ट सबमिशन पर लीडरबोर्ड तुरंत अपडेट होता है।',
+      'leaderboard_rules_btn': 'रैंकिंग नियम',
     },
   };
 

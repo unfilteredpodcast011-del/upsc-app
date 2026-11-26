@@ -10,8 +10,43 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    /* Layout & Text Overflow Hardening */
+    * {
+      box-sizing: border-box;
+    }
+    
+    /* Ensure flex items shrink correctly without overflowing container */
+    .flex > * {
+      min-width: 0;
+    }
+    
+    /* Responsive Text Wrapping across screen sizes and scripts */
+    p, span, h1, h2, h3, h4, h5, h6, td, th {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Table horizontal scroll container safety */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* KPI metric value wrapping protection */
+    .kpi-value {
+      overflow-wrap: normal;
+      word-break: normal;
+      white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .kpi-value {
+        font-size: 1.5rem !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 min-h-screen antialiased">
@@ -186,6 +221,27 @@
           </nav>
         </div>
 
+        <!-- Today's Live Pulse Metric in Sidebar -->
+        <div class="p-3.5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl shadow-sm border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Today's Live Pulse
+            </span>
+            <span class="text-[10px] font-bold text-slate-400" id="sidebarTodayDate">Today</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800">
+            <div class="bg-white/10 p-2 rounded-lg">
+              <div class="text-[10px] font-bold text-slate-300">Revenue</div>
+              <div class="text-sm font-black text-emerald-300 mt-0.5" id="sidebarTodayRevenue">₹0.00</div>
+            </div>
+            <div class="bg-white/10 p-2 rounded-lg">
+              <div class="text-[10px] font-bold text-slate-300">New Users</div>
+              <div class="text-sm font-black text-blue-300 mt-0.5" id="sidebarTodayUsers">0</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Quick Admin Action Card -->
         <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
           <div class="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
@@ -221,25 +277,74 @@
 
     <!-- KPI Metric Summary Cards -->
     <div id="section-dashboard" class="space-y-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Registered Students</div>
-        <div class="text-2xl font-black text-slate-900 mt-2" id="kpiTotalStudents">--</div>
-        <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-          <i class="fa-solid fa-users text-slate-400"></i>
-          <span>UPSC & TNPSC Aspirants</span>
+
+    <!-- Today's Live Pulse Cards Banner -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-5 rounded-2xl text-white shadow-md flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-black uppercase tracking-wider text-emerald-100 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+            Today's Revenue
+          </div>
+          <div class="text-3xl font-black mt-2 text-white" id="kpiTodayRevenue">₹0.00</div>
+          <div class="text-xs text-emerald-100 font-medium mt-1 flex items-center gap-1">
+            <i class="fa-solid fa-bolt text-amber-300"></i>
+            <span id="kpiTodayPaymentsCount">0 fees collected today</span>
+          </div>
+        </div>
+        <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Platform Revenue</div>
-        <div class="text-2xl font-black text-emerald-600 mt-2" id="kpiRevenue">₹--</div>
-        <div class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
-          <i class="fa-solid fa-arrow-trend-up"></i>
-          <span>All ₹1 test fee attempts</span>
+      <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl text-white shadow-md flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-black uppercase tracking-wider text-blue-100 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            Today's New Students
+          </div>
+          <div class="text-3xl font-black mt-2 text-white" id="kpiTodayUsers">0</div>
+          <div class="text-xs text-blue-100 font-medium mt-1 flex items-center gap-1">
+            <i class="fa-solid fa-user-plus text-sky-200"></i>
+            <span>Signed up past 24 hours</span>
+          </div>
+        </div>
+        <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-user-shield"></i>
         </div>
       </div>
 
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">All-Time Revenue</div>
+          <div class="text-2xl font-black text-emerald-600 mt-2" id="kpiRevenue">₹--</div>
+          <div class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+            <span>All ₹1 test fee attempts</span>
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Registered Students</div>
+          <div class="text-2xl font-black text-slate-900 mt-2" id="kpiTotalStudents">--</div>
+          <div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-users text-slate-400"></i>
+            <span>UPSC & TNPSC Aspirants</span>
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary All-Time KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Successful Payments</div>
         <div class="text-2xl font-black text-slate-900 mt-2" id="kpiSuccessPayments">--</div>
@@ -939,6 +1044,13 @@
 
     async function loadAdminData() {
       try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const todayDateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        const sideDateEl = document.getElementById('sidebarTodayDate');
+        if (sideDateEl) sideDateEl.textContent = todayDateStr;
+
         // 1. Fetch Students
         const { data: students, error: errStudents } = await supabaseClient
           .from('students')
@@ -947,10 +1059,26 @@
 
         let upscCount = 0;
         let tnpscCount = 0;
+        let todayUsersCount = 0;
 
         if (students && !errStudents) {
           window.allStudentsList = students;
           document.getElementById('kpiTotalStudents').textContent = students.length;
+
+          students.forEach(s => {
+            if (s.created_at) {
+              const dt = new Date(s.created_at);
+              if (dt >= todayStart) {
+                todayUsersCount++;
+              }
+            }
+          });
+
+          const kpiTodayUsersEl = document.getElementById('kpiTodayUsers');
+          if (kpiTodayUsersEl) kpiTodayUsersEl.textContent = todayUsersCount;
+          const sideUsersEl = document.getElementById('sidebarTodayUsers');
+          if (sideUsersEl) sideUsersEl.textContent = todayUsersCount;
+
           const stuBody = document.getElementById('studentsBody');
 
           if (students.length === 0) {
@@ -975,8 +1103,8 @@
               return `
                 <tr class="hover:bg-slate-50 transition">
                   <td class="p-3.5">
-                    <div class="font-bold text-slate-900">${s.full_name || 'M. Manoj'}</div>
-                    <div class="text-[11px] text-slate-500">${s.email || 'manojvip36@gmail.com'}</div>
+                    <div class="font-bold text-slate-900">${s.full_name || 'Candidate'}</div>
+                    <div class="text-[11px] text-slate-500">${s.email || '-'}</div>
                   </td>
                   <td class="p-3.5 font-mono text-slate-600 font-medium">${s.phone || '9345029705'}</td>
                   <td class="p-3.5 font-semibold text-slate-900">${s.district || 'Ranipet'}</td>
@@ -1020,18 +1148,37 @@
         let cancelledCount = 0;
         let failedCount = 0;
         let totalRevenue = 0;
+        let todayRevenue = 0;
+        let todaySuccessCount = 0;
 
         payments.forEach(p => {
           const st = (p.status || '').toLowerCase();
+          const pDate = p.created_at ? new Date(p.created_at) : null;
+          const isToday = pDate && pDate >= todayStart;
+
           if (st === 'captured' || st === 'success') {
             successCount++;
-            totalRevenue += (p.amount_paise / 100);
+            const amt = (p.amount_paise ? p.amount_paise / 100 : (p.amount || 1.0));
+            totalRevenue += amt;
+            if (isToday) {
+              todayRevenue += amt;
+              todaySuccessCount++;
+            }
           } else if (st === 'cancelled') {
             cancelledCount++;
           } else if (st === 'failed') {
             failedCount++;
           }
         });
+
+        const kpiTodayRevEl = document.getElementById('kpiTodayRevenue');
+        if (kpiTodayRevEl) kpiTodayRevEl.textContent = '₹' + todayRevenue.toFixed(2);
+
+        const sideTodayRevEl = document.getElementById('sidebarTodayRevenue');
+        if (sideTodayRevEl) sideTodayRevEl.textContent = '₹' + todayRevenue.toFixed(2);
+
+        const kpiTodayPayCountEl = document.getElementById('kpiTodayPaymentsCount');
+        if (kpiTodayPayCountEl) kpiTodayPayCountEl.textContent = `${todaySuccessCount} fee${todaySuccessCount === 1 ? '' : 's'} collected today`;
 
         document.getElementById('kpiRevenue').textContent = '₹' + totalRevenue.toFixed(2);
         document.getElementById('kpiSuccessPayments').textContent = successCount;
@@ -1164,8 +1311,8 @@
           badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">FAILED</span>';
         }
 
-        const candName = (p.students && p.students.full_name) ? p.students.full_name : 'M. Manoj';
-        const candDistrict = (p.students && p.students.district) ? p.students.district : 'Ranipet';
+        const candName = (p.students && p.students.full_name) ? p.students.full_name : 'Candidate';
+        const candDistrict = (p.students && p.students.district) ? p.students.district : '-';
         const testAttended = p.test_id || 'UPSC / TNPSC Timed Practice Mock';
         const paymentMode = p.payment_mode || 'UPI / Netbanking';
         const orderText = p.razorpay_order_id || p.razorpay_payment_id || p.id;

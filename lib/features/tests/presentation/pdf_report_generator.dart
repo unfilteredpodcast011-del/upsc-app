@@ -296,7 +296,10 @@ class PdfReportGenerator {
               final idx = entry.key + 1;
               final q = entry.value;
               final ans = session.answers[q.id];
-              final userOption = ans?.selectedOption;
+              final rawUserOption = ans?.selectedOption?.trim();
+              final userOption = (rawUserOption != null && rawUserOption.isNotEmpty && rawUserOption != 'null')
+                  ? rawUserOption
+                  : null;
               final isCorrect = userOption != null && userOption.toUpperCase() == q.correctAnswer.toUpperCase();
               final isSkipped = userOption == null;
 
@@ -352,7 +355,9 @@ class PdfReportGenerator {
                       children: [
                         pw.Expanded(
                           child: pw.Text(
-                            '${_t("your_answer", language)}: ${userOption != null ? "${_t("option", language)} $userOption" : _t("none", language)}',
+                            isSkipped
+                                ? '${_t("your_answer", language)}: ${_t("skipped", language)}'
+                                : '${_t("your_answer", language)}: ${_t("option", language)} $userOption',
                             style: pw.TextStyle(
                               fontSize: 8.5,
                               fontWeight: pw.FontWeight.bold,

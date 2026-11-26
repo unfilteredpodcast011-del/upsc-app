@@ -1,12 +1,15 @@
 import '../../../core/services/quote_service.dart';
 import '../../../core/services/app_update_checker.dart';
 import '../../../core/services/widget_sync_service.dart';
+import '../../../core/services/streak_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/exam/exam_controller.dart';
@@ -26,14 +29,29 @@ class TestListScreen extends ConsumerStatefulWidget {
 
 class _TestListScreenState extends ConsumerState<TestListScreen> {
   String _candidateName = '';
+  int _liveStreak = 1;
+  int _livePoints = 50;
 
   @override
   void initState() {
     super.initState();
     _loadCandidateName();
+    _loadLiveStreakAndPoints();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppUpdateChecker.checkAppUpdate(context);
     });
+  }
+
+  Future<void> _loadLiveStreakAndPoints() async {
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getString('student_id') ?? 'student_guest';
+    final data = await StreakService.getCurrentStreakAndPoints(studentId);
+    if (mounted) {
+      setState(() {
+        _liveStreak = data['streak'] ?? 1;
+        _livePoints = data['points'] ?? 50;
+      });
+    }
   }
 
   Future<void> _loadCandidateName() async {
@@ -689,7 +707,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${AppStrings.get('hello', currentLang)}, ${(_candidateName.isNotEmpty ? _candidateName : (user?.displayName != null && user!.displayName!.isNotEmpty ? user.displayName! : 'M. Manoj'))}!',
+                            '${AppStrings.get('hello', currentLang)}, ${(_candidateName.isNotEmpty ? _candidateName : (user?.displayName != null && user!.displayName!.isNotEmpty ? user.displayName! : 'Aspirant'))}!',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -698,7 +716,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${AppStrings.get('target', currentLang)}: $selectedExam • ${AppStrings.get('day_streak', currentLang)}: ${user?.streakCount ?? 1} 🔥',
+                            '${AppStrings.get('target', currentLang)}: $selectedExam • ${AppStrings.get('day_streak', currentLang)}: ${_liveStreak > 0 ? _liveStreak : (user?.streakCount ?? 1)} 🔥',
                             style: const TextStyle(color: Colors.white70, fontSize: 13),
                           ),
                         ],
@@ -714,7 +732,7 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                         children: [
                           const Icon(Icons.stars, color: Colors.amberAccent),
                           Text(
-                            '${user?.totalPoints ?? 50} ${AppStrings.get('points', currentLang)}',
+                            '${_livePoints > 0 ? _livePoints : (user?.totalPoints ?? 50)} ${AppStrings.get('points', currentLang)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -921,65 +939,90 @@ class _TestListScreenState extends ConsumerState<TestListScreen> {
                   itemBuilder: (ctx, idx) {
                     final test = tests[idx];
                     return Card(
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(14),
-                        leading: CircleAvatar(
-                          radius: 24,
-                          backgroundColor: test.type == 'daily'
-                              ? Colors.amber.shade100
-                              : Colors.blue.shade100,
-                          child: Icon(
-                            test.type == 'daily'
-                                ? Icons.today
-                                : Icons.assignment_outlined,
-                            color: test.type == 'daily'
-                                ? Colors.amber.shade900
-                                : Colors.blue.shade900,
-                          ),
-                        ),
-                        title: Text(
-                          test.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 4),
-                            Text(
-                              '${test.questionCount} Questions • ${test.defaultDurationSeconds ~/ 60} mins • Negative 1/3',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: test.type == 'daily'
+                                  ? Colors.amber.shade100
+                                  : Colors.blue.shade100,
+                              child: Icon(
+                                test.type == 'daily'
+                                    ? Icons.today
+                                    : Icons.assignment_outlined,
+                                color: test.type == 'daily'
+                                    ? Colors.amber.shade900
+                                    : Colors.blue.shade900,
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 4,
-                              children: [
-                                Chip(
-                                  label: Text(
-                                    test.subject,
-                                    style: const TextStyle(fontSize: 10),
+                            AppSpacing.hMd,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    test.title,
+                                    style: AppTypography.localizedStyle(
+                                      languageCode: currentLang,
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.35,
+                                      textLength: test.title.length,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: Colors.blue.shade200),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${test.questionCount} Qs • ${test.defaultDurationSeconds ~/ 60} mins • Negative 1/3',
+                                    style: TextStyle(fontSize: 11.5, color: Colors.grey[700]),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  child: const Text(
-                                    '100 Qs • Shuffled on retake',
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                  const SizedBox(height: 4),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: [
+                                      Chip(
+                                        label: Text(
+                                          test.subject,
+                                          style: const TextStyle(fontSize: 10),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade50,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: Colors.blue.shade200),
+                                        ),
+                                        child: Text(
+                                          '${test.questionCount} Qs • Official Verified Solutions',
+                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                            ),
+                            AppSpacing.hSm,
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              onPressed: () => _onTestCardTapped(test),
+                              child: Text(AppStrings.get('start', currentLang)),
                             ),
                           ],
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: () => _onTestCardTapped(test),
-                          child: Text(AppStrings.get('start', currentLang)),
                         ),
                       ),
                     );

@@ -9,6 +9,8 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/exam/exam_controller.dart';
 import '../../../core/services/notification_service.dart';
+import '../../../core/services/streak_service.dart';
+import '../../../core/theme/app_typography.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -70,13 +72,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       } catch (_) {}
     }
 
+    final streakData = await StreakService.getCurrentStreakAndPoints(studentId);
+    final calculatedPoints = streakData['points'] ?? (50 + (parsedAttempts.length * 20));
+    final calculatedStreak = streakData['streak'] ?? 1;
+
     setState(() {
       _displayName = prefs.getString('student_name') ?? 'Aspirant';
       _email = prefs.getString('student_email') ?? '';
       _targetExam = prefs.getString('target_exam') ?? 'UPSC';
       _district = prefs.getString('student_district') ?? '';
-      _streakCount = prefs.getInt('streak_count') ?? 1;
-      _totalPoints = prefs.getInt('total_points') ?? (50 + (parsedAttempts.length * 20));
+      _streakCount = calculatedStreak;
+      _totalPoints = calculatedPoints;
       _attemptsHistory = parsedAttempts;
     });
   }
@@ -203,6 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final currentLocale = ref.watch(localeProvider);
     final langCode = currentLocale.languageCode;
     final currentExam = ref.watch(selectedExamProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -286,6 +293,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   AppStrings.get('days_label', langCode, params: {'n': '$_streakCount'}),
                   Icons.local_fire_department,
                   Colors.orange,
+                  onTap: () => _showStreakRulesDialog(context, langCode),
                 ),
                 const SizedBox(width: 8),
                 _badgeCard(
@@ -293,6 +301,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   AppStrings.get('points_label', langCode, params: {'n': '$_totalPoints'}),
                   Icons.stars,
                   Colors.amber.shade800,
+                  onTap: () => _showStreakRulesDialog(context, langCode),
                 ),
                 const SizedBox(width: 8),
                 _badgeCard(
@@ -303,7 +312,45 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+
+            // Streak & Points Rules Banner Link
+            InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => _showStreakRulesDialog(context, langCode),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.orange.withOpacity(0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, size: 18, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        AppStrings.get('streak_rules_title', langCode),
+                        style: AppTypography.localizedStyle(
+                          languageCode: langCode,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? const Color(0xFFFBBF24) : Colors.orange.shade900,
+                          textLength: AppStrings.get('streak_rules_title', langCode).length,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 20,
+                      color: isDark ? const Color(0xFFFBBF24) : Colors.orange.shade900,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Target Exam Settings Selector Card
             Text(
@@ -510,20 +557,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.blue.shade200),
+                side: BorderSide(
+                  color: isDark 
+                      ? const Color(0xFF60A5FA).withOpacity(0.5) 
+                      : const Color(0xFF2563EB).withOpacity(0.3),
+                  width: 1.2,
+                ),
               ),
-              color: Colors.blue.shade50.withOpacity(0.4),
+              color: isDark 
+                  ? const Color(0xFF1E293B) 
+                  : const Color(0xFFF0F7FF),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
+                          backgroundColor: isDark 
+                              ? const Color(0xFF1E3A8A) 
+                              : const Color(0xFFDBEAFE),
                           radius: 18,
-                          child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF1E3A8A), size: 20),
+                          child: Icon(
+                            Icons.notifications_active_rounded, 
+                            color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8), 
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -532,18 +593,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             children: [
                               Text(
                                 AppStrings.get('daily_test_reminder_title', langCode),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                style: AppTypography.localizedStyle(
+                                  languageCode: langCode,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+                                  textLength: AppStrings.get('daily_test_reminder_title', langCode).length,
+                                ),
                               ),
+                              const SizedBox(height: 5),
                               Text(
                                 AppStrings.get('daily_test_reminder_sub', langCode),
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                                style: AppTypography.localizedStyle(
+                                  languageCode: langCode,
+                                  fontSize: 12.5,
+                                  height: 1.4,
+                                  color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                                  textLength: AppStrings.get('daily_test_reminder_sub', langCode).length,
+                                ),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Switch(
                           value: _dailyReminderEnabled,
-                          activeColor: const Color(0xFF1E3A8A),
+                          activeColor: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
                           onChanged: (val) async {
                             setState(() => _dailyReminderEnabled = val);
                             await NotificationService().updateReminderPreferences(
@@ -555,17 +630,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ],
                     ),
                     if (_dailyReminderEnabled) ...[
-                      const Divider(height: 24),
+                      Divider(
+                        height: 24, 
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             AppStrings.get('reminder_time_label', langCode),
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                            style: AppTypography.localizedStyle(
+                              languageCode: langCode,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B),
+                              textLength: AppStrings.get('reminder_time_label', langCode).length,
+                            ),
                           ),
                           OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF1E3A8A)),
+                              side: BorderSide(
+                                color: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+                                width: 1.2,
+                              ),
+                              backgroundColor: isDark 
+                                  ? const Color(0xFF0F172A).withOpacity(0.5) 
+                                  : Colors.white,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             ),
@@ -590,10 +680,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 );
                               }
                             },
-                            icon: const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFF1E3A8A)),
+                            icon: Icon(
+                              Icons.access_time_rounded, 
+                              size: 16, 
+                              color: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+                            ),
                             label: Text(
                               _dailyReminderTime,
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold, 
+                                color: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+                              ),
                             ),
                           ),
                         ],
@@ -610,21 +707,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.amber.shade300),
+                side: BorderSide(color: isDark ? Colors.amber.withOpacity(0.4) : Colors.amber.shade300),
               ),
-              color: Colors.amber.shade50.withOpacity(0.5),
+              color: isDark ? const Color(0xFF1E293B) : Colors.amber.shade50.withOpacity(0.5),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Colors.amber.shade100,
+                  backgroundColor: isDark ? Colors.amber.withOpacity(0.2) : Colors.amber.shade100,
                   child: const Icon(Icons.restart_alt_rounded, color: Colors.orange),
                 ),
                 title: Text(
                   AppStrings.get('reset_leaderboard_title', langCode),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: AppTypography.localizedStyle(
+                    languageCode: langCode,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+                    textLength: AppStrings.get('reset_leaderboard_title', langCode).length,
+                  ),
                 ),
                 subtitle: Text(
                   AppStrings.get('reset_leaderboard_subtitle', langCode),
-                  style: const TextStyle(fontSize: 12),
+                  style: AppTypography.localizedStyle(
+                    languageCode: langCode,
+                    fontSize: 12.0,
+                    height: 1.35,
+                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                    textLength: AppStrings.get('reset_leaderboard_subtitle', langCode).length,
+                  ),
                 ),
                 trailing: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -1028,38 +1137,125 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _badgeCard(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Card(
-        color: color.withOpacity(0.12),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color.withOpacity(0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: 6),
-              Text(
-                value,
-                style: TextStyle(
+  void _showStreakRulesDialog(BuildContext context, String langCode) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.local_fire_department, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                AppStrings.get('streak_rules_title', langCode),
+                style: AppTypography.localizedStyle(
+                  languageCode: langCode,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: color,
+                  textLength: AppStrings.get('streak_rules_title', langCode).length,
                 ),
               ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                label.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w600,
+                AppStrings.get('streak_rules_desc', langCode),
+                style: AppTypography.localizedStyle(
+                  languageCode: langCode,
+                  fontSize: 13,
+                  height: 1.55,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Icon(Icons.leaderboard_rounded, color: Colors.amber, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppStrings.get('leaderboard_rules_title', langCode),
+                      style: AppTypography.localizedStyle(
+                        languageCode: langCode,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                        textLength: AppStrings.get('leaderboard_rules_title', langCode).length,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppStrings.get('leaderboard_rules_desc', langCode),
+                style: AppTypography.localizedStyle(
+                  languageCode: langCode,
+                  fontSize: 12.5,
+                  height: 1.5,
                 ),
               ),
             ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _badgeCard(String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Card(
+          color: color.withOpacity(0.12),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: color.withOpacity(0.3)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(height: 6),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF94A3B8)
+                        : Colors.grey[700],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

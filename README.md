@@ -96,3 +96,116 @@ flutter build appbundle --release
 flutter build ipa --release
 ```
 *Output: `build/ios/archive/Runner.xcarchive`*
+
+---
+
+## 5. Unified Dashboard Stats Endpoint (Supabase Edge Function)
+
+A read-only stats endpoint `dashboard-stats` is provided for the Unified Dashboard to monitor KPIs from the UPSC / TNPSC platform ("Test 11 - Admin Portal").
+
+### Response Schema
+```json
+{
+  "project": "upsc",
+  "stats": {
+    "total_students": 18,
+    "tnpsc_students": 5,
+    "upsc_students": 13,
+    "successful_payments": 53,
+    "cancelled_payments": 15,
+    "failed_payments": 0,
+    "inquiries": 1,
+    "question_bank": 864,
+    "test_packages": 9
+  },
+  "card_metrics": [
+    { "label": "Registered Students", "value": "18", "sub": "TNPSC 5 · UPSC 13" },
+    { "label": "Platform Revenue", "value": "₹53", "sub": "53 paid · 15 cancelled · 0 failed" },
+    { "label": "Question Bank", "value": "864", "sub": "English, Tamil & Hindi" },
+    { "label": "User Inquiries", "value": "1", "sub": "Submitted contact forms" }
+  ],
+  "revenue_inr": 53,
+  "admin_url": "https://unfilteredpodcast011-del.github.io/upsc-app/",
+  "generated_at": "2026-11-25T07:15:00.000Z"
+}
+```
+
+### Key Generation
+Generate a cryptographically secure 256-bit hexadecimal key:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### Configuration & Deployment
+Set the required secrets and deploy with JWT verification disabled (as authentication is handled via the constant-time `x-dashboard-key` header):
+```bash
+supabase secrets set DASHBOARD_KEY=<generated> ADMIN_PUBLIC_URL=https://unfilteredpodcast011-del.github.io/upsc-app/
+supabase functions deploy dashboard-stats --no-verify-jwt
+```
+*(If running from root with npx: `npx supabase functions deploy dashboard-stats --no-verify-jwt`)*
+
+### Function URL Format
+```
+https://<project-ref>.supabase.co/functions/v1/dashboard-stats
+```
+*For this project: `https://jkbndifpcepnsjgmyrfr.supabase.co/functions/v1/dashboard-stats`*
+
+### Curl Examples
+
+#### 1. Missing `x-dashboard-key` header (401 Unauthorized, Empty Body)
+```bash
+curl -i -X GET https://jkbndifpcepnsjgmyrfr.supabase.co/functions/v1/dashboard-stats
+```
+**Response:**
+```http
+HTTP/1.1 401 Unauthorized
+Content-Length: 0
+```
+
+#### 2. Invalid `x-dashboard-key` header (401 Unauthorized, Empty Body)
+```bash
+curl -i -X GET https://jkbndifpcepnsjgmyrfr.supabase.co/functions/v1/dashboard-stats \
+  -H "x-dashboard-key: invalid_or_wrong_secret_key"
+```
+**Response:**
+```http
+HTTP/1.1 401 Unauthorized
+Content-Length: 0
+```
+
+#### 3. Authorized Request with Valid Key (200 OK)
+```bash
+curl -i -X GET https://jkbndifpcepnsjgmyrfr.supabase.co/functions/v1/dashboard-stats \
+  -H "x-dashboard-key: <YOUR_DASHBOARD_KEY>"
+```
+**Response:**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+
+{
+  "project": "upsc",
+  "stats": {
+    "total_students": 18,
+    "tnpsc_students": 5,
+    "upsc_students": 13,
+    "successful_payments": 53,
+    "cancelled_payments": 15,
+    "failed_payments": 0,
+    "inquiries": 1,
+    "question_bank": 864,
+    "test_packages": 9
+  },
+  "card_metrics": [
+    { "label": "Registered Students", "value": "18", "sub": "TNPSC 5 · UPSC 13" },
+    { "label": "Platform Revenue", "value": "₹53", "sub": "53 paid · 15 cancelled · 0 failed" },
+    { "label": "Question Bank", "value": "864", "sub": "English, Tamil & Hindi" },
+    { "label": "User Inquiries", "value": "1", "sub": "Submitted contact forms" }
+  ],
+  "revenue_inr": 53,
+  "admin_url": "https://unfilteredpodcast011-del.github.io/upsc-app/",
+  "generated_at": "2026-11-25T07:15:00.000Z"
+}
+```
+

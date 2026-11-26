@@ -8,6 +8,8 @@ import '../domain/question_model.dart';
 import 'timed_engine_screen.dart';
 import 'pdf_report_generator.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -58,6 +60,35 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 {};
             final qText = m['question'] ?? '';
             final exp = m['explanation'] ?? '';
+
+            final rawTrans = m['translations'] as Map<String, dynamic>?;
+            final Map<String, QuestionTranslation> transMap = {};
+            if (rawTrans != null) {
+              rawTrans.forEach((lang, tData) {
+                if (tData is Map<String, dynamic>) {
+                  final tOpts = (tData['options'] as Map<String, dynamic>?)?.map(
+                        (k, v) => MapEntry(k, v.toString()),
+                      ) ??
+                      opts;
+                  transMap[lang] = QuestionTranslation(
+                    question: tData['question'] ?? qText,
+                    options: tOpts,
+                    explanation: tData['explanation'] ?? exp,
+                  );
+                }
+              });
+            }
+
+            if (!transMap.containsKey('en')) {
+              transMap['en'] = QuestionTranslation(question: qText, options: opts, explanation: exp);
+            }
+            if (!transMap.containsKey('ta')) {
+              transMap['ta'] = transMap['en']!;
+            }
+            if (!transMap.containsKey('hi')) {
+              transMap['hi'] = transMap['en']!;
+            }
+
             return QuestionModel(
               id: m['id'] ?? '',
               exam: m['exam'] ?? 'UPSC',
@@ -70,11 +101,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               normalizedText: qText,
               pyqYear: m['pyq_year'] ?? m['pyqYear'] ?? (m['year'] != null ? m['year'].toString() : null),
               isPyq: m['is_pyq'] == true || m['isPyq'] == true || m['year'] != null || m['pyqYear'] != null,
-              translations: {
-                'en': QuestionTranslation(question: qText, options: opts, explanation: exp),
-                'ta': QuestionTranslation(question: qText, options: opts, explanation: exp),
-                'hi': QuestionTranslation(question: qText, options: opts, explanation: exp),
-              },
+              translations: transMap,
             );
           }).toList();
         }
@@ -143,14 +170,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ),
           ],
         ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: AppSpacing.screenPaddingAll,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Score Banner
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
@@ -165,16 +193,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     'Your Exam Score',
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${s.score.toStringAsFixed(2)} / ${totalMarks.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  AppSpacing.vXs,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '${s.score.toStringAsFixed(2)} / ${totalMarks.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.vMd,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -185,33 +216,36 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.vLg,
 
             // Performance Breakdown Row
             Row(
               children: [
                 _statTile('Correct', '${s.totalCorrect}', Colors.green),
-                const SizedBox(width: 8),
+                AppSpacing.hSm,
                 _statTile('Wrong', '${s.totalWrong}', Colors.red),
-                const SizedBox(width: 8),
+                AppSpacing.hSm,
                 _statTile('Skipped', '${s.totalUnanswered}', Colors.grey),
               ],
             ),
-            const SizedBox(height: 24),
+            AppSpacing.vXl,
 
             // Filter Switch: All Questions vs Only Wrong Answers
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Show Only Wrong Questions',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  const Expanded(
+                    child: Text(
+                      'Show Only Wrong Questions',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   Switch(
                     value: _onlyShowMistakes,
@@ -223,7 +257,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            AppSpacing.vMd,
 
             // Dedicated Full PDF Download Button placed directly below Wrong Questions switch
             ElevatedButton.icon(
@@ -237,17 +271,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   : const Icon(Icons.picture_as_pdf, color: Colors.white),
               label: Text(
                 _isGeneratingPdf ? 'Generating PDF Scorecard...' : 'Download Official PDF Scorecard & Review',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E3A8A),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 2,
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.vLg,
 
             // Question & Answer List (No explanations shown)
             Text(
@@ -315,20 +351,23 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                isCorrect
-                                    ? 'Correct (+2)'
-                                    : (isSkipped ? 'Skipped (0)' : 'Wrong (-0.66)'),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isCorrect
-                                      ? Colors.green
-                                      : (isSkipped ? Colors.grey : Colors.red),
+                              AppSpacing.hSm,
+                              Expanded(
+                                child: Text(
+                                  isCorrect
+                                      ? 'Correct (+2)'
+                                      : (isSkipped ? 'Skipped (0)' : 'Wrong (-0.66)'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isCorrect
+                                        ? Colors.green
+                                        : (isSkipped ? Colors.grey : Colors.red),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const Spacer(),
                               if (q.isPyq || q.pyqYear != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -348,33 +387,96 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 10),
+                          AppSpacing.vSm,
                           Text(
                             q.getLocalizedQuestion(_appLanguage),
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: AppTypography.localizedStyle(
+                              languageCode: _appLanguage,
+                              fontSize: 14.5,
                               fontWeight: FontWeight.w600,
+                              height: 1.45,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          AppSpacing.vMd,
                           // Display options
                           _optionBox('A', options['A'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('B', options['B'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('C', options['C'] ?? '', q.correctAnswer, userChoice),
                           _optionBox('D', options['D'] ?? '', q.correctAnswer, userChoice),
-                          const SizedBox(height: 12),
-                          // Prominent "View Solution" action button
+                          AppSpacing.vMd,
+                          // Inline Detailed Explanation Box directly on card
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF3B82F6).withOpacity(0.4)
+                                    : const Color(0xFFBFDBFE),
+                                width: 1.2,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.menu_book_rounded,
+                                      size: 16,
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF60A5FA)
+                                          : const Color(0xFF1D4ED8),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      AppStrings.get('solution_explanation', _appLanguage),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF93C5FD)
+                                            : const Color(0xFF1E3A8A),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  q.getLocalizedExplanation(_appLanguage).isNotEmpty
+                                      ? q.getLocalizedExplanation(_appLanguage)
+                                      : 'Explanation available in detailed evaluation sheet.',
+                                  style: AppTypography.localizedStyle(
+                                    languageCode: _appLanguage,
+                                    fontSize: 13,
+                                    height: 1.45,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? const Color(0xFFF1F5F9)
+                                        : const Color(0xFF1E293B),
+                                    textLength: q.getLocalizedExplanation(_appLanguage).length,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          AppSpacing.vMd,
+                          // Full-screen review modal button
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1E3A8A),
-                                foregroundColor: Colors.white,
-                                elevation: 1,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? const Color(0xFF60A5FA)
+                                      : const Color(0xFF1E3A8A),
+                                ),
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
-                              icon: const Icon(Icons.lightbulb_rounded, size: 18, color: Colors.amber),
+                              icon: const Icon(Icons.fullscreen_rounded, size: 18),
                               label: Text(
                                 AppStrings.get('review_solution', _appLanguage),
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.3),
@@ -420,7 +522,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           ],
         ),
       ),
-    ),
+      ),
+      ),
     );
   }
 
@@ -445,7 +548,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      constraints: const BoxConstraints(minHeight: 44),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bg,
@@ -453,6 +557,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         border: Border.all(color: border),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             '$optionLetter. ',
@@ -461,7 +566,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: textColor, fontSize: 13),
+              style: AppTypography.localizedStyle(
+                languageCode: _appLanguage,
+                fontSize: 13.5,
+                color: textColor,
+                height: 1.4,
+              ),
             ),
           ),
           if (isCorrectOption)
@@ -643,15 +753,20 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                             final text = opts[optKey] ?? '';
                             final isThisOfficial = optKey == q.correctAnswer;
                             final isThisUser = optKey == userChoice;
+                            final isDark = Theme.of(context).brightness == Brightness.dark;
 
-                            Color borderCol = Colors.grey.shade300;
-                            Color bgCol = Colors.white;
+                            Color borderCol = isDark ? const Color(0xFF334155) : Colors.grey.shade300;
+                            Color bgCol = isDark ? const Color(0xFF1E293B) : Colors.white;
+                            Color optTextColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A);
+
                             if (isThisOfficial) {
                               borderCol = Colors.green;
-                              bgCol = Colors.green.shade50;
+                              bgCol = isDark ? const Color(0xFF064E3B) : Colors.green.shade50;
+                              optTextColor = isDark ? const Color(0xFF6EE7B7) : Colors.green.shade900;
                             } else if (isThisUser && !isCorrect) {
                               borderCol = Colors.red;
-                              bgCol = Colors.red.shade50;
+                              bgCol = isDark ? const Color(0xFF7F1D1D) : Colors.red.shade50;
+                              optTextColor = isDark ? const Color(0xFFFCA5A5) : Colors.red.shade900;
                             }
 
                             return Container(
@@ -668,12 +783,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                   CircleAvatar(
                                     radius: 12,
                                     backgroundColor: borderCol,
-                                    foregroundColor: (isThisOfficial || (isThisUser && !isCorrect)) ? Colors.white : Colors.black87,
+                                    foregroundColor: (isThisOfficial || (isThisUser && !isCorrect)) ? Colors.white : (isDark ? Colors.white : Colors.black87),
                                     child: Text(optKey, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
-                                    child: Text(text, style: const TextStyle(fontSize: 13, height: 1.3)),
+                                    child: Text(
+                                      text, 
+                                      style: TextStyle(
+                                        fontSize: 13, 
+                                        height: 1.35, 
+                                        color: optTextColor,
+                                      ),
+                                    ),
                                   ),
                                   if (isThisOfficial)
                                     const Icon(Icons.check_circle, size: 18, color: Colors.green),
@@ -689,9 +811,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF1E293B)
+                                  : Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF334155)
+                                    : Colors.grey.shade300,
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,14 +829,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                   children: [
                                     Text(
                                       '${AppStrings.get("your_selected_option", _appLanguage)}:',
-                                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                      style: TextStyle(
+                                        fontSize: 12, 
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF94A3B8)
+                                            : Colors.black87,
+                                      ),
                                     ),
                                     Text(
                                       userChoice ?? 'Skipped',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: isCorrect ? Colors.green : (isSkipped ? Colors.grey : Colors.red),
+                                        color: isCorrect ? Colors.green : (isSkipped ? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : Colors.grey) : Colors.red),
                                       ),
                                     ),
                                   ],
@@ -719,7 +852,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                   children: [
                                     Text(
                                       '${AppStrings.get("official_correct_option", _appLanguage)}:',
-                                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                      style: TextStyle(
+                                        fontSize: 12, 
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF94A3B8)
+                                            : Colors.black87,
+                                      ),
                                     ),
                                     Text(
                                       'Option ${q.correctAnswer}',
@@ -736,23 +874,37 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFBFDBFE)),
+                              border: Border.all(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF3B82F6).withOpacity(0.4)
+                                    : const Color(0xFFBFDBFE),
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.menu_book_rounded, size: 16, color: Color(0xFF1D4ED8)),
+                                    Icon(
+                                      Icons.menu_book_rounded,
+                                      size: 16,
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF60A5FA)
+                                          : const Color(0xFF1D4ED8),
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       AppStrings.get('solution_explanation', _appLanguage),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
-                                        color: Color(0xFF1E3A8A),
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF93C5FD)
+                                            : const Color(0xFF1E3A8A),
                                       ),
                                     ),
                                   ],
@@ -760,7 +912,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                                 const SizedBox(height: 8),
                                 Text(
                                   exp.isNotEmpty ? exp : 'Explanation available in detailed evaluation sheet.',
-                                  style: const TextStyle(fontSize: 13, height: 1.45, color: Color(0xFF1E293B)),
+                                  style: AppTypography.localizedStyle(
+                                    languageCode: _appLanguage,
+                                    fontSize: 13,
+                                    height: 1.45,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? const Color(0xFFF1F5F9)
+                                        : const Color(0xFF1E293B),
+                                    textLength: exp.length,
+                                  ),
                                 ),
                               ],
                             ),

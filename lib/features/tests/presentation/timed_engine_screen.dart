@@ -1,4 +1,6 @@
 import '../../../core/localization/locale_controller.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -489,13 +491,17 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
           onPressed: _showQuestionPalette,
         ),
         title: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              _formatTimer(_secondsRemaining),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: _secondsRemaining < 120 ? Colors.redAccent : Colors.white,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                _formatTimer(_secondsRemaining),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: _secondsRemaining < 120 ? Colors.redAccent : Colors.white,
+                ),
               ),
             ),
             Text(
@@ -515,27 +521,32 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
             onPressed: _toggleImportantQuestion,
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 10, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF16A34A),
                 foregroundColor: Colors.white,
                 elevation: 2,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              icon: const Icon(Icons.check_circle, size: 16, color: Colors.white),
-              label: const Text(
-                'Submit Exam',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              icon: const Icon(Icons.check_circle, size: 14, color: Colors.white),
+              label: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Submit',
+                  maxLines: 1,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
               ),
               onPressed: _submitTest,
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: Column(
+          children: [
           // Progress Bar
           LinearProgressIndicator(
             value: progressRatio,
@@ -548,7 +559,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
           // Question Card
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: AppSpacing.screenPaddingAll,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -582,6 +593,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                               const SizedBox(width: 4),
                               Text(
                                 'PYQ ${currentQ.pyqYear ?? '2026'} Set',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -599,17 +612,21 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.blue.shade300),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.shuffle, size: 12, color: Color(0xFF1E3A8A)),
-                              SizedBox(width: 4),
-                              Text(
-                                'Questions are shuffled on every attempt',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1E3A8A),
+                              const Icon(Icons.shuffle, size: 12, color: Color(0xFF1E3A8A)),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  'Questions are shuffled on every attempt',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1E3A8A),
+                                  ),
                                 ),
                               ),
                             ],
@@ -619,6 +636,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                       Chip(
                         label: Text(
                           currentQ.subject,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 11),
                         ),
                         backgroundColor: Colors.blue.shade50,
@@ -628,6 +647,8 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                         Chip(
                           label: Text(
                             currentQ.topic,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 11),
                           ),
                           backgroundColor: Colors.amber.shade50,
@@ -671,18 +692,20 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.vMd,
 
-                  // Question Text
+                  // Question Text (wraps fully, trilingual font support, shared left edge)
                   Text(
                     'Q${_currentIndex + 1}. $questionText',
-                    style: const TextStyle(
-                      fontSize: 17,
+                    style: AppTypography.localizedStyle(
+                      languageCode: _currentLanguage,
+                      fontSize: 16.5,
                       fontWeight: FontWeight.w600,
-                      height: 1.4,
+                      height: 1.45,
+                      textLength: questionText.length,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.vXl,
 
                   // Options List
                   ...['A', 'B', 'C', 'D'].map((optKey) {
@@ -692,12 +715,13 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                     final isSelected = currentAns?.selectedOption?.toUpperCase() == optKey;
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: InkWell(
                         onTap: () => _selectOption(optKey),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding: const EdgeInsets.all(14.0),
+                          constraints: const BoxConstraints(minHeight: 52),
+                          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Theme.of(context).colorScheme.primary.withOpacity(0.18)
@@ -711,6 +735,7 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               CircleAvatar(
                                 radius: 14,
@@ -726,15 +751,17 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              AppSpacing.hMd,
                               Expanded(
                                 child: Text(
                                   optText,
-                                  style: TextStyle(
+                                  style: AppTypography.localizedStyle(
+                                    languageCode: _currentLanguage,
                                     fontSize: 15,
                                     color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight:
-                                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                    height: 1.45,
+                                    textLength: optText.length,
                                   ),
                                 ),
                               ),
@@ -749,9 +776,9 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
             ),
           ),
 
-          // Bottom Navigation Controls
+          // Bottom Navigation Controls (Respected Safe Area, Equal Height Buttons)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 10),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               boxShadow: [
@@ -763,30 +790,63 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
               ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                OutlinedButton(
-                  onPressed: _currentIndex > 0
-                      ? () => setState(() => _currentIndex--)
-                      : null,
-                  child: const Text('Previous'),
+                Expanded(
+                  child: SizedBox(
+                    height: 44,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      onPressed: _currentIndex > 0
+                          ? () => setState(() => _currentIndex--)
+                          : null,
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Previous', maxLines: 1),
+                      ),
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: currentAns?.selectedOption != null ? _clearResponse : null,
-                  child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                AppSpacing.hSm,
+                SizedBox(
+                  height: 44,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: currentAns?.selectedOption != null ? _clearResponse : null,
+                    child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: _currentIndex < _questions.length - 1
-                      ? () => setState(() => _currentIndex++)
-                      : _submitTest,
-                  child: Text(
-                    _currentIndex < _questions.length - 1 ? 'Next' : 'Submit Test',
+                AppSpacing.hSm,
+                Expanded(
+                  child: SizedBox(
+                    height: 44,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      onPressed: _currentIndex < _questions.length - 1
+                          ? () => setState(() => _currentIndex++)
+                          : _submitTest,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _currentIndex < _questions.length - 1 ? 'Next' : 'Submit Test',
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
       ),
       ),
     );
@@ -797,93 +857,105 @@ class _TimedEngineScreenState extends ConsumerState<TimedEngineScreen> with Widg
       context: context,
       isScrollControlled: true,
       builder: (ctx) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.65,
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Question Palette',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  _legendItem(Colors.green, 'Answered'),
-                  _legendItem(Colors.purple, 'Review'),
-                  _legendItem(Colors.grey.shade400, 'Unvisited'),
-                ],
-              ),
-              const Divider(height: 24),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                  ),
-                  itemCount: _questions.length,
-                  itemBuilder: (ctx, idx) {
-                    final q = _questions[idx];
-                    final ans = _answers[q.id];
-                    final isAns = ans?.selectedOption != null;
-                    final isRev = ans?.markedForReview == true;
-                    final isImp = _importantQuestionIds.contains(q.id);
-
-                    Color bg = Colors.grey.shade200;
-                    Color textCol = Colors.black87;
-
-                    if (isRev) {
-                      bg = Colors.purple;
-                      textCol = Colors.white;
-                    } else if (isAns) {
-                      bg = Colors.green;
-                      textCol = Colors.white;
-                    }
-
-                    return Stack(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            setState(() => _currentIndex = idx);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: bg,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: _currentIndex == idx
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${idx + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: textCol,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (isImp)
-                          const Positioned(
-                            top: 2,
-                            right: 2,
-                            child: Icon(Icons.star, size: 12, color: Colors.amber),
-                          ),
-                      ],
-                    );
-                  },
+        return SafeArea(
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.65,
+            padding: AppSpacing.screenPaddingAll,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Question Palette',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
+                AppSpacing.vMd,
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    _legendItem(Colors.green, 'Answered'),
+                    _legendItem(Colors.purple, 'Review'),
+                    _legendItem(Colors.grey.shade400, 'Unvisited'),
+                  ],
+                ),
+                const Divider(height: 24),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 5,
+                      mainAxisSpacing: AppSpacing.sm,
+                      crossAxisSpacing: AppSpacing.sm,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemCount: _questions.length,
+                    itemBuilder: (ctx, idx) {
+                      final q = _questions[idx];
+                      final ans = _answers[q.id];
+                      final isAns = ans?.selectedOption != null;
+                      final isRev = ans?.markedForReview == true;
+                      final isImp = _importantQuestionIds.contains(q.id);
+
+                      Color bg = Colors.grey.shade200;
+                      Color textCol = Colors.black87;
+
+                      if (isRev) {
+                        bg = Colors.purple;
+                        textCol = Colors.white;
+                      } else if (isAns) {
+                        bg = Colors.green;
+                        textCol = Colors.white;
+                      }
+
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              setState(() => _currentIndex = idx);
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: bg,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _currentIndex == idx
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(AppSpacing.xs),
+                                  child: Text(
+                                    '${idx + 1}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: textCol,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (isImp)
+                            const Positioned(
+                              top: 2,
+                              right: 2,
+                              child: Icon(Icons.star, size: 12, color: Colors.amber),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

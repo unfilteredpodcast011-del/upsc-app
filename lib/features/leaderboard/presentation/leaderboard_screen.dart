@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 
 class LeaderboardEntry {
   final String name;
@@ -214,6 +216,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       appBar: AppBar(
         title: Text(AppStrings.get('leaderboard', langCode)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded, color: Colors.amberAccent),
+            tooltip: AppStrings.get('leaderboard_rules_btn', langCode),
+            onPressed: () => _showLeaderboardRulesDialog(context, langCode),
+          ),
           DropdownButton<String>(
             dropdownColor: Theme.of(context).colorScheme.primary,
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -268,7 +275,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(12.0),
+      padding: AppSpacing.screenPaddingAll,
       itemCount: _entries.length,
       itemBuilder: (ctx, idx) {
         final entry = _entries[idx];
@@ -281,43 +288,118 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
         return Card(
           elevation: isTop3 ? 3 : 1,
+          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: isTop3 ? BorderSide(color: medalColor.withOpacity(0.6), width: 1.5) : BorderSide.none,
           ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: isTop3 ? medalColor : Colors.grey.shade200,
-              foregroundColor: isTop3 ? Colors.white : Colors.black87,
-              child: isTop3
-                  ? const Icon(Icons.emoji_events, size: 20)
-                  : Text('${entry.rank}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            title: Text(
-              entry.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              '${AppStrings.get('accuracy', langCode)}: ${entry.accuracy}% • ${entry.timeTakenSeconds ~/ 60}m ${entry.timeTakenSeconds % 60}s',
-              style: const TextStyle(fontSize: 12),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${entry.score} pts',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: isTop3 ? medalColor : Colors.grey.shade200,
+                  foregroundColor: isTop3 ? Colors.white : Colors.black87,
+                  child: isTop3
+                      ? const Icon(Icons.emoji_events, size: 20)
+                      : Text('${entry.rank}', style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
-              ),
+                AppSpacing.hMd,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        entry.name,
+                        style: AppTypography.localizedStyle(
+                          languageCode: langCode,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.bold,
+                          height: 1.35,
+                          textLength: entry.name.length,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${AppStrings.get('accuracy', langCode)}: ${entry.accuracy}% • ${entry.timeTakenSeconds ~/ 60}m ${entry.timeTakenSeconds % 60}s',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                AppSpacing.hSm,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '${entry.score} pts',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+
+  void _showLeaderboardRulesDialog(BuildContext context, String langCode) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.leaderboard_rounded, color: Colors.amber),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                AppStrings.get('leaderboard_rules_title', langCode),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.get('leaderboard_rules_desc', langCode),
+                style: const TextStyle(fontSize: 13, height: 1.5),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E3A8A),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 }

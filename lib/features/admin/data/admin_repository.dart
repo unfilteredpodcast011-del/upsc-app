@@ -77,15 +77,45 @@ class AdminRepository {
   /// Fetch dashboard metrics (questions, users, payments, attempts)
   Future<AdminStatsModel> getAdminStats() async {
     try {
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
+
       final questionsSnap = await _firestore.collection('questions').count().get();
-      final usersSnap = await _firestore.collection('users').count().get();
+      final usersSnap = await _firestore.collection('users').get();
       final paymentsSnap = await _firestore.collection('payments').where('status', isEqualTo: 'captured').get();
       final attemptsSnap = await _firestore.collection('test_sessions').count().get();
 
       double totalRevenueRs = 0.0;
+      double todayRevenueRs = 0.0;
       for (final doc in paymentsSnap.docs) {
         final amountPaise = (doc.data()['amountPaise'] as num?)?.toInt() ?? 100;
-        totalRevenueRs += amountPaise / 100.0;
+        final rev = amountPaise / 100.0;
+        totalRevenueRs += rev;
+
+        final createdAt = doc.data()['createdAt'];
+        DateTime? pDate;
+        if (createdAt is Timestamp) {
+          pDate = createdAt.toDate();
+        } else if (createdAt is String) {
+          pDate = DateTime.tryParse(createdAt);
+        }
+        if (pDate != null && pDate.isAfter(todayStart)) {
+          todayRevenueRs += rev;
+        }
+      }
+
+      int todayNewUsers = 0;
+      for (final doc in usersSnap.docs) {
+        final createdAt = doc.data()['createdAt'];
+        DateTime? uDate;
+        if (createdAt is Timestamp) {
+          uDate = createdAt.toDate();
+        } else if (createdAt is String) {
+          uDate = DateTime.tryParse(createdAt);
+        }
+        if (uDate != null && uDate.isAfter(todayStart)) {
+          todayNewUsers++;
+        }
       }
 
       // Group questions by subject
@@ -98,10 +128,12 @@ class AdminRepository {
 
       return AdminStatsModel(
         totalQuestions: questionsSnap.count ?? 0,
-        totalUsers: usersSnap.count ?? 0,
+        totalUsers: usersSnap.docs.length,
         totalPayments: paymentsSnap.docs.length,
         totalRevenueRs: totalRevenueRs,
         totalAttempts: attemptsSnap.count ?? 0,
+        todayRevenueRs: todayRevenueRs,
+        todayNewUsers: todayNewUsers,
         subjectCounts: subjectMap,
       );
     } catch (e) {

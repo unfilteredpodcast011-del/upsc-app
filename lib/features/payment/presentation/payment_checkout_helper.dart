@@ -36,10 +36,10 @@ class PaymentCheckoutHelper {
 
   Future<void> startCheckout({String paymentMode = 'UPI / Netbanking'}) async {
     final prefs = await SharedPreferences.getInstance();
-    final studentEmail = prefs.getString('student_email') ?? 'manojvip36@gmail.com';
-    final studentPhone = prefs.getString('student_phone') ?? '9894601904';
-    final studentName = prefs.getString('student_name') ?? 'M. Manoj';
-    final studentDistrict = prefs.getString('student_district') ?? 'Ranipet';
+    final studentEmail = prefs.getString('student_email') ?? '';
+    final studentPhone = prefs.getString('student_phone') ?? '';
+    final studentName = prefs.getString('student_name') ?? 'Aspirant';
+    final studentDistrict = prefs.getString('student_district') ?? '';
 
     try {
       final options = {
@@ -50,8 +50,8 @@ class PaymentCheckoutHelper {
         'timeout': 300,
         'prefill': {
           'name': studentName,
-          'contact': studentPhone.length >= 10 ? studentPhone : '9894601904',
-          'email': studentEmail.contains('@') ? studentEmail : 'manojvip36@gmail.com',
+          if (studentPhone.isNotEmpty) 'contact': studentPhone,
+          if (studentEmail.isNotEmpty) 'email': studentEmail,
         },
         'notes': {
           'student_name': studentName,
