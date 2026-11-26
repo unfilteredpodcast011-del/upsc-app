@@ -620,6 +620,7 @@
           <button type="button" onclick="addNewExamCategory()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
             <i class="fa-solid fa-plus"></i> Add Exam to App
           </button>
+          <div id="customExamCategoriesList" class="w-full flex flex-wrap gap-2 pt-2 border-t border-indigo-200/70 hidden"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2465,12 +2466,20 @@
       try {
         const { data } = await supabaseClient
           .from('payments')
-          .select('razorpay_order_id')
+          .select('id, razorpay_order_id')
           .eq('status', 'exam_category')
           .order('created_at', { ascending: true });
 
         const select = document.getElementById('pkgExam');
-        if (!select) return;
+        const listEl = document.getElementById('customExamCategoriesList');
+        if (select) {
+          select.innerHTML = '<option value="UPSC">UPSC Civil Services (CSE)</option><option value="TNPSC">TNPSC Combined Services</option>';
+        }
+        if (listEl) {
+          listEl.innerHTML = '';
+          listEl.classList.add('hidden');
+        }
+
         const existing = new Set(['UPSC', 'TNPSC']);
         (data || []).forEach(row => {
           try {
@@ -2478,14 +2487,38 @@
             const code = (item.code || '').toUpperCase().trim();
             if (code && !existing.has(code)) {
               existing.add(code);
-              const opt = document.createElement('option');
-              opt.value = code;
-              opt.textContent = `${code} — ${item.title || code}`;
-              select.appendChild(opt);
+              if (select) {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = `${code} — ${item.title || code}`;
+                select.appendChild(opt);
+              }
+              if (listEl) {
+                listEl.classList.remove('hidden');
+                const chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 shadow-sm';
+                chip.innerHTML = `<span>${code} (${item.title || code})</span><button type="button" onclick="deleteExamCategory('${row.id}', '${code}')" title="Delete Category" class="text-red-500 hover:text-red-700 font-black ml-1">&times;</button>`;
+                listEl.appendChild(chip);
+              }
             }
           } catch (_) {}
         });
       } catch (_) {}
+    }
+
+    async function deleteExamCategory(id, code) {
+      if (!confirm(`Delete exam category "${code}"? It will automatically be removed from the app's Profile & Registration pages.`)) return;
+      try {
+        const { error } = await supabaseClient
+          .from('payments')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        logAudit(`DELETED Exam Category [${code}].`);
+        loadExamCategories();
+      } catch (err) {
+        alert('Failed to delete category: ' + err.message);
+      }
     }
 
     async function addNewExamCategory() {
