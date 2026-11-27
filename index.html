@@ -979,6 +979,12 @@
             <option value="blocked">Blocked</option>
             <option value="retired">Retired</option>
           </select>
+          <button onclick="exportStudentsExcel()" class="px-2.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-file-excel"></i> Excel
+          </button>
+          <button onclick="exportStudentsPDF()" class="px-2.5 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </button>
         </div>
       </div>
 
@@ -1071,6 +1077,12 @@
             <option value="1100">₹11.00</option>
             <option value="100">₹1.00</option>
           </select>
+          <button onclick="exportPaymentsExcel()" class="px-2.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-file-excel"></i> Excel
+          </button>
+          <button onclick="exportPaymentsPDF()" class="px-2.5 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </button>
           <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg">
             Real-Time Audit
           </span>
@@ -1657,6 +1669,90 @@
           </tr>
         `;
       }).join('');
+    }
+
+    function exportStudentsExcel() {
+      const list = window.allStudentsList || [];
+      if (!list.length) return alert('No student records to export.');
+      const rows = list.map(s => ({
+        'Full Name': s.full_name || 'Candidate',
+        'Email': s.email || '-',
+        'Phone': s.phone || '-',
+        'District': s.district || '-',
+        'Target Exam': s.target_exam || 'TNPSC',
+        'Degree Type': s.college_degree_type || '-',
+        'Degree Name': s.college_degree_name || '-',
+        'Education Status': s.education_status || '-',
+        'Account Status': s.account_status || 'active',
+        'Joined At': s.created_at ? new Date(s.created_at).toLocaleString() : '-'
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Students');
+      XLSX.writeFile(wb, `Test11_Students_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function exportStudentsPDF() {
+      const list = window.allStudentsList || [];
+      if (!list.length) return alert('No student records to export.');
+      const w = window.open('', '_blank');
+      const rowsHtml = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><b>${s.full_name || 'Candidate'}</b><br><small>${s.email || '-'}</small></td>
+          <td>${s.phone || '-'}</td>
+          <td>${s.district || '-'}</td>
+          <td>${s.target_exam || 'TNPSC'}</td>
+          <td>${s.college_degree_type || ''} ${s.college_degree_name || '-'}</td>
+        </tr>`).join('');
+      w.document.write(`<html><head><title>Test 11 - Students Directory</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left}th{background:#f1f5f9}</style></head><body><h2>Test 11 — Registered Students Directory (${list.length})</h2><p>Generated: ${new Date().toLocaleString()}</p><table><thead><tr><th>#</th><th>Candidate</th><th>Phone</th><th>District</th><th>Exam</th><th>Education</th></tr></thead><tbody>${rowsHtml}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
+      w.document.close();
+    }
+
+    function exportPaymentsExcel() {
+      const list = window.allPaymentsCache || [];
+      if (!list.length) return alert('No payment records to export.');
+      const lookup = window.testPackageLookup || {};
+      const rows = list.map(p => {
+        const t = p.test_id ? lookup[p.test_id] : null;
+        return {
+          'Order / Payment ID': p.razorpay_order_id || p.razorpay_payment_id || p.id,
+          'Razorpay Payment ID': p.razorpay_payment_id || '-',
+          'Candidate': (p.students && p.students.full_name) ? p.students.full_name : 'Candidate',
+          'District': (p.students && p.students.district) ? p.students.district : '-',
+          'Test Attended': t ? `${t.exam} - ${t.title}` : (p.test_id || '-'),
+          'Payment Mode': p.payment_mode || 'UPI / Netbanking',
+          'Amount (INR)': ((p.amount_paise || 100) / 100).toFixed(2),
+          'Status': (p.status || 'pending').toUpperCase(),
+          'Timestamp': p.created_at ? new Date(p.created_at).toLocaleString() : '-'
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Payments');
+      XLSX.writeFile(wb, `Test11_Payments_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function exportPaymentsPDF() {
+      const list = window.allPaymentsCache || [];
+      if (!list.length) return alert('No payment records to export.');
+      const lookup = window.testPackageLookup || {};
+      const w = window.open('', '_blank');
+      const rowsHtml = list.map((p, i) => {
+        const t = p.test_id ? lookup[p.test_id] : null;
+        return `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${p.razorpay_order_id || p.razorpay_payment_id || p.id}</td>
+          <td>${(p.students && p.students.full_name) ? p.students.full_name : 'Candidate'}</td>
+          <td>${t ? `${t.exam}: ${t.title}` : (p.test_id || '-')}</td>
+          <td>₹${((p.amount_paise || 100) / 100).toFixed(2)}</td>
+          <td>${(p.status || 'pending').toUpperCase()}</td>
+          <td>${p.created_at ? new Date(p.created_at).toLocaleString() : '-'}</td>
+        </tr>`;
+      }).join('');
+      w.document.write(`<html><head><title>Test 11 - Payment History</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left}th{background:#f1f5f9}</style></head><body><h2>Test 11 — Payment & Transaction Audit Logs (${list.length})</h2><p>Generated: ${new Date().toLocaleString()}</p><table><thead><tr><th>#</th><th>Order / Payment ID</th><th>Candidate</th><th>Test</th><th>Amount</th><th>Status</th><th>Timestamp</th></tr></thead><tbody>${rowsHtml}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
+      w.document.close();
     }
 
     function filterStudentsTable() {
